@@ -1,0 +1,58 @@
+{
+    "name": "fab2s/dt0",
+    "description": "Dt0, a DTO PHP implementation than can both secure mutability and implement convenient ways to take control over input and output in various format",
+    "type": "library",
+    "authors": [{
+        "name": "Fabrice de Stefanis"
+    }],
+    "support": {
+        "issues": "https://github.com/fab2s/Dt0/issues",
+        "source": "https://github.com/fab2s/Dt0"
+    },
+    "keywords": [
+        "Data-Transport-Object",
+        "DTO",
+        "DT0",
+        "symfony",
+        "laravel",
+        "PHP",
+        "Serializable",
+        "immutable",
+        "JSON",
+        "Data-Processing"
+    ],
+    "license": [
+        "MIT"
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "laravel/pint": "^1.10",
+        "orchestra/testbench": "^7.0|^8.0|^9.0",
+        "fab2s/math": "*"
+    },
+    "suggest": {
+        "laravel/laravel": "To use Laravel (The awesome) implementations"
+    },
+    "autoload": {
+        "psr-4": {
+            "fab2s\\Dt0\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "fab2s\\Dt0\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "rm -rf .*.cache"
+        ],
+        "post-install-cmd": [
+            "rm -rf .*.cache"
+        ],
+        "fix": "@php vendor/bin/pint --config pint.json"
+    }
+}
