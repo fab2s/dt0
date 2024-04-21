@@ -7,9 +7,13 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Caster;
+namespace fab2s\Dt0\Validator;
 
-interface CasterInterface
+use fab2s\Dt0\Attribute\Rule;
+
+interface ValidatorInterface
 {
-    public function cast(mixed $value): mixed;
+    public function validate(array $data): array;
+
+    public function addRule(string $name, Rule $rule): static;
 }

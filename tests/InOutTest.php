@@ -9,52 +9,79 @@
 
 namespace fab2s\Dt0\Tests;
 
+use DateTime;
+use DateTimeImmutable;
+use Exception;
+use fab2s\Dt0\Caster\DateTimeCaster;
+use fab2s\Dt0\Property\Properties;
 use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
-use fab2s\Dt0\Tests\Artifacts\SimpleDefaultDt0;
+use fab2s\Dt0\Tests\Artifacts\InOutDt0;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionException;
 
-class DefaultTest extends TestCase
+class InOutTest extends TestCase
 {
-    #[DataProvider('simpleDefaultProvider')]
-    public function test_simple_default_dt0(array $args)
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    #[DataProvider('inOutProvider')]
+    public function test_in_out_dt0(array $args)
     {
-        $expected = $args;
-        $dt0      = SimpleDefaultDt0::fromArray(array_filter($args));
+        $expected   = $args;
+        $args       = array_filter($args);
+        $caster     = new DateTimeCaster;
+        $properties = Properties::make(InOutDt0::class);
         foreach ($args as $key => $value) {
-            if ($value === null) {
-                $expected[$key] = 'default';
+            if ($value === 'null') {
+                $args[$key]     = null;
+                $expected[$key] = null;
+
+                continue;
+            }
+
+            if (is_string($value) || is_int($value)) {
+                $expected[$key] = $caster->cast($value);
+            }
+
+            if ($properties->get($key)?->cast?->out) {
+                $expected[$key] = $properties->get($key)->cast->out->cast($value);
             }
         }
 
-        $this->assertSame($expected, $dt0->toArray());
+        $dt0 = InOutDt0::fromArray($args);
+
+        $this->assertSame(json_encode($expected), $dt0->toJson());
+
+        $this->dt0Assertions($dt0);
     }
 
-    public static function simpleDefaultProvider(): array
+    public static function inOutProvider(): array
     {
-        return [
-            [
-                [
-                    'stringNoCast'      => 'assigned',
-                    'stringCast'        => null,
-                    'stringCastDefault' => null,
-                ],
-            ],
-            [
-                [
-                    'stringNoCast'      => 'assigned',
-                    'stringCast'        => 'assigned',
-                    'stringCastDefault' => null,
-                ],
-            ],
-            [
-                [
-                    'stringNoCast'      => 'assigned',
-                    'stringCast'        => 'assigned',
-                    'stringCastDefault' => 'assigned',
-                ],
-            ],
+        $props = [
+            'classCastedIn'          => ['null', '2042-12-31 23:59:59', new DateTime(), time()],
+            'classCastedInOut'       => ['null', '2042-12-31 23:59:59', new DateTime(), time()],
+            'castedOut'              => ['null', new DateTimeImmutable()],
+            'classCastedPromotedOut' => ['null', new DateTimeImmutable()],
+            'castedPromotedInOut'    => [null, 'null', '2042-12-31 23:59:59', new DateTime(), time()],
         ];
+
+        $cases = [];
+
+        $baseCase = [];
+        foreach ($props as $name => $values) {
+            $baseCase[$name] = $values[0];
+        }
+
+        foreach ($props as $name => $values) {
+            foreach ($values as $value) {
+                $baseCase[$name] = $value;
+                $cases[]         = [$baseCase];
+            }
+        }
+
+        return $cases;
     }
 
     /**

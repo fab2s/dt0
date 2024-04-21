@@ -1,8 +1,8 @@
 <?php
 
 /*
- * This file is part of fab2s/Dt0.
- * (c) Fabrice de Stefanis / https://github.com/fab2s/Dt0
+ * This file is part of fab2s/dt0.
+ * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
  * This source file is licensed under the MIT license which you will
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
@@ -11,7 +11,11 @@ namespace fab2s\Dt0\Property;
 
 use fab2s\Dt0\Attribute\Cast;
 use fab2s\Dt0\Attribute\Casts;
+use fab2s\Dt0\Attribute\Rule;
+use fab2s\Dt0\Attribute\Rules;
+use fab2s\Dt0\Attribute\Validate;
 use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Validator\ValidatorInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionParameter;
@@ -20,14 +24,15 @@ use ReflectionProperty;
 class Properties
 {
     /**
-     * @var array<string, Property>
-     */
-    protected array $properties = [];
-
-    /**
      * @var array <string, string>
      */
     public readonly array $constructorParameters;
+    public readonly ?ValidatorInterface $validator;
+
+    /**
+     * @var array<string, Property>
+     */
+    protected array $properties = [];
     protected array $renameFrom = [];
     protected array $renameTo   = [];
 
@@ -48,18 +53,42 @@ class Properties
         $this->constructorParameters = $constructorParameters;
 
         $reflectionProperties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
-        $classCaster          = $reflection->getAttributes(Casts::class)[0] ?? null;
-        /** @var ?Casts $classCast */
-        $classCast = $classCaster ? $classCaster->newInstance() : null;
+        $castsAttribute       = $reflection->getAttributes(Casts::class)[0] ?? null;
+        /** @var ?Casts $casts */
+        $casts = $castsAttribute?->newInstance();
+
+        $rulesAttribute = $reflection->getAttributes(Rules::class)[0] ?? null;
+        /** @var ?Rules $rules */
+        $rules = $rulesAttribute?->newInstance();
+
+        $validatorAttribute = $reflection->getAttributes(Validate::class)[0] ?? null;
+        $this->validator    = $validatorAttribute?->newInstance()->validator;
+
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
-            if ($classCast?->hasCast($name)) {
-                $this->registerProp($reflectionProperty, $classCast->getCast($name));
+            if ($casts?->hasCast($name)) {
+                $this->registerProp($reflectionProperty, $casts->getCast($name));
 
                 continue;
             }
 
             $this->registerProp($reflectionProperty);
+
+            if (! $this->validator) {
+                continue;
+            }
+
+            if ($rules?->hasRule($name)) {
+                $this->validator->addRule($name, $rules->getRule($name));
+
+                continue;
+            }
+
+            $ruleAttribute = $reflectionProperty->getAttributes(Rule::class)[0] ?? null;
+            if ($rule = $ruleAttribute?->newInstance()) {
+                /** @var Rule $rule */
+                $this->validator->addRule($name, $rule);
+            }
         }
     }
 
@@ -128,6 +157,11 @@ class Properties
     public function getRenameFrom(): array
     {
         return $this->renameFrom;
+    }
+
+    public function getToName(string $name): string
+    {
+        return $this->renameTo[$name] ?? $name;
     }
 
     public function getRenameTo(): array

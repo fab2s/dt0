@@ -1,14 +1,15 @@
 <?php
 
 /*
- * This file is part of fab2s/Dt0.
- * (c) Fabrice de Stefanis / https://github.com/fab2s/Dt0
+ * This file is part of fab2s/dt0.
+ * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
  * This source file is licensed under the MIT license which you will
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
 namespace fab2s\Dt0\Tests;
 
+use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Property\Property;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
@@ -20,7 +21,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class EnumTest extends TestCase
 {
     /**
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     #[DataProvider('enumProvider')]
     public function test_enum_dt0(
@@ -40,7 +41,7 @@ class EnumTest extends TestCase
             $toArrayExpected[$prop] = $value->value ?? $value->name;
         }
 
-        $this->assertSame($toArrayExpected, $dt0->toArray());
+        $this->assertSame($toArrayExpected, $dt0->toJsonArray());
 
         $this->dt0Assertions($dt0);
     }

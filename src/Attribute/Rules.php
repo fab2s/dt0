@@ -12,44 +12,44 @@ namespace fab2s\Dt0\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Casts
+class Rules
 {
     /**
-     * @var array<string, Cast>
+     * @var array<string, Rule>
      */
-    protected array $casters = [];
+    protected array $rules = [];
 
     public function __construct(
-        Cast ...$casters,
+        Rule ...$rules,
     ) {
-        foreach ($casters as $name => $caster) {
+        foreach ($rules as $name => $rule) {
             if (is_int($name)) {
-                if (! $caster->propName) {
+                if (! $rule->propName) {
                     continue;
                 }
 
-                $name = $caster->propName;
+                $name = $rule->propName;
             }
 
-            $this->casters[$name] = $caster;
+            $this->rules[$name] = $rule;
         }
     }
 
-    public function hasCast($name): bool
+    public function hasRule($name): bool
     {
-        return isset($this->casters[$name]);
+        return isset($this->rules[$name]);
     }
 
-    public function getCast($name): ?Cast
+    public function getRule($name): ?Rule
     {
-        return $this->casters[$name] ?? null;
+        return $this->rules[$name] ?? null;
     }
 
     /**
-     * @return Cast[]
+     * @return Rule[]
      */
-    public function getCasters(): array
+    public function getRules(): array
     {
-        return $this->casters;
+        return $this->rules;
     }
 }

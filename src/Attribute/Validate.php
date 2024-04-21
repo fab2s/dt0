@@ -7,9 +7,16 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Caster;
+namespace fab2s\Dt0\Attribute;
 
-interface CasterInterface
+use Attribute;
+use fab2s\Dt0\Validator\ValidatorInterface;
+
+#[Attribute(Attribute::TARGET_CLASS)]
+class Validate
 {
-    public function cast(mixed $value): mixed;
+    public function __construct(
+        public readonly ValidatorInterface $validator,
+    ) {
+    }
 }

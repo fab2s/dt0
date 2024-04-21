@@ -1,8 +1,8 @@
 <?php
 
 /*
- * This file is part of fab2s/Dt0.
- * (c) Fabrice de Stefanis / https://github.com/fab2s/Dt0
+ * This file is part of fab2s/dt0.
+ * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
  * This source file is licensed under the MIT license which you will
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
@@ -35,11 +35,11 @@ class Dt0Test extends TestCase
         $defaultDt0Default ??= ['stringNoCast' => 'assigned', 'stringCast' => 'assigned'];
 
         $this->assertSame([
-            'enumDt0'           => EnumDt0::tryFrom($enumDt0)->toArray(),
-            'defaultDt0Default' => DefaultDt0::tryFrom($defaultDt0Default)->toArray(),
-            'defaultDt0'        => DefaultDt0::tryFrom($defaultDt0)->toArray(),
+            'enumDt0'           => EnumDt0::tryFrom($enumDt0)->toJsonArray(),
+            'defaultDt0Default' => DefaultDt0::tryFrom($defaultDt0Default)->toJsonArray(),
+            'defaultDt0'        => DefaultDt0::tryFrom($defaultDt0)->toJsonArray(),
 
-        ], $dto->toArray());
+        ], $dto->toJsonArray());
 
         $this->dt0Assertions($dto);
     }

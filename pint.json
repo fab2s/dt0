@@ -2,7 +2,7 @@
     "preset": "laravel",
     "rules": {
         "header_comment": {
-            "header": "This file is part of fab2s/Dt0.\n(c) Fabrice de Stefanis / https://github.com/fab2s/Dt0\nThis source file is licensed under the MIT license which you will\nfind in the LICENSE file or at https://opensource.org/licenses/MIT"
+            "header": "This file is part of fab2s/dt0.\n(c) Fabrice de Stefanis / https://github.com/fab2s/dt0\nThis source file is licensed under the MIT license which you will\nfind in the LICENSE file or at https://opensource.org/licenses/MIT"
         },
         "assign_null_coalescing_to_coalesce_equal": true,
         "binary_operator_spaces": {
