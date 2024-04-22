@@ -30,9 +30,11 @@ abstract class TestCase extends BaseTestCase
     protected function dt0Assertions(Dt0 $dt0): static
     {
         $this->assertTrue($dt0->equal($dt0->clone()));
-        $this->assertEquals($dt0->toJsonArray(), $dt0::tryFrom($dt0->toArray())->toJsonArray());
+        $this->assertNull($dt0::tryFrom(null));
+        $this->assertEquals($dt0->toJsonArray(), $dt0::from($dt0->toArray())->toJsonArray());
         $this->assertEquals($dt0->toJson(), (string) $dt0);
-        $this->assertEquals($dt0->toJsonArray(), $dt0::tryFrom($dt0->toJson())->toJsonArray());
+        $this->assertEquals($dt0->toJsonArray(), $dt0::from($dt0->toJson())->toJsonArray());
+        $this->assertEquals($dt0->toJsonArray(), $dt0::from($dt0)->toJsonArray());
         $this->assertEquals($dt0->toJsonArray(), unserialize(serialize($dt0))->toJsonArray());
 
         return $this;

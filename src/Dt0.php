@@ -206,11 +206,24 @@ abstract class Dt0 implements JsonSerializable, Stringable
     public static function tryFrom(mixed $input): ?static
     {
         return match (true) {
+            $input instanceof static => $input,
             is_string($input)        => static::fromString($input),
             is_array($input)         => static::fromArray($input),
-            $input instanceof static => $input,
             default                  => null,
         };
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws JsonException
+     */
+    public static function from(mixed $input): ?static
+    {
+        return static::tryFrom($input) ?: throw (new Dt0Exception('Failed to initialize ' . static::class))
+            ->setContext([
+                'input' => $input,
+            ])
+        ;
     }
 
     /**

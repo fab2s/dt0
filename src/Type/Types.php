@@ -9,6 +9,7 @@
 
 namespace fab2s\Dt0\Type;
 
+use BackedEnum;
 use fab2s\Dt0\Dt0;
 use LogicException;
 use ReflectionIntersectionType;
@@ -30,8 +31,16 @@ class Types
     public readonly bool $isNullable;
     public readonly bool $isUnion;
     public readonly bool $isIntersection;
+
+    /**
+     * @var array<class-string<UnitEnum|BackedEnum>>
+     */
     protected array $enumFqns = [];
-    protected array $dt0Fqns  = [];
+
+    /**
+     * @var array<class-string<Dt0>>
+     */
+    protected array $dt0Fqns = [];
 
     public function __construct(public readonly ReflectionProperty $property)
     {
@@ -140,11 +149,17 @@ class Types
         return $this->types;
     }
 
+    /**
+     * @return array<class-string<UnitEnum|BackedEnum>>
+     */
     public function getEnumFqns(): array
     {
         return $this->enumFqns;
     }
 
+    /**
+     * @return array<class-string<Dt0>>
+     */
     public function getDt0Fqns(): array
     {
         return $this->dt0Fqns;
