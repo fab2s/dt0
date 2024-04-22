@@ -37,7 +37,9 @@
         "fab2s/math": "*"
     },
     "suggest": {
-        "fab2s/laravel-dt0": "*"
+        "fab2s/laravel-dt0": "To use Dt0 in Laravel (the awesome) with full validation and attribute casting",
+        "fab2s/Math": "To cast any Dt0 property in abitrary base ten decimals",
+        "nesbot/carbon": "To use CarbonCaster and handle both Carbon and CarbonImmutable casts"
     },
     "autoload": {
         "psr-4": {

@@ -153,6 +153,53 @@ $dt0->toJsonArray();
 
 ````
 
+`Dt0`'s can have a constructor with promoted props given they call their parent
+
+`````php
+
+class ConstructedDt0 extends Dt0
+{
+    // un-casted
+    public readonly string $stringNoCast;
+
+    #[Cast(/*...*/)]
+    public readonly ?string $stringCasted;
+
+    public function __construct(
+        public readonly string $promotedPropNoCast,
+        #[Cast(/*...*/)]
+        public readonly string $promotedPropCasted = 'default',
+        // all constructor parameters, promoted on not, can be casted
+        #[Cast(/*...*/)]
+        ?string $myCustomVar = null,
+        // Mandatory, the remaining $args will be used to further
+        // initialize other public properties in this class
+        ...$args,
+    ) {
+        // where the magic happens
+        parent::__construct(...$args);
+    }
+}
+
+// now you can
+$dt0 = new ConstructedDt0(
+    promotedPropNoCast: 'The order',
+    promotedPropCasted: 'matters',
+    myCustomVar: 'for constructor parameters',
+    stringCasted: 'but not',
+    stringNoCast: 'for regular props',
+);
+
+// ::make, ::fromArray, ::fromString, ::from ... don't care about argument orders
+$dt0 = ConstructedDt0::make(
+    stringCasted: 'The Order',
+    stringNoCast: 'never',
+    promotedPropNoCast: 'matter',
+    promotedPropCasted: 'outside',
+    myCustomVar: 'of the constructor',
+);
+`````
+
 ## Requirements
 
 `Dt0` is tested against php 8.1 and 8.2

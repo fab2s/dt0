@@ -19,6 +19,7 @@ class Dt0Caster implements CasterInterface
      * @throws Dt0Exception
      */
     public function __construct(
+        /** @var class-string<Dt0> */
         public readonly string $dt0Fqn,
     ) {
         if (! is_subclass_of($dt0Fqn, Dt0::class)) {
@@ -28,6 +29,7 @@ class Dt0Caster implements CasterInterface
 
     /**
      * @throws JsonException
+     * @throws Dt0Exception
      */
     public function cast(mixed $value): ?Dt0
     {

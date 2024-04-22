@@ -29,8 +29,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: 8.1-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: 8.1-composer-
 
       - name: Remove composer.lock
         run: rm -f composer.lock
