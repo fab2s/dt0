@@ -11,13 +11,13 @@ namespace fab2s\Dt0\Caster;
 
 enum ScalarType: string
 {
-    case boolean  = 'boolean';
-    case bool     = 'bool';
-    case integer  = 'integer';
-    case int      = 'int';
-    case float    = 'float';
-    case double   = 'double';
-    case string   = 'string';
-    case null     = 'null';
-    case resource = 'resource';
+    case boolean = 'boolean';
+    case bool    = 'bool';
+    case integer = 'integer';
+    case int     = 'int';
+    case float   = 'float';
+    case double  = 'double';
+    case string  = 'string';
+    // let's pretend null is not multidimensional ^^
+    case null = 'null';
 }

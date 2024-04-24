@@ -14,7 +14,7 @@ use fab2s\Dt0\Exception\CasterException;
 
 class ScalarTypeCaster implements CasterInterface
 {
-    public readonly ?ScalarType $type;
+    public readonly ScalarType $type;
 
     public function __construct(
         ScalarType|string $type,
@@ -34,13 +34,11 @@ class ScalarTypeCaster implements CasterInterface
      */
     public function cast(mixed $value): mixed
     {
-        if (! is_scalar($value)) {
+        // let's pretend null is not multidimensional ^^
+        if ($value !== null && ! is_scalar($value)) {
             return null;
         }
 
-        return match ($this->type) {
-            ScalarType::resource => is_resource($value) ? $value : null,
-            default              => settype($value, $this->type?->value) ? $value : null,
-        };
+        return settype($value, $this->type->value) ? $value : null;
     }
 }
