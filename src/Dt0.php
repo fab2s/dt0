@@ -36,6 +36,12 @@ abstract class Dt0 implements JsonSerializable, Stringable
             if (! $property->property->isInitialized($this)) {
                 if (static::initializeValue($property, $args, $value)) {
                     $property->property->setValue($this, $value);
+                } else {
+                    throw (new Dt0Exception("Missing required property $name in " . static::class))
+                        ->setContext([
+                            'input' => $args,
+                        ])
+                    ;
                 }
             }
         }

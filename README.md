@@ -22,7 +22,7 @@ Once done, you can start playing :
 use fab2s\Dt0\Dt0;
 
 // works if all public props have defaults
-$dt0 = new SomeDt0();
+$dt0 = new SomeDt0;
 
 // set at least props without default
 $dt0 = new SomeDt0(readOnlyProp: $someValue /*, ... */); // <= argument order does not matter
