@@ -44,12 +44,4 @@ class Casts
     {
         return $this->casters[$name] ?? null;
     }
-
-    /**
-     * @return Cast[]
-     */
-    public function getCasters(): array
-    {
-        return $this->casters;
-    }
 }

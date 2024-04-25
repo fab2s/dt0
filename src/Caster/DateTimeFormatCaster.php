@@ -16,6 +16,7 @@ use Exception;
 class DateTimeFormatCaster implements CasterInterface
 {
     use DateTimeTrait;
+    public const ISO = 'Y-m-d\TH:i:s.u\Z';
 
     /**
      * @throws Exception
