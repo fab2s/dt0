@@ -19,14 +19,4 @@ class Rule
         public readonly ?string $propName = null,
     ) {
     }
-
-    public static function make(
-        mixed $rule,
-        ?string $propName = null,
-    ): static {
-        return new static(
-            rule: $rule,
-            propName: $propName,
-        );
-    }
 }

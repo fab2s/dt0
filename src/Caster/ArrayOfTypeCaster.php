@@ -27,8 +27,8 @@ class ArrayOfTypeCaster implements CasterInterface
     ) {
         if (is_string($type)) {
             $logicalType = match (true) {
-                is_subclass_of(Dt0::class, $type)      => ArrayType::DT0,
-                is_subclass_of(UnitEnum::class, $type) => ArrayType::ENUM,
+                is_subclass_of($type, Dt0::class)      => ArrayType::DT0,
+                is_subclass_of($type, UnitEnum::class) => ArrayType::ENUM,
                 default                                => ScalarType::tryFrom($type),
             };
         } else {
@@ -56,7 +56,7 @@ class ArrayOfTypeCaster implements CasterInterface
         $result = [];
         foreach ($value as $item) {
             $result[] = match ($this->logicalType) {
-                ArrayType::DT0  => $this->type->tryFrom($item),
+                ArrayType::DT0  => $this->type::tryFrom($item),
                 ArrayType::ENUM => Property::tryEnum($this->type, $item),
                 default         => $this->scalarTypeCaster->cast($item),
             };

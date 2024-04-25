@@ -32,22 +32,4 @@ class Cast
         $this->out        = $out instanceof CasterInterface ? $out : ($out ? new $out : null);
         $this->hasDefault = $this->default !== Dt0::DT0_NIL;
     }
-
-    public static function make(
-        CasterInterface|string|null $in = null,
-        CasterInterface|string|null $out = null,
-        mixed $default = Dt0::DT0_NIL,
-        string|array|null $renameFrom = null,
-        ?string $renameTo = null,
-        ?string $propName = null,
-    ): static {
-        return new static(
-            in: $in,
-            out: $out,
-            default: $default,
-            renameFrom: $renameFrom,
-            renameTo: $renameTo,
-            propName: $propName,
-        );
-    }
 }

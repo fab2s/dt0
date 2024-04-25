@@ -11,7 +11,6 @@ namespace fab2s\Dt0\Caster;
 
 use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 
@@ -33,7 +32,7 @@ class DateTimeCaster implements CasterInterface
     /**
      * @throws Exception
      */
-    public function cast(mixed $value): ?DateTimeInterface
+    public function cast(mixed $value): DateTime|DateTimeImmutable|null
     {
         return $this->resolve($value);
     }

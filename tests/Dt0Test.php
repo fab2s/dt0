@@ -9,18 +9,21 @@
 
 namespace fab2s\Dt0\Tests;
 
+use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
 use fab2s\Dt0\Tests\Artifacts\Dt0Dt0;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
 use fab2s\Dt0\Tests\Artifacts\EnumDt0;
+use fab2s\Dt0\Tests\Artifacts\SimpleDefaultDt0;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class Dt0Test extends TestCase
 {
     /**
+     * @throws Dt0Exception
      * @throws JsonException
      */
     #[DataProvider('dt0Provider')]
@@ -42,6 +45,21 @@ class Dt0Test extends TestCase
         ], $dto->toJsonArray());
 
         $this->dt0Assertions($dto);
+    }
+
+    public function test_exception(): void
+    {
+        $this->expectException(Dt0Exception::class);
+        new SimpleDefaultDt0;
+    }
+
+    public function test_update(): void
+    {
+        $dto     = DefaultDt0::make(stringNoCast: 'original', stringCast: 'someString');
+        $updated = $dto->update(stringNoCast: 'updated');
+
+        $this->assertSame('original', $dto->stringNoCast);
+        $this->assertSame('updated', $updated->stringNoCast);
     }
 
     public static function dt0Provider(): array

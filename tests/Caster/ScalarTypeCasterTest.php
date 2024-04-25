@@ -17,6 +17,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class ScalarTypeCasterTest extends TestCase
 {
+    /**
+     * @throws CasterException
+     */
     #[DataProvider('castProvider')]
     public function test_cast($type, $value, $expected): void
     {

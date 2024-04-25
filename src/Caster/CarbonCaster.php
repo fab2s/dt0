@@ -11,7 +11,6 @@ namespace fab2s\Dt0\Caster;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 
@@ -33,7 +32,7 @@ class CarbonCaster implements CasterInterface
     /**
      * @throws Exception
      */
-    public function cast(mixed $value): ?DateTimeInterface
+    public function cast(mixed $value): Carbon|CarbonImmutable|null
     {
         return $this->resolve($value);
     }
