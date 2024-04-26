@@ -11,15 +11,13 @@ namespace fab2s\Dt0\Caster;
 
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
-use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Property\Property;
-use JsonException;
 use UnitEnum;
 
 class ArrayOfTypeCaster implements CasterInterface
 {
     public readonly ArrayType|ScalarType|string $logicalType;
-    private ?ScalarTypeCaster $scalarTypeCaster;
+    protected ?ScalarTypeCaster $scalarTypeCaster;
 
     public function __construct(
         /** @var class-string<Dt0|UnitEnum>|ScalarType|string */
@@ -43,10 +41,6 @@ class ArrayOfTypeCaster implements CasterInterface
         $this->scalarTypeCaster = $this->logicalType instanceof ScalarType ? new ScalarTypeCaster($this->logicalType) : null;
     }
 
-    /**
-     * @throws Dt0Exception
-     * @throws JsonException
-     */
     public function cast(mixed $value): ?array
     {
         if (! is_array($value)) {

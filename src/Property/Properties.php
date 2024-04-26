@@ -62,7 +62,10 @@ class Properties
         $rules = $rulesAttribute?->newInstance();
 
         $validatorAttribute = $reflection->getAttributes(Validate::class)[0] ?? null;
-        $this->validator    = $validatorAttribute?->newInstance()->validator;
+        /** @var Validate $validatorInstance */
+        $validatorInstance = $validatorAttribute?->newInstance();
+        $validatorRules    = $validatorInstance?->rules;
+        $this->validator   = $validatorInstance?->validator;
 
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
@@ -75,6 +78,12 @@ class Properties
             $this->registerProp($reflectionProperty);
 
             if (! $this->validator) {
+                continue;
+            }
+
+            if ($validatorRules?->hasRule($name)) {
+                $this->validator->addRule($name, $validatorRules->getRule($name));
+
                 continue;
             }
 

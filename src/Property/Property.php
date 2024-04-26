@@ -119,7 +119,6 @@ class Property
 
     /**
      * @param class-string<UnitEnum|BackedEnum>|null $enumFqn
-     * @param string|int|null                        $value
      */
     public static function tryEnum(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
     {
