@@ -134,16 +134,6 @@ class Properties
         return $this;
     }
 
-    public function push(Property|array ...$properties): static
-    {
-        foreach ($properties as $property) {
-            $property                          = $property instanceof Property ? $property : Property::make(...$property);
-            $this->properties[$property->name] = $property;
-        }
-
-        return $this;
-    }
-
     public function get(string $name): ?Property
     {
         return $this->properties[$name] ?? null;
@@ -162,10 +152,5 @@ class Properties
     public function getToName(string $name): string
     {
         return $this->renameTo[$name] ?? $name;
-    }
-
-    public function getRenameTo(): array
-    {
-        return $this->renameTo;
     }
 }

@@ -146,6 +146,11 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 $value instanceof UnitEnum         => $value->value ?? $value->name,
                 default                            => $value,
             };
+
+            if ($key !== $name) {
+                unset($result[$name]);
+            }
+
         }
 
         return $this->dt0Output[Format::JSON_SERIALISED->value] = $result;
@@ -297,5 +302,10 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass),
             ),
         );
+    }
+
+    public function getDt0Properties(): Properties
+    {
+        return $this->dt0Properties;
     }
 }

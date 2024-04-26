@@ -123,7 +123,10 @@ class Property
      */
     public static function tryEnum(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
     {
-        if (! $enumFqn) {
+        if (
+            $enumFqn  === null
+            || $value === null
+        ) {
             return null;
         }
 
