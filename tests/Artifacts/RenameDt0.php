@@ -14,7 +14,7 @@ use fab2s\Dt0\Dt0;
 
 class RenameDt0 extends Dt0
 {
-    #[Cast(renameFrom: 'input')]
+    #[Cast(renameFrom: ['input', 'anotherInput'])]
     public readonly string $renamedFrom;
 
     #[Cast(renameTo: 'output')]

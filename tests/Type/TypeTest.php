@@ -23,7 +23,9 @@ class TypeTest extends TestCase
         $properties    = $dto->getDt0Properties();
         $unionTypeProp = $properties->get('unionType');
         $this->assertFalse($unionTypeProp->hasDefault());
+
         $unionTypePropTypes = $unionTypeProp->types;
+        $this->assertCount(2, $unionTypePropTypes->toArray());
         $this->assertTrue($unionTypePropTypes->isUnion);
         $this->assertTrue($unionTypePropTypes->isReadOnly);
         $this->assertFalse($unionTypePropTypes->isNullable);
@@ -48,6 +50,7 @@ class TypeTest extends TestCase
         $this->assertFalse($unionTypeNullableProp->hasDefault());
 
         $unionTypePropNullableTypes = $unionTypeNullableProp->types;
+        $this->assertCount(2, $unionTypePropTypes->toArray());
         $this->assertTrue($unionTypePropNullableTypes->isUnion);
         $this->assertTrue($unionTypePropNullableTypes->isReadOnly);
         $this->assertTrue($unionTypePropNullableTypes->isNullable);
@@ -64,6 +67,8 @@ class TypeTest extends TestCase
         $this->assertTrue($unTypedProp->hasDefault());
 
         $unTypedPropTypes = $unTypedProp->types;
+        $this->assertCount(1, $unTypedPropTypes->toArray());
+
         $this->assertFalse($unTypedPropTypes->isUnion);
         $this->assertFalse($unTypedPropTypes->isReadOnly);
         $this->assertTrue($unTypedPropTypes->isNullable);

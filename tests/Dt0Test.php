@@ -65,25 +65,30 @@ class Dt0Test extends TestCase
 
     public function test_rename(): void
     {
-        $dto = RenameDt0::make(input: 'value1', renamedTo: 'value2', inputCombo: 'value3');
+        $dtos = [
+            RenameDt0::make(input: 'value1', renamedTo: 'value2', inputCombo: 'value3'),
+            RenameDt0::make(anotherInput: 'value1', renamedTo: 'value2', inputCombo: 'value3'),
+        ];
 
-        $this->assertSame('value1', $dto->renamedFrom);
-        $this->assertSame('value2', $dto->renamedTo);
-        $this->assertSame('value3', $dto->combo);
+        foreach ($dtos as $dto) {
+            $this->assertSame('value1', $dto->renamedFrom);
+            $this->assertSame('value2', $dto->renamedTo);
+            $this->assertSame('value3', $dto->combo);
 
-        $this->assertSame([
-            'renamedFrom' => 'value1',
-            'renamedTo'   => 'value2',
-            'combo'       => 'value3',
-        ], $dto->toArray());
+            $this->assertSame([
+                'renamedFrom' => 'value1',
+                'renamedTo'   => 'value2',
+                'combo'       => 'value3',
+            ], $dto->toArray());
 
-        $this->assertSame([
-            'renamedFrom' => 'value1',
-            'output'      => 'value2',
-            'outputCombo' => 'value3',
-        ], $dto->toJsonArray());
+            $this->assertSame([
+                'renamedFrom' => 'value1',
+                'output'      => 'value2',
+                'outputCombo' => 'value3',
+            ], $dto->toJsonArray());
 
-        $this->dt0Assertions($dto);
+            $this->dt0Assertions($dto);
+        }
     }
 
     public static function dt0Provider(): array
