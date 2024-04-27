@@ -14,27 +14,19 @@ use InvalidArgumentException;
 
 class MathCaster implements CasterInterface
 {
-    public readonly ?Math $number;
     public readonly int $precision;
 
     public function __construct(
         int $precision = Math::PRECISION,
-        public readonly bool $nullable = false,
     ) {
         $this->precision = max(0, $precision);
     }
 
-    public function cast(mixed $value): ?Math
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function cast(mixed $value): Math
     {
-        if ($this->nullable && $value === null) {
-            return null;
-        }
-
-        $isNumber = Math::isNumber($value);
-        if (! $this->nullable && ! $isNumber) {
-            throw new InvalidArgumentException('Value is not a number');
-        }
-
-        return $isNumber ? Math::number($value) : null;
+        return Math::number($value)->setPrecision($this->precision);
     }
 }

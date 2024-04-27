@@ -7,16 +7,8 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Attribute;
+namespace fab2s\Dt0\Exception;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_PROPERTY)]
-class Rule
+class CasterException extends Dt0Exception
 {
-    public function __construct(
-        public readonly mixed $rule,
-        public readonly ?string $propName = null,
-    ) {
-    }
 }

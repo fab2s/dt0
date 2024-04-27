@@ -9,10 +9,8 @@
 
 namespace fab2s\Dt0\Caster;
 
-class NoOpCaster implements CasterInterface
+enum ArrayType: string
 {
-    public function cast(mixed $value): mixed
-    {
-        return $value;
-    }
+    case ENUM = 'enum';
+    case DT0  = 'dt0';
 }

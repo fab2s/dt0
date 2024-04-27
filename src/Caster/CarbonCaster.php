@@ -9,12 +9,12 @@
 
 namespace fab2s\Dt0\Caster;
 
-use DateTime;
-use DateTimeImmutable;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use DateTimeZone;
 use Exception;
 
-class DateTimeCaster implements CasterInterface
+class CarbonCaster implements CasterInterface
 {
     use DateTimeTrait;
 
@@ -26,13 +26,13 @@ class DateTimeCaster implements CasterInterface
         public readonly bool $immutable = true,
     ) {
         $this->timeZone      = $timeZone instanceof DateTimeZone ? $timeZone : ($timeZone ? new DateTimeZone($timeZone) : null);
-        $this->dateTimeClass = $immutable ? DateTimeImmutable::class : DateTime::class;
+        $this->dateTimeClass = $immutable ? CarbonImmutable::class : Carbon::class;
     }
 
     /**
      * @throws Exception
      */
-    public function cast(mixed $value): DateTime|DateTimeImmutable|null
+    public function cast(mixed $value): Carbon|CarbonImmutable|null
     {
         return $this->resolve($value);
     }

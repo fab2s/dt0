@@ -26,7 +26,8 @@ class Dt0Exception extends ContextException
                     '',
                     Dt0::classBasename(static::class),
                 ),
-                '] ',
+                ']',
+                str_starts_with($message, '[') ? '' : ' ',
                 $message,
             ],
         );

@@ -117,10 +117,20 @@ class Property
         return $value;
     }
 
-    public static function tryEnum(?string $enumFqn, string|int|null $value): UnitEnum|BackedEnum|null
+    /**
+     * @param class-string<UnitEnum|BackedEnum>|null $enumFqn
+     */
+    public static function tryEnum(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
     {
-        if (! $enumFqn) {
+        if (
+            $enumFqn  === null
+            || $value === null
+        ) {
             return null;
+        }
+
+        if (is_object($value)) {
+            return $value instanceof $enumFqn ? $value : null;
         }
 
         if (is_subclass_of($enumFqn, BackedEnum::class)) {
@@ -130,6 +140,9 @@ class Property
         return static::tryEnumFromName($enumFqn, $value);
     }
 
+    /**
+     * @param class-string<UnitEnum|BackedEnum> $enumFqn
+     */
     public static function tryEnumFromName(string $enumFqn, ?string $name): UnitEnum|BackedEnum|null
     {
         if ($name && is_subclass_of($enumFqn, UnitEnum::class)) {

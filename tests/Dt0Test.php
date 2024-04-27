@@ -9,18 +9,22 @@
 
 namespace fab2s\Dt0\Tests;
 
+use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
 use fab2s\Dt0\Tests\Artifacts\Dt0Dt0;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
 use fab2s\Dt0\Tests\Artifacts\EnumDt0;
+use fab2s\Dt0\Tests\Artifacts\RenameDt0;
+use fab2s\Dt0\Tests\Artifacts\SimpleDefaultDt0;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class Dt0Test extends TestCase
 {
     /**
+     * @throws Dt0Exception
      * @throws JsonException
      */
     #[DataProvider('dt0Provider')]
@@ -42,6 +46,49 @@ class Dt0Test extends TestCase
         ], $dto->toJsonArray());
 
         $this->dt0Assertions($dto);
+    }
+
+    public function test_exception(): void
+    {
+        $this->expectException(Dt0Exception::class);
+        new SimpleDefaultDt0;
+    }
+
+    public function test_update(): void
+    {
+        $dto     = DefaultDt0::make(stringNoCast: 'original', stringCast: 'someString');
+        $updated = $dto->update(stringNoCast: 'updated');
+
+        $this->assertSame('original', $dto->stringNoCast);
+        $this->assertSame('updated', $updated->stringNoCast);
+    }
+
+    public function test_rename(): void
+    {
+        $dtos = [
+            RenameDt0::make(input: 'value1', renamedTo: 'value2', inputCombo: 'value3'),
+            RenameDt0::make(anotherInput: 'value1', renamedTo: 'value2', inputCombo: 'value3'),
+        ];
+
+        foreach ($dtos as $dto) {
+            $this->assertSame('value1', $dto->renamedFrom);
+            $this->assertSame('value2', $dto->renamedTo);
+            $this->assertSame('value3', $dto->combo);
+
+            $this->assertSame([
+                'renamedFrom' => 'value1',
+                'renamedTo'   => 'value2',
+                'combo'       => 'value3',
+            ], $dto->toArray());
+
+            $this->assertSame([
+                'renamedFrom' => 'value1',
+                'output'      => 'value2',
+                'outputCombo' => 'value3',
+            ], $dto->toJsonArray());
+
+            $this->dt0Assertions($dto);
+        }
     }
 
     public static function dt0Provider(): array

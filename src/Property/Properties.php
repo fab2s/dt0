@@ -62,7 +62,10 @@ class Properties
         $rules = $rulesAttribute?->newInstance();
 
         $validatorAttribute = $reflection->getAttributes(Validate::class)[0] ?? null;
-        $this->validator    = $validatorAttribute?->newInstance()->validator;
+        /** @var Validate $validatorInstance */
+        $validatorInstance = $validatorAttribute?->newInstance();
+        $validatorRules    = $validatorInstance?->rules;
+        $this->validator   = $validatorInstance?->validator;
 
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
@@ -75,6 +78,12 @@ class Properties
             $this->registerProp($reflectionProperty);
 
             if (! $this->validator) {
+                continue;
+            }
+
+            if ($validatorRules?->hasRule($name)) {
+                $this->validator->addRule($name, $validatorRules->getRule($name));
+
                 continue;
             }
 
@@ -134,16 +143,6 @@ class Properties
         return $this;
     }
 
-    public function push(Property|array ...$properties): static
-    {
-        foreach ($properties as $property) {
-            $property                          = $property instanceof Property ? $property : Property::make(...$property);
-            $this->properties[$property->name] = $property;
-        }
-
-        return $this;
-    }
-
     public function get(string $name): ?Property
     {
         return $this->properties[$name] ?? null;
@@ -162,10 +161,5 @@ class Properties
     public function getToName(string $name): string
     {
         return $this->renameTo[$name] ?? $name;
-    }
-
-    public function getRenameTo(): array
-    {
-        return $this->renameTo;
     }
 }

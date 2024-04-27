@@ -44,12 +44,4 @@ class Rules
     {
         return $this->rules[$name] ?? null;
     }
-
-    /**
-     * @return Rule[]
-     */
-    public function getRules(): array
-    {
-        return $this->rules;
-    }
 }

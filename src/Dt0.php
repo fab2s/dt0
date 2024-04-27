@@ -15,6 +15,7 @@ use fab2s\Dt0\Property\Property;
 use JsonException;
 use JsonSerializable;
 use Stringable;
+use Throwable;
 use UnitEnum;
 
 abstract class Dt0 implements JsonSerializable, Stringable
@@ -25,8 +26,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     protected static array $dt0Cache = [];
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public function __construct(mixed ...$args)
     {
@@ -36,14 +36,19 @@ abstract class Dt0 implements JsonSerializable, Stringable
             if (! $property->property->isInitialized($this)) {
                 if (static::initializeValue($property, $args, $value)) {
                     $property->property->setValue($this, $value);
+                } else {
+                    throw (new Dt0Exception("Missing required property $name in " . static::class))
+                        ->setContext([
+                            'input' => $args,
+                        ])
+                    ;
                 }
             }
         }
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public static function make(mixed ...$args): static
     {
@@ -67,8 +72,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public static function withValidation(mixed ...$args): static
     {
@@ -82,8 +86,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public function clone(): static
     {
@@ -91,8 +94,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public function update(mixed ...$update): static
     {
@@ -140,6 +142,11 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 $value instanceof UnitEnum         => $value->value ?? $value->name,
                 default                            => $value,
             };
+
+            if ($key !== $name) {
+                unset($result[$name]);
+            }
+
         }
 
         return $this->dt0Output[Format::JSON_SERIALISED->value] = $result;
@@ -175,8 +182,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws JsonException|Dt0Exception
      */
     public static function fromArray(array $input): static
     {
@@ -199,23 +205,33 @@ abstract class Dt0 implements JsonSerializable, Stringable
         return static::fromJson($string);
     }
 
-    /**
-     * @throws JsonException
-     * @throws Dt0Exception
-     */
     public static function tryFrom(mixed $input): ?static
     {
+        try {
+            return static::from($input);
+        } catch (Throwable $t) {
+            return null;
+        }
+    }
+
+    /**
+     * @throws JsonException|Dt0Exception
+     */
+    public static function from(mixed $input): ?static
+    {
         return match (true) {
+            $input instanceof static => $input,
             is_string($input)        => static::fromString($input),
             is_array($input)         => static::fromArray($input),
-            $input instanceof static => $input,
-            default                  => null,
+            default                  => throw (new Dt0Exception('Failed to initialize ' . static::class))
+                ->setContext([
+                    'input' => $input,
+                ]),
         };
     }
 
     /**
-     * @throws JsonException
-     * @throws Dt0Exception
+     * @throws JsonException|Dt0Exception
      */
     protected static function initializeValue(Property $property, array $input, mixed &$value = null): bool
     {
@@ -269,7 +285,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
         $this->dt0Properties = static::compile();
     }
 
-    public static function classBasename(object|string $objectOrClass)
+    public static function classBasename(object|string $objectOrClass): string
     {
         return basename(
             str_replace(
@@ -278,5 +294,10 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass),
             ),
         );
+    }
+
+    public function getDt0Properties(): Properties
+    {
+        return $this->dt0Properties;
     }
 }

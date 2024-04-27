@@ -28,16 +28,19 @@
     ],
     "require": {
         "php": "^8.1",
-        "fab2s/context-exception": "^3.0"
+        "fab2s/context-exception": "^2.0|^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
         "laravel/pint": "^1.10",
         "orchestra/testbench": "^8.0|^9.0",
-        "fab2s/math": "*"
+        "nesbot/carbon": "^2.62|^3.3",
+        "fab2s/math": "^2.0"
     },
     "suggest": {
-        "fab2s/laravel-dt0": "*"
+        "fab2s/laravel-dt0": "To use Dt0 in Laravel (the awesome) with full validation and attribute casting",
+        "fab2s/Math": "v2.x To cast any Dt0 property in abitrary base ten decimals",
+        "nesbot/carbon": "To use CarbonCaster and handle both Carbon and CarbonImmutable casts"
     },
     "autoload": {
         "psr-4": {

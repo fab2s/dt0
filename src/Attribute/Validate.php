@@ -15,8 +15,13 @@ use fab2s\Dt0\Validator\ValidatorInterface;
 #[Attribute(Attribute::TARGET_CLASS)]
 class Validate
 {
+    public readonly ValidatorInterface $validator;
+
     public function __construct(
-        public readonly ValidatorInterface $validator,
+        /** @var ValidatorInterface|class-string<ValidatorInterface> $validator */
+        ValidatorInterface|string $validator,
+        public readonly ?Rules $rules = null,
     ) {
+        $this->validator = $validator instanceof ValidatorInterface ? $validator : new $validator;
     }
 }
