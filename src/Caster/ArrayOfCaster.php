@@ -17,7 +17,7 @@ use UnitEnum;
 class ArrayOfCaster implements CasterInterface
 {
     public readonly ArrayType|ScalarType|string $logicalType;
-    protected ?ScalarTypeCaster $scalarTypeCaster;
+    protected ?ScalarCaster $scalarTypeCaster;
 
     public function __construct(
         /** @var class-string<Dt0|UnitEnum>|ScalarType|string */
@@ -38,7 +38,7 @@ class ArrayOfCaster implements CasterInterface
         }
 
         $this->logicalType      = $logicalType;
-        $this->scalarTypeCaster = $this->logicalType instanceof ScalarType ? new ScalarTypeCaster($this->logicalType) : null;
+        $this->scalarTypeCaster = $this->logicalType instanceof ScalarType ? new ScalarCaster($this->logicalType) : null;
     }
 
     public function cast(mixed $value): ?array

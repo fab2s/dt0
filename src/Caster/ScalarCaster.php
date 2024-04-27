@@ -12,7 +12,7 @@ namespace fab2s\Dt0\Caster;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 
-class ScalarTypeCaster implements CasterInterface
+class ScalarCaster implements CasterInterface
 {
     public readonly ScalarType $type;
 

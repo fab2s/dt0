@@ -9,13 +9,13 @@
 
 namespace fab2s\Dt0\Tests\Caster;
 
+use fab2s\Dt0\Caster\ScalarCaster;
 use fab2s\Dt0\Caster\ScalarType;
-use fab2s\Dt0\Caster\ScalarTypeCaster;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class ScalarTypeCasterTest extends TestCase
+class ScalarCasterTest extends TestCase
 {
     /**
      * @throws CasterException
@@ -23,7 +23,7 @@ class ScalarTypeCasterTest extends TestCase
     #[DataProvider('castProvider')]
     public function test_cast($type, $value, $expected): void
     {
-        $caster = new ScalarTypeCaster($type);
+        $caster = new ScalarCaster($type);
 
         $this->assertSame($expected, $caster->cast($value));
     }
@@ -31,7 +31,7 @@ class ScalarTypeCasterTest extends TestCase
     public function test_exception(): void
     {
         $this->expectException(CasterException::class);
-        new ScalarTypeCaster('notAScalarType');
+        new ScalarCaster('notAScalarType');
     }
 
     public static function castProvider(): array
