@@ -17,8 +17,11 @@ use UnitEnum;
 class ArrayOfCaster implements CasterInterface
 {
     public readonly ArrayType|ScalarType|string $logicalType;
-    protected ?ScalarCaster $scalarTypeCaster;
+    protected ?ScalarCaster $scalarCaster;
 
+    /**
+     * @throws CasterException
+     */
     public function __construct(
         /** @var class-string<Dt0|UnitEnum>|ScalarType|string */
         public readonly ScalarType|string $type,
@@ -37,8 +40,8 @@ class ArrayOfCaster implements CasterInterface
             throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not an ArrayType nor a ScalarType");
         }
 
-        $this->logicalType      = $logicalType;
-        $this->scalarTypeCaster = $this->logicalType instanceof ScalarType ? new ScalarCaster($this->logicalType) : null;
+        $this->logicalType  = $logicalType;
+        $this->scalarCaster = $this->logicalType instanceof ScalarType ? new ScalarCaster($this->logicalType) : null;
     }
 
     public function cast(mixed $value): ?array
@@ -52,7 +55,7 @@ class ArrayOfCaster implements CasterInterface
             $result[] = match ($this->logicalType) {
                 ArrayType::DT0  => $this->type::tryFrom($item),
                 ArrayType::ENUM => Property::tryEnum($this->type, $item),
-                default         => $this->scalarTypeCaster->cast($item),
+                default         => $this->scalarCaster->cast($item),
             };
         }
 
