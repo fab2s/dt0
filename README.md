@@ -109,13 +109,13 @@ use fab2s\Dt0\Caster\DateTimeCaster;
 use fab2s\Dt0\Caster\DateTimeFormatCaster;
 use fab2s\Dt0\Dt0;
 
-class MyDto extends Dt0 {
+class MyDt0 extends Dt0 {
     #[Cast(in: DateTimeCaster::class, out: new DateTimeFormatCaster(DateTimeFormatCaster::ISO))]
     public readonly DateTime $date;
 }
 
 /** @var Dt0 $dt0 */
-$dt0 = MyDto::make(date:'1337-01-01 00:00:00');
+$dt0 = MyDt0::make(date:'1337-01-01 00:00:00');
 
 $dt0->toArray();
 /*
@@ -206,7 +206,16 @@ $dt0->toJsonArray();
 
 ````
 
-`Dt0`'s can have a constructor with promoted props given they properly call their parent
+The `Cast`'s `renameFrom` argument can also be an array to handle multiple incoming property names for a single internal property.
+
+````php
+    #[Cast(renameFrom: ['alias', 'legacy_name'])] // first in wins the race
+    public readonly string $prop;
+````
+
+### What about constructors
+
+`Dt0`'s can have a constructor with promoted props given they properly call their parent:
 
 ````php
 
@@ -251,13 +260,6 @@ $dt0 = ConstructedDt0::make(
     promotedPropCasted: 'outside',
     myCustomVar: 'of the constructor',
 );
-````
-
-The `Cast`'s `renameFrom` argument can also be an array to handle multiple incoming property names for a single internal property.
-
-````php
-    #[Cast(renameFrom: ['alias', 'legacy_name'])] // first in wins the race
-    public readonly string $prop;
 ````
 
 ## `make` and other static factory methods vs `new`
