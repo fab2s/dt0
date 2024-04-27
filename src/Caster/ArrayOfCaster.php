@@ -14,7 +14,7 @@ use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Property\Property;
 use UnitEnum;
 
-class ArrayOfTypeCaster implements CasterInterface
+class ArrayOfCaster implements CasterInterface
 {
     public readonly ArrayType|ScalarType|string $logicalType;
     protected ?ScalarTypeCaster $scalarTypeCaster;
@@ -43,7 +43,7 @@ class ArrayOfTypeCaster implements CasterInterface
 
     public function cast(mixed $value): ?array
     {
-        if (! is_array($value)) {
+        if (! is_iterable($value)) {
             return null;
         }
 

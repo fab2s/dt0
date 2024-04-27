@@ -12,7 +12,6 @@ namespace fab2s\Dt0\Caster;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Exception\Dt0Exception;
-use JsonException;
 
 class Dt0Caster implements CasterInterface
 {
@@ -28,10 +27,6 @@ class Dt0Caster implements CasterInterface
         }
     }
 
-    /**
-     * @throws JsonException
-     * @throws Dt0Exception
-     */
     public function cast(mixed $value): ?Dt0
     {
         return $this->dt0Fqn::tryFrom($value);

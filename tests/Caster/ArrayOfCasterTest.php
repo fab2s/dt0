@@ -10,7 +10,7 @@
 namespace fab2s\Dt0\Tests\Caster;
 
 use Exception;
-use fab2s\Dt0\Caster\ArrayOfTypeCaster;
+use fab2s\Dt0\Caster\ArrayOfCaster;
 use fab2s\Dt0\Caster\ScalarType;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
@@ -20,7 +20,7 @@ use fab2s\Dt0\Tests\Artifacts\EnumDt0;
 use fab2s\Dt0\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class ArrayOfTypeCasterTest extends TestCase
+class ArrayOfCasterTest extends TestCase
 {
     /**
      * @throws Exception
@@ -28,7 +28,7 @@ class ArrayOfTypeCasterTest extends TestCase
     #[DataProvider('castProvider')]
     public function test_cast(ScalarType|string $type, $value, $expected): void
     {
-        $caster = new ArrayOfTypeCaster($type);
+        $caster = new ArrayOfCaster($type);
         $casted = $caster->cast($value);
 
         $this->assertSame(json_encode($expected), json_encode($caster->cast($value)));
@@ -37,7 +37,7 @@ class ArrayOfTypeCasterTest extends TestCase
     public function test_exception(): void
     {
         $this->expectException(CasterException::class);
-        new ArrayOfTypeCaster('NotAdt0');
+        new ArrayOfCaster('NotAType');
     }
 
     public static function castProvider(): array

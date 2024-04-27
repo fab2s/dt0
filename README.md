@@ -262,13 +262,13 @@ The `Cast`'s `renameFrom` argument can also be an array to handle multiple incom
 
 ## `make` and other static factory methods vs `new`
 
-When dealing with readonly properties, there are of course some gotchas as they indeed can only be initialized once. If your `Dt0` uses a constructor with `public readonly` promoted properties, no Casting will be used when you create your `Dt0` instance with the `new` keyword as everything will be done before anything can happen.
+When dealing with `readonly` properties, there are of course some gotchas as they indeed can only be initialized once. If your `Dt0` uses a constructor with `public readonly` **promoted properties**, no Casting will be used when you create your `Dt0` instance with the `new` keyword as everything will be done before anything can happen.
 
 On the other hand, using the `make` method will always work as expected with the full Casting capabilities of the package as in this case, all the magic will happen before the constructor is even called.
 
-As a conclusion, it is always best practice to create your instances using any of the static factory method (`make`, `from`, `tryFrom`, `fromArray`, `fromString` and `fromJson`) which in the end is no big deal considering this can achieve fully immutable DTOs and the peace of mind that comes with it.
+As a conclusion, it is always best practice to create your instances using any of the static factory method (`make`, `from`, `tryFrom`, `fromArray`, `fromString` and `fromJson`) which in the end is no big deal considering this can achieve **fully immutable DTOs** and the peace of mind that comes with it.
 
-It does not mean that you should not use `public readonly` promoted properties as this is also the only way to provide with a hard default value for `public readonly` properties. It's just something to keep in mind when working with this package.
+It does not mean that you should not use `public readonly` **promoted properties** as this is also the only way to provide with a hard default value for `public readonly` properties. It's just something to keep in mind when working with this package.
 
 ## Validation
 
