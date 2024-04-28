@@ -17,5 +17,6 @@ class TypedDt0 extends Dt0
 {
     public readonly DateTime|DateTimeImmutable $unionType;
     public readonly DateTime|DateTimeImmutable|null $unionTypeNullable;
+    public readonly DateTime&DateTimeImmutable $intersectionType;
     public $unTyped = false;
 }

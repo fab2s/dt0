@@ -13,6 +13,7 @@ use Exception;
 use fab2s\Dt0\Caster\ArrayOfCaster;
 use fab2s\Dt0\Caster\ScalarType;
 use fab2s\Dt0\Exception\CasterException;
+use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
@@ -29,7 +30,6 @@ class ArrayOfCasterTest extends TestCase
     public function test_cast(ScalarType|string $type, $value, $expected): void
     {
         $caster = new ArrayOfCaster($type);
-        $casted = $caster->cast($value);
 
         $this->assertSame(json_encode($expected), json_encode($caster->cast($value)));
     }
@@ -38,6 +38,13 @@ class ArrayOfCasterTest extends TestCase
     {
         $this->expectException(CasterException::class);
         new ArrayOfCaster('NotAType');
+    }
+
+    public function test_scalar_exception(): void
+    {
+        $this->expectException(Dt0Exception::class);
+        $caster = new ArrayOfCaster(ScalarType::bool);
+        $caster->cast([[]]);
     }
 
     public static function castProvider(): array

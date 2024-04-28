@@ -97,11 +97,13 @@ $updated->readOnlyProp; // $anotherValue
 
 `Dt0` comes with several [Casters](./src/Caster) ready to use. Writing your own is as easy as implementing the [`CasterInterface`](./src/Caster/CasterInterface.php)
 
+**Available Caster documentation:** [Casters](./docs/casters.md)
+
 `Dt0` has full support out of the box without any `Caster` for [Enums](https://www.php.net/manual/en/language.types.enumerations.php) including [UnitEnum](https://www.php.net/manual/en/class.unitenum.php).
 
 `Dt0` is as well aware of its inheritors without any casting. You can though find some usage for [`Dt0Caster`](./src/Caster/Dt0Caster.php) when property typing cannot be specific enough (read the target `Dt0` class).
 
-`Dt0` supports `in` and `out` casting. For example, you can cast any `DateTimeInterface` or `stringToTimeAble` strings to a `Datetime` property and have it output in Json format in a specific format :
+`Dt0` supports `in` and `out` casting. For example, you can cast any `DateTimeInterface` or `stringToTimeAble` strings to a `Datetime` property and have it output in Json format in a specific format:
 
 ````php
 use fab2s\Dt0\Attribute\Cast;
@@ -275,6 +277,10 @@ It does not mean that you should not use `public readonly` **promoted properties
 ## Validation
 
 `Dt0` comes with full validation logic but no specific implementation. For a fully functional implementation example, see [Laravel Dt0](https://github.com/fab2s/laravel-dt0)
+
+## Exceptions
+
+`Dt0`'s exception all extends [`ContextException`](https://github.com/fab2s/ContextException) and do carry contextual information that can be used in your exception logger if any.
 
 ## Requirements
 
