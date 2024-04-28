@@ -107,7 +107,7 @@ class Property
 
         if ($this->isEnum && (is_string($value) || is_int($value))) {
             foreach ($this->types->getEnumFqns() as $enumFqn) {
-                if ($case = static::tryEnum($enumFqn, $value)) {
+                if ($case = static::tryEnumFrom($enumFqn, $value)) {
                     $value = $case;
                     break;
                 }
@@ -120,7 +120,7 @@ class Property
     /**
      * @param class-string<UnitEnum|BackedEnum>|null $enumFqn
      */
-    public static function tryEnum(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
+    public static function tryEnumFrom(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
     {
         if (
             $enumFqn  === null
@@ -138,6 +138,20 @@ class Property
         }
 
         return static::tryEnumFromName($enumFqn, $value);
+    }
+
+    /**
+     * @param class-string<UnitEnum|BackedEnum> $enumFqn
+     *
+     * @throws Dt0Exception
+     */
+    public static function enumFrom(string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
+    {
+        return self::tryEnumFrom($enumFqn, $value) ?: throw (new Dt0Exception("Could not find any matching enum case for $enumFqn"))
+            ->setContext([
+                'value' => $value,
+            ])
+        ;
     }
 
     /**

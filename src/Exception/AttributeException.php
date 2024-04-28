@@ -7,15 +7,8 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Caster;
+namespace fab2s\Dt0\Exception;
 
-enum ScalarType: string
+class AttributeException extends Dt0Exception
 {
-    case boolean = 'boolean';
-    case bool    = 'bool';
-    case integer = 'integer';
-    case int     = 'int';
-    case float   = 'float';
-    case double  = 'double';
-    case string  = 'string';
 }

@@ -12,6 +12,7 @@ namespace fab2s\Dt0\Tests;
 use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
 use fab2s\Dt0\Tests\Artifacts\Dt0Dt0;
+use fab2s\Dt0\Tests\Artifacts\DummyValidatedDt0;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
@@ -52,6 +53,23 @@ class Dt0Test extends TestCase
     {
         $this->expectException(Dt0Exception::class);
         new SimpleDefaultDt0;
+    }
+
+    public function test_with_validation_exception(): void
+    {
+        $this->expectException(Dt0Exception::class);
+        SimpleDefaultDt0::withValidation(...[]);
+    }
+
+    public function test_with_validation()
+    {
+        $dt0 = DummyValidatedDt0::withValidation(fromValidate: 'value1', fromRules: 'value2', fromRule: 'value3');
+
+        $this->assertSame([
+            'fromValidate' => 'value1',
+            'fromRules'    => 'value2',
+            'fromRule'     => 'value3',
+        ], $dt0->toArray());
     }
 
     public function test_update(): void

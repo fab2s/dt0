@@ -53,18 +53,8 @@ class ScalarCasterTest extends TestCase
                 'expected' => 42,
             ],
             [
-                'type'     => ScalarType::null,
-                'value'    => '42.42',
-                'expected' => null,
-            ],
-            [
                 'type'     => ScalarType::float,
                 'value'    => [],
-                'expected' => null,
-            ],
-            [
-                'type'     => ScalarType::null,
-                'value'    => 'anything',
                 'expected' => null,
             ],
             [

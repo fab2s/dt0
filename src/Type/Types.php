@@ -14,6 +14,7 @@ use fab2s\Dt0\Dt0;
 use LogicException;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
+use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
 use UnitEnum;
@@ -42,7 +43,7 @@ class Types
      */
     protected array $dt0Fqns = [];
 
-    public function __construct(public readonly ReflectionProperty $property)
+    public function __construct(public readonly ReflectionProperty|ReflectionParameter $property)
     {
         [
             'isReadOnly'     => $this->isReadOnly,
@@ -55,7 +56,7 @@ class Types
         ] = $this->registerType();
     }
 
-    public static function make(ReflectionProperty $property): static
+    public static function make(ReflectionProperty|ReflectionParameter $property): static
     {
         return new static($property);
     }
@@ -128,7 +129,10 @@ class Types
                     break;
                 }
 
+                // @codeCoverageIgnoreStart
+                // is there even a way to reach here ?
                 throw new LogicException('Received unknown type from ReflectionProperty::getType');
+                // @codeCoverageIgnoreEnd
         }
 
         return $types;

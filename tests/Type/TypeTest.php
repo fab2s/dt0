@@ -11,16 +11,16 @@ namespace fab2s\Dt0\Tests\Type;
 
 use DateTime;
 use DateTimeImmutable;
+use fab2s\Dt0\Property\Properties;
+use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
 use fab2s\Dt0\Tests\Artifacts\TypedDt0;
 use fab2s\Dt0\Tests\TestCase;
 
 class TypeTest extends TestCase
 {
-    public function test_try_enum()
+    public function test_types()
     {
-        $dto = TypedDt0::make(unionType: new DateTimeImmutable('now'), unionTypeNullable: null, unTyped: 'whatever');
-
-        $properties    = $dto->getDt0Properties();
+        $properties    = new Properties(TypedDt0::class);
         $unionTypeProp = $properties->get('unionType');
         $this->assertFalse($unionTypeProp->hasDefault());
 
@@ -73,5 +73,30 @@ class TypeTest extends TestCase
         $this->assertFalse($unTypedPropTypes->isReadOnly);
         $this->assertTrue($unTypedPropTypes->isNullable);
         $this->assertFalse($unTypedPropTypes->isIntersection);
+
+        $intersectionTypeProp = $properties->get('intersectionType');
+        $this->assertFalse($intersectionTypeProp->hasDefault());
+
+        $intersectionTypePropTypes = $intersectionTypeProp->types;
+        $this->assertCount(2, $intersectionTypePropTypes->toArray());
+        $this->assertFalse($intersectionTypePropTypes->isUnion);
+        $this->assertTrue($intersectionTypePropTypes->isReadOnly);
+        $this->assertFalse($intersectionTypePropTypes->isNullable);
+        $this->assertTrue($intersectionTypePropTypes->isIntersection);
+
+        $this->assertTrue($intersectionTypePropTypes->has(DateTimeImmutable::class));
+        $this->assertTrue($intersectionTypePropTypes->has(DateTime::class));
+
+        $unitEnumTypeProp = $properties->get('unitEnum');
+        $this->assertFalse($unitEnumTypeProp->hasDefault());
+        $unitEnumTypePropTypes = $unitEnumTypeProp->types;
+        $this->assertCount(1, $unitEnumTypePropTypes->toArray());
+        $this->assertFalse($unitEnumTypePropTypes->isUnion);
+        $this->assertTrue($unitEnumTypePropTypes->isReadOnly);
+        $this->assertFalse($unitEnumTypePropTypes->isNullable);
+        $this->assertFalse($unitEnumTypePropTypes->isIntersection);
+
+        $this->assertTrue($unitEnumTypePropTypes->has(UnitEnum::class));
+        $this->assertTrue(is_subclass_of(current($unitEnumTypePropTypes->getEnumFqns()), \UnitEnum::class));
     }
 }

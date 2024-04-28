@@ -295,9 +295,4 @@ abstract class Dt0 implements JsonSerializable, Stringable
             ),
         );
     }
-
-    public function getDt0Properties(): Properties
-    {
-        return $this->dt0Properties;
-    }
 }
