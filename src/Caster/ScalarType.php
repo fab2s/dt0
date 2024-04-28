@@ -18,6 +18,4 @@ enum ScalarType: string
     case float   = 'float';
     case double  = 'double';
     case string  = 'string';
-    // let's pretend null is not multidimensional ^^
-    case null = 'null';
 }

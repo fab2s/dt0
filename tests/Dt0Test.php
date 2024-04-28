@@ -54,6 +54,12 @@ class Dt0Test extends TestCase
         new SimpleDefaultDt0;
     }
 
+    public function test_with_validation_exception(): void
+    {
+        $this->expectException(Dt0Exception::class);
+        SimpleDefaultDt0::withValidation(...[]);
+    }
+
     public function test_update(): void
     {
         $dto     = DefaultDt0::make(stringNoCast: 'original', stringCast: 'someString');

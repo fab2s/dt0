@@ -90,7 +90,7 @@ class EnumTest extends TestCase
 
             foreach ($props as $propName => $enumFqn) {
                 $withDefaultProp        = $propName . 'WithDefault';
-                $args[$withDefaultProp] = Property::tryEnum($enumFqn, $args[$propName]);
+                $args[$withDefaultProp] = Property::tryEnumFrom($enumFqn, $args[$propName]);
             }
 
             $caseName         = $case->name . '_strings_instance';

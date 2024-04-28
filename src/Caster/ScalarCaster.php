@@ -34,7 +34,6 @@ class ScalarCaster implements CasterInterface
      */
     public function cast(mixed $value): mixed
     {
-        // let's pretend null is not multidimensional ^^
         if ($value !== null && ! is_scalar($value)) {
             return null;
         }
