@@ -12,11 +12,13 @@ namespace fab2s\Dt0\Tests\Artifacts;
 use DateTime;
 use DateTimeImmutable;
 use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
 
 class TypedDt0 extends Dt0
 {
     public readonly DateTime|DateTimeImmutable $unionType;
     public readonly DateTime|DateTimeImmutable|null $unionTypeNullable;
     public readonly DateTime&DateTimeImmutable $intersectionType;
+    public readonly UnitEnum $unitEnum;
     public $unTyped = false;
 }

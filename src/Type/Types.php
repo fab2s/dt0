@@ -129,7 +129,10 @@ class Types
                     break;
                 }
 
+                // @codeCoverageIgnoreStart
+                // is there even a way to reach here ?
                 throw new LogicException('Received unknown type from ReflectionProperty::getType');
+                // @codeCoverageIgnoreEnd
         }
 
         return $types;

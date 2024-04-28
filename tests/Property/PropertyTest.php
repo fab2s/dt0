@@ -10,11 +10,15 @@
 namespace fab2s\Dt0\Tests\Property;
 
 use fab2s\Dt0\Exception\Dt0Exception;
+use fab2s\Dt0\Property\Properties;
 use fab2s\Dt0\Property\Property;
+use fab2s\Dt0\Tests\Artifacts\DummyValidatedDt0;
 use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
 use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
+use fab2s\Dt0\Tests\Artifacts\NoOpValidator;
 use fab2s\Dt0\Tests\TestCase;
+use fab2s\Dt0\Validator\ValidatorInterface;
 
 class PropertyTest extends TestCase
 {
@@ -34,5 +38,19 @@ class PropertyTest extends TestCase
 
         $this->expectException(Dt0Exception::class);
         $this->assertSame(null, Property::enumFrom(UnitEnum::class, 'notACase'));
+    }
+
+    public function test_validator()
+    {
+        $properties = new Properties(DummyValidatedDt0::class);
+
+        $this->assertInstanceOf(ValidatorInterface::class, $properties->validator);
+
+        /** @var NoOpValidator $validator */
+        $validator = $properties->validator;
+        $this->assertCount(3, $validator->rules);
+        $this->assertSame('rule1', $validator->rules['fromValidate']->rule);
+        $this->assertSame('rule2', $validator->rules['fromRules']->rule);
+        $this->assertSame('rule3', $validator->rules['fromRule']->rule);
     }
 }

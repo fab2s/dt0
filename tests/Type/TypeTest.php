@@ -12,6 +12,7 @@ namespace fab2s\Dt0\Tests\Type;
 use DateTime;
 use DateTimeImmutable;
 use fab2s\Dt0\Property\Properties;
+use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
 use fab2s\Dt0\Tests\Artifacts\TypedDt0;
 use fab2s\Dt0\Tests\TestCase;
 
@@ -85,5 +86,17 @@ class TypeTest extends TestCase
 
         $this->assertTrue($intersectionTypePropTypes->has(DateTimeImmutable::class));
         $this->assertTrue($intersectionTypePropTypes->has(DateTime::class));
+
+        $unitEnumTypeProp = $properties->get('unitEnum');
+        $this->assertFalse($unitEnumTypeProp->hasDefault());
+        $unitEnumTypePropTypes = $unitEnumTypeProp->types;
+        $this->assertCount(1, $unitEnumTypePropTypes->toArray());
+        $this->assertFalse($unitEnumTypePropTypes->isUnion);
+        $this->assertTrue($unitEnumTypePropTypes->isReadOnly);
+        $this->assertFalse($unitEnumTypePropTypes->isNullable);
+        $this->assertFalse($unitEnumTypePropTypes->isIntersection);
+
+        $this->assertTrue($unitEnumTypePropTypes->has(UnitEnum::class));
+        $this->assertTrue(is_subclass_of(current($unitEnumTypePropTypes->getEnumFqns()), \UnitEnum::class));
     }
 }
