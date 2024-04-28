@@ -272,7 +272,7 @@ As php does not implement the `Nil` concept (_never set_ as opposed to being `nu
 
 This implementation detail result in allowing `any` value except the `null byte` as a default property value from `Caster`.
 
-Should you find yourself in the rather uncommon situation where you would actually want a `null byte` as a defaults property value, you would then need to either une a `non readonly` property with this hard default, but this would break immutability, or set this property as a promoted one in your constructor to preserve `readonly` and thus immutability of your `Dt0`.
+Should you find yourself in the rather uncommon situation where you would actually want a `null byte` as a defaults property value, you would then need to either use a `non readonly` property with this hard default, but this would break immutability, or to set this property as a promoted one in your constructor to preserve `readonly` and thus immutability of your `Dt0`.
 
 All considered, this extra attention for a very particular case seems entirely neglectable compared to the burden of one extra argument in every other case.
 
