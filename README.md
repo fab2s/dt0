@@ -1,7 +1,7 @@
 # Dt0
 [![CI](https://github.com/fab2s/dt0/actions/workflows/ci.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/ci.yml) [![QA](https://github.com/fab2s/dt0/actions/workflows/qa.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/qa.yml) [![codecov](https://codecov.io/gh/fab2s/dt0/graph/badge.svg?token=VRX16UUB7Y)](https://codecov.io/gh/fab2s/dt0) [![Latest Stable Version](http://poser.pugx.org/fab2s/dt0/v)](https://packagist.org/packages/fab2s/dt0) [![Total Downloads](http://poser.pugx.org/fab2s/dt0/downloads)](https://packagist.org/packages/fab2s/dt0) [![Monthly Downloads](http://poser.pugx.org/fab2s/dt0/d/monthly)](https://packagist.org/packages/fab2s/dt0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com) [![License](http://poser.pugx.org/fab2s/dt0/license)](https://packagist.org/packages/fab2s/dt0)
 
-`Dt0` (_DeeTO_ or _DeTZerO_) is a [DTO](https://en.wikipedia.org/wiki/Data_transfer_object) (_Data-Transport-Object_) PHP implementation that can both secure mutability and implement convenient ways to take control over input and output in various formats.
+`Dt0` (_DeeTO_ or _DeTZerO_) is a [DTO](https://en.wikipedia.org/wiki/Data_transfer_object) (_Data-Transfer-Object_) PHP implementation that can both secure mutability and implement convenient ways to take control over input and output in various formats.
 
 Any class extending `Dt0` will have its public properties, including `readonly` ones, hydrate-able from all formats supported: array, json string, and instances.
 
@@ -239,8 +239,8 @@ $dt0->propRenamed; // 'default'
 $dt0->toArray();
 /**
 [
-    'propClassCasted' => 'Oh',
-    'propCasted'      => 'Ho',
+    'propClassCasted' => 'Ho',
+    'propCasted'      => 'Oh',
     'propRenamed'     => 'default',
 ] 
 */
@@ -249,8 +249,8 @@ $dt0->toArray();
 $dt0->toJsonArray();
 /**
 [
-    'propClassCasted' => 'Oh',
-    'propCasted'      => 'Ho',
+    'propClassCasted' => 'Ho',
+    'propCasted'      => 'Oh',
     'outputName'      => 'default',
 ] 
 */

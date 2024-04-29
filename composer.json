@@ -11,7 +11,7 @@
         "source": "https://github.com/fab2s/dt0"
     },
     "keywords": [
-        "Data-Transport-Object",
+        "Data-Transfer-Object",
         "DTO",
         "DT0",
         "symfony",
