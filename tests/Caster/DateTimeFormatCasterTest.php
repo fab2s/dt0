@@ -7,14 +7,14 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Caster;
+namespace Tests\Caster;
 
 use DateTime;
 use DateTimeZone;
 use Exception;
 use fab2s\Dt0\Caster\DateTimeFormatCaster;
-use fab2s\Dt0\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class DateTimeFormatCasterTest extends TestCase
 {
@@ -24,7 +24,7 @@ class DateTimeFormatCasterTest extends TestCase
     #[DataProvider('castProvider')]
     public function test_cast(string $format, DateTimeZone|string|null $timezone, $value, $expected): void
     {
-        $caster = new DateTimeFormatCaster($format, $timezone);
+        $caster = DateTimeFormatCaster::make($format, $timezone);
         $this->assertSame($expected, $caster->cast($value));
     }
 

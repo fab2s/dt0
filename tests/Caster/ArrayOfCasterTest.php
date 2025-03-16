@@ -7,19 +7,21 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Caster;
+namespace Tests\Caster;
 
 use Exception;
 use fab2s\Dt0\Caster\ArrayOfCaster;
 use fab2s\Dt0\Caster\ScalarType;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Exception\Dt0Exception;
-use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
-use fab2s\Dt0\Tests\Artifacts\EnumDt0;
-use fab2s\Dt0\Tests\TestCase;
+use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionException;
+use Tests\Artifacts\Enum\IntBackedEnum;
+use Tests\Artifacts\Enum\StringBackedEnum;
+use Tests\Artifacts\Enum\UnitEnum;
+use Tests\Artifacts\EnumDt0;
+use Tests\TestCase;
 
 class ArrayOfCasterTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ArrayOfCasterTest extends TestCase
     #[DataProvider('castProvider')]
     public function test_cast(ScalarType|string $type, $value, $expected): void
     {
-        $caster = new ArrayOfCaster($type);
+        $caster = ArrayOfCaster::make($type);
 
         $this->assertSame(json_encode($expected), json_encode($caster->cast($value)));
     }
@@ -37,16 +39,23 @@ class ArrayOfCasterTest extends TestCase
     public function test_exception(): void
     {
         $this->expectException(CasterException::class);
-        new ArrayOfCaster('NotAType');
+        ArrayOfCaster::make('NotAType');
     }
 
+    /**
+     * @throws CasterException
+     * @throws JsonException|ReflectionException
+     */
     public function test_scalar_exception(): void
     {
         $this->expectException(Dt0Exception::class);
-        $caster = new ArrayOfCaster(ScalarType::bool);
+        $caster = ArrayOfCaster::make(ScalarType::bool);
         $caster->cast([[]]);
     }
 
+    /**
+     * @throws Dt0Exception|ReflectionException
+     */
     public static function castProvider(): array
     {
         return [

@@ -1,5 +1,5 @@
 # Dt0
-[![CI](https://github.com/fab2s/dt0/actions/workflows/ci.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/ci.yml) [![QA](https://github.com/fab2s/dt0/actions/workflows/qa.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/qa.yml) [![codecov](https://codecov.io/gh/fab2s/dt0/graph/badge.svg?token=VRX16UUB7Y)](https://codecov.io/gh/fab2s/dt0) [![Latest Stable Version](http://poser.pugx.org/fab2s/dt0/v)](https://packagist.org/packages/fab2s/dt0) [![Total Downloads](http://poser.pugx.org/fab2s/dt0/downloads)](https://packagist.org/packages/fab2s/dt0) [![Monthly Downloads](http://poser.pugx.org/fab2s/dt0/d/monthly)](https://packagist.org/packages/fab2s/dt0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com) [![License](http://poser.pugx.org/fab2s/dt0/license)](https://packagist.org/packages/fab2s/dt0)
+[![CI](https://github.com/fab2s/dt0/actions/workflows/ci.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/ci.yml) [![QA](https://github.com/fab2s/dt0/actions/workflows/qa.yml/badge.svg)](https://github.com/fab2s/dt0/actions/workflows/qa.yml) [![codecov](https://codecov.io/gh/fab2s/dt0/graph/badge.svg?token=VRX16UUB7Y)](https://codecov.io/gh/fab2s/dt0) [![Latest Stable Version](http://poser.pugx.org/fab2s/dt0/v)](https://packagist.org/packages/fab2s/dt0) [![Total Downloads](http://poser.pugx.org/fab2s/dt0/downloads)](https://packagist.org/packages/fab2s/dt0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com) [![License](http://poser.pugx.org/fab2s/dt0/license)](https://packagist.org/packages/fab2s/dt0)
 
 `Dt0` (_DeeTO_ or _DeTZerO_) is a [DTO](https://en.wikipedia.org/wiki/Data_transfer_object) (_Data-Transfer-Object_) PHP implementation that can both secure mutability and implement convenient ways to take control over input and output in various formats.
 
@@ -55,7 +55,7 @@ $value = $dt0->readOnlyProp; // $someValue
 $dt0 = SomeDt0::tryFrom($wannaBeDt0); // return null when nothing works
 
 /** @var Dt0 $dt0 */
-$dto = SomeDt0::from($wannaBeDt0); // throws a Dt0Exception when nothing matched or more Throwable when something is too wrong
+$dt0 = SomeDt0::from($wannaBeDt0); // throws a Dt0Exception when nothing matched or more Throwable when something is too wrong
 
 // keeps objects as such
 $array = $dt0->toArray();
@@ -78,7 +78,7 @@ $fromJson = SomeDt0::fromString($json);
 $fromJson->equals($dt0); // true
 
 // always true
-$dto->equals(SomeDt0::fromArray($dto->toArray())); 
+$dt0->equals(SomeDt0::fromArray($dt0->toArray())); 
 
 // serializable
 $serialized = serialize($dt0);
@@ -86,14 +86,14 @@ $unserialized = unserialize($serialized);
 $unserialized->equal($dt0); // true
 
 // Immutability with ...
-$anotherInstance = $dto->clone();
-$anotherInstance->equals($dto); // true
+$anotherInstance = $dt0->clone();
+$anotherInstance->equals($dt0); // true
 
 // ... updates :o
-$updated = $dto->update(readOnlyProp: $anotherValue);
+$updated = $dt0->update(readOnlyProp: $anotherValue);
 // or 
-$updated = $dto->update(...['readOnlyProp' => $anotherValue]);
-$updated->->equals($dto); // false
+$updated = $dt0->update(...['readOnlyProp' => $anotherValue]);
+$updated->->equals($dt0); // false
 $updated->readOnlyProp; // $anotherValue
 
 ```
@@ -343,9 +343,28 @@ It does not mean that you should not use `public readonly` **promoted properties
 
 `Dt0`'s exception all extends [`ContextException`](https://github.com/fab2s/ContextException) and do carry contextual information that can be used in your exception logger if any.
 
+## Enums
+
+`Dt0` uses [`Enumerate`](https://github.com/fab2s/Enumerate) to transparently handle any type of enums, including `UnitEnum` Json serialization.
+
+## Attributes
+
+Dt0 is implemented in a way that allow you to implement your own attribute provided they implement the **explicit** interface for each Attribute type :
+  - [`CastsInterface`](./src/Attribute/CastsAbstract.php) for the `Casts` like `class` Attribute.
+  - [`CastInterface`](./src/Attribute/CastInterface.php) for the `Cast` like `property` Attribute.
+  - [`ValidateInterface`](./src/Attribute/ValidateInterface.php) for the `Cast` like `class` Attribute.
+  - [`RulesInterface`](./src/Attribute/RulesInterface.php) for the `Casts` like `class` Attribute.
+  - [`RuleInterface`](./src/Attribute/RuleInterface.php) for the `Cast` like `property` Attribute.
+
+all these come with their respective `abstract` class from which you should extend for easier implementation.
+
+A debatable **implicit** interface is to also be accounted for. Every `public readonly property` found in those abstract is **implicitly** part of the implementation contract.
+
+Until PHP 8.4, you **will** have to redeclare them in your classes in order to be able to initialize them, even in the `__constructor`.
+
 ## Requirements
 
-`Dt0` is tested against php 8.1 and 8.2
+`Dt0` is tested against php 8.1, 8.2, 8.3 and 8.4
 
 ## Contributing
 

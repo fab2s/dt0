@@ -7,13 +7,15 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Artifacts;
+namespace Tests\Artifacts;
 
 use fab2s\Dt0\Attribute\Rule;
+use fab2s\Dt0\Concern\HasDeclaringFqn;
 use fab2s\Dt0\Validator\ValidatorInterface;
 
 class NoOpValidator implements ValidatorInterface
 {
+    use HasDeclaringFqn;
     public array $rules = [];
 
     public function validate(array $data): array

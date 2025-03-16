@@ -7,12 +7,12 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Attribute;
+namespace Tests\Attribute;
 
 use fab2s\Dt0\Attribute\Cast;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\AttributeException;
-use fab2s\Dt0\Tests\TestCase;
+use Tests\TestCase;
 
 class CastTest extends TestCase
 {
@@ -25,7 +25,7 @@ class CastTest extends TestCase
         $this->assertSame(Dt0::DT0_NIL, $cast->default);
         $this->assertNull($cast->renameFrom);
         $this->assertNull($cast->renameTo);
-        $this->assertNull($cast->propName);
+        $this->assertNull($cast->getPropName());
         $this->assertFalse($cast->hasDefault);
 
         $this->expectException(AttributeException::class);

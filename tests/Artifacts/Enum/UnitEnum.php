@@ -7,7 +7,7 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Artifacts\Enum;
+namespace Tests\Artifacts\Enum;
 
 enum UnitEnum
 {

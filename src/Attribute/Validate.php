@@ -14,7 +14,7 @@ use fab2s\Dt0\Exception\AttributeException;
 use fab2s\Dt0\Validator\ValidatorInterface;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Validate
+class Validate extends ValidateAbstract
 {
     public readonly ValidatorInterface $validator;
 

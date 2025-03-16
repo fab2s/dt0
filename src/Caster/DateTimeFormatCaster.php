@@ -9,17 +9,19 @@
 
 namespace fab2s\Dt0\Caster;
 
+use DateInvalidTimeZoneException;
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
+use fab2s\Dt0\Dt0;
 
-class DateTimeFormatCaster implements CasterInterface
+class DateTimeFormatCaster extends CasterAbstract
 {
     use DateTimeTrait;
     public const ISO = 'Y-m-d\TH:i:s.u\Z';
 
     /**
-     * @throws Exception
+     * @throws DateInvalidTimeZoneException
      */
     public function __construct(
         public readonly string $format,
@@ -30,9 +32,19 @@ class DateTimeFormatCaster implements CasterInterface
     }
 
     /**
+     * @throws DateInvalidTimeZoneException
+     */
+    public static function make(
+        string $format,
+        DateTimeZone|string|null $timeZone = null,
+    ): static {
+        return new static($format, $timeZone);
+    }
+
+    /**
      * @throws Exception
      */
-    public function cast(mixed $value): ?string
+    public function cast(mixed $value, array|Dt0|null $data = null): ?string
     {
         return $this->resolve($value)?->format($this->format);
     }

@@ -1,5 +1,6 @@
 {
     "preset": "laravel",
+    "cache-file": ".pint.cache",
     "rules": {
         "header_comment": {
             "header": "This file is part of fab2s/dt0.\n(c) Fabrice de Stefanis / https://github.com/fab2s/dt0\nThis source file is licensed under the MIT license which you will\nfind in the LICENSE file or at https://opensource.org/licenses/MIT"

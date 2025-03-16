@@ -17,8 +17,7 @@ class Type
         public readonly bool $isBuiltin = false,
         public readonly bool $isUnion = false,
         public readonly bool $isIntersection = false,
-    ) {
-    }
+    ) {}
 
     public static function make(
         string $name,

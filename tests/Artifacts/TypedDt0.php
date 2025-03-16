@@ -7,12 +7,12 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Artifacts;
+namespace Tests\Artifacts;
 
 use DateTime;
 use DateTimeImmutable;
 use fab2s\Dt0\Dt0;
-use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
+use Tests\Artifacts\Enum\UnitEnum;
 
 class TypedDt0 extends Dt0
 {

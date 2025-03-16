@@ -9,7 +9,11 @@
 
 namespace fab2s\Dt0\Caster;
 
-interface CasterInterface
+use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
+use fab2s\Dt0\Concern\HasPropNameInterface;
+use fab2s\Dt0\Dt0;
+
+interface CasterInterface extends HasDeclaringFqnInterface, HasPropNameInterface
 {
-    public function cast(mixed $value): mixed;
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed;
 }

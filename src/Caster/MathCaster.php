@@ -9,10 +9,10 @@
 
 namespace fab2s\Dt0\Caster;
 
+use fab2s\Dt0\Dt0;
 use fab2s\Math\Math;
-use InvalidArgumentException;
 
-class MathCaster implements CasterInterface
+class MathCaster extends CasterAbstract
 {
     public readonly int $precision;
 
@@ -22,10 +22,13 @@ class MathCaster implements CasterInterface
         $this->precision = max(0, $precision);
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
-    public function cast(mixed $value): Math
+    public static function make(
+        int $precision = Math::PRECISION,
+    ): static {
+        return new static($precision);
+    }
+
+    public function cast(mixed $value, array|Dt0|null $data = null): Math
     {
         return Math::number($value)->setPrecision($this->precision);
     }

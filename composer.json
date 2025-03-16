@@ -5,7 +5,7 @@
     "authors": [{
         "name": "Fabrice de Stefanis"
     }],
-    "homepage": "https://github.com/fab2s/laravel-dt0",
+    "homepage": "https://github.com/fab2s/dt0",
     "support": {
         "issues": "https://github.com/fab2s/dt0/issues",
         "source": "https://github.com/fab2s/dt0"
@@ -28,13 +28,14 @@
     ],
     "require": {
         "php": "^8.1",
-        "fab2s/context-exception": "^2.0|^3.0"
+        "fab2s/context-exception": "^2.0|^3.0",
+        "fab2s/enumerate": "^0.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0",
-        "laravel/pint": "^1.10",
+        "phpunit/phpunit": "^10.0|^11.0",
+        "laravel/pint": "^1.21.2",
         "orchestra/testbench": "^8.0|^9.0",
-        "nesbot/carbon": "^2.62|^3.3",
+        "nesbot/carbon": "^2.62|^3.0",
         "fab2s/math": "^2.0"
     },
     "suggest": {
@@ -49,7 +50,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "fab2s\\Dt0\\Tests\\": "tests"
+            "Tests\\": "tests"
         }
     },
     "scripts": {
@@ -59,6 +60,8 @@
         "post-install-cmd": [
             "rm -rf .*.cache"
         ],
-        "fix": "@php vendor/bin/pint --config pint.json"
+        "fix": "@php vendor/bin/pint --config pint.json --",
+        "test": "@php vendor/bin/phpunit --",
+        "cov": "@php vendor/bin/phpunit --coverage-html ./cov --"
     }
 }

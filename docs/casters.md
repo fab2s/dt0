@@ -1,8 +1,46 @@
 # Casters
 
-`Dt0` comes with several `Caster` out of the box. All of them can be used as `in` or `out` with the `Cast` **Attribute** but they won't all have the same practical usage in both direction. IT will all depend upon your needs.
+`Dt0` comes with several `Caster` out of the box. All of them can be used as `in` or `out` with the `Cast` **Attribute** but they won't all have the same practical usage in both direction. It will all depend upon your needs.
 
 The general approach is that Casters that do return a single value, as opposed to an array or collection, may return null instead of throwing an exception as it will be up to the Dt0 using them to decide to either to accept `null` or not as a value for their properties.
+
+## CasterInterface
+
+`Casters` _shall_ implement [`CasterInterface`](./../src/Caster/CasterInterface.php) and _should_ extend [`CasterAbstract`](./../src/Caster/CasterAbstract.php) to start with a minimal implementation for `HasDeclaringFqnInterface` and `HasPropNameInterface`
+
+````php
+namespace fab2s\Dt0\Caster;
+
+use fab2s\Dt0\Dt0;
+
+interface CasterInterface extends HasDeclaringFqnInterface, HasPropNameInterface
+{
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed;
+}
+````
+
+Most of `CasterInterface` casters won't have to bother with the `$data` argument. It is there to handle scenario where casting would require access to more than the current property's value (`$value`).
+
+The `type` of `$data` follow a simple principle. It will be an `array` in **input** and the `Dt0` instance itself in **output**.
+
+This can be used to build more specialized `Casters` that can build a property value using more than one entry in **input**, and build a value using more than one property in **output**.
+
+Both `Dt0`'s instance FQN and the property being casted can be accessed in the `cast()` method :
+
+````php
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed
+    {
+        if (is_array($data)) {
+            // this is input data to use to create the Dt0 instance
+        } 
+        if (is_object($data)) {
+            // this is current Dt0's instance to use in output
+        }
+        
+        $this->getPropName(); // the property name who's $value is argument eg: 'propertyName'
+        $this->getDeclaringFqn(); // the Dt0's instance FQN eg: Name\Space\MyDt0::class
+    }
+````
 
 ## ScalarCaster
 
@@ -129,4 +167,17 @@ Usage:
     public readonly string $myDt0Json; // will be a MyDt0 instance in the carrying Dt0 toJsonArray / jsonSerialize output
     #[Cast(out: new Dt0Caster(MyDt0::class))]
     public readonly array $myDt0props; // will be a MyDt0 instance in the carrying Dt0 toJsonArray / jsonSerialize output
+````
+
+## CasterCollection
+
+In addition to standard casters, `Dt0` comes with a [`CasterCollection`](./../src/Caster/CasterCollection.php) `Caster`, which will execute a pipeline of casters. It can be useful to chain several caster either from a property `Cast` attribute or through a custom attribute in which you would initialize it.
+
+Usage:
+
+````php
+    #[Cast(in: new CasterCollection(new ScalarCaster(ScalarType::int), new ScalarCaster(ScalarType::string)))] // cast to int then to string
+    public readonly string $prop1;
+    #[Cast(in: new CasterCollection(new ScalarCaster(ScalarType::string), new DateTimeFormatCaster('Y-m-d')))] // cast to string then to formatted date string
+    public readonly ?string $prop2;
 ````

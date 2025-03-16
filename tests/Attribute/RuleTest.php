@@ -7,10 +7,10 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Attribute;
+namespace Tests\Attribute;
 
 use fab2s\Dt0\Attribute\Rule;
-use fab2s\Dt0\Tests\TestCase;
+use Tests\TestCase;
 
 class RuleTest extends TestCase
 {
@@ -19,6 +19,6 @@ class RuleTest extends TestCase
         $rule = new Rule('rule');
 
         $this->assertSame('rule', $rule->rule);
-        $this->assertNull($rule->propName);
+        $this->assertNull($rule->getPropName());
     }
 }

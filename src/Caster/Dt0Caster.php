@@ -13,11 +13,13 @@ use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Exception\Dt0Exception;
 use JsonException;
+use ReflectionException;
 
-class Dt0Caster implements CasterInterface
+class Dt0Caster extends CasterAbstract
 {
     /**
      * @throws Dt0Exception
+     * @throws CasterException
      */
     public function __construct(
         /** @var class-string<Dt0> */
@@ -30,9 +32,21 @@ class Dt0Caster implements CasterInterface
 
     /**
      * @throws Dt0Exception
-     * @throws JsonException
+     * @throws CasterException
      */
-    public function cast(mixed $value): ?Dt0
+    public static function make(
+        /** @var class-string<Dt0> $dt0Fqn */
+        string $dt0Fqn,
+    ): static {
+        return new static($dt0Fqn);
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function cast(mixed $value, array|Dt0|null $data = null): ?Dt0
     {
         return $this->dt0Fqn::from($value);
     }

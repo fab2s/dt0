@@ -13,8 +13,9 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTimeZone;
 use Exception;
+use fab2s\Dt0\Dt0;
 
-class CarbonCaster implements CasterInterface
+class CarbonCaster extends CasterAbstract
 {
     use DateTimeTrait;
 
@@ -32,7 +33,17 @@ class CarbonCaster implements CasterInterface
     /**
      * @throws Exception
      */
-    public function cast(mixed $value): Carbon|CarbonImmutable|null
+    public static function make(
+        DateTimeZone|string|null $timeZone = null,
+        bool $immutable = true,
+    ): static {
+        return new static($timeZone, $immutable);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function cast(mixed $value, array|Dt0|null $data = null): Carbon|CarbonImmutable|null
     {
         return $this->resolve($value);
     }

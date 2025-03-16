@@ -9,8 +9,13 @@
 
 namespace fab2s\Dt0;
 
-enum Format: string
+use fab2s\Enumerate\EnumerateInterface;
+use fab2s\Enumerate\EnumerateTrait;
+
+enum Format: string implements EnumerateInterface
 {
+    use EnumerateTrait;
+
     case JSON            = 'json';
     case JSON_SERIALISED = 'json_serialized';
     case ARRAY           = 'array';

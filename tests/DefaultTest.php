@@ -7,15 +7,21 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests;
+namespace Tests;
 
-use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
-use fab2s\Dt0\Tests\Artifacts\SimpleDefaultDt0;
+use Exception\Dt0Exception;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionException;
+use Tests\Artifacts\DefaultDt0;
+use Tests\Artifacts\SimpleDefaultDt0;
 
 class DefaultTest extends TestCase
 {
+    /**
+     * @throws ReflectionException
+     * @throws Dt0Exception
+     */
     #[DataProvider('simpleDefaultProvider')]
     public function test_simple_default_dt0(array $args)
     {
@@ -58,7 +64,9 @@ class DefaultTest extends TestCase
     }
 
     /**
+     * @throws Dt0Exception
      * @throws JsonException
+     * @throws ReflectionException+
      */
     #[DataProvider('defaultProvider')]
     public function test_default_dt0(

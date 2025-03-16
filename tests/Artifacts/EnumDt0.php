@@ -7,12 +7,12 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Artifacts;
+namespace Tests\Artifacts;
 
 use fab2s\Dt0\Dt0;
-use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
+use Tests\Artifacts\Enum\IntBackedEnum;
+use Tests\Artifacts\Enum\StringBackedEnum;
+use Tests\Artifacts\Enum\UnitEnum;
 
 class EnumDt0 extends Dt0
 {

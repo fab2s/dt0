@@ -15,7 +15,7 @@ use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\AttributeException;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Cast
+class Cast extends CastAbstract
 {
     public readonly bool $hasDefault;
     public readonly ?CasterInterface $in;
@@ -30,19 +30,14 @@ class Cast
         public readonly mixed $default = Dt0::DT0_NIL,
         public readonly string|array|null $renameFrom = null,
         public readonly ?string $renameTo = null,
-        public readonly ?string $propName = null,
+        ?string $propName = null,
     ) {
-
-        foreach (['in', 'out'] as $case) {
-            $arg         = $$case;
-            $this->$case = match (true) {
-                $arg instanceof CasterInterface              => $arg,
-                is_subclass_of($arg, CasterInterface::class) => new $arg,
-                $arg === null                                => null,
-                default                                      => throw new AttributeException("[Cast] $case Cast must implement CasterInterface"),
-            };
-        }
-
+        $this->in         = $this->getCasterInstance($in);
+        $this->out        = $this->getCasterInstance($out);
         $this->hasDefault = $this->default !== Dt0::DT0_NIL;
+
+        if ($propName !== null) {
+            $this->setPropName($propName);
+        }
     }
 }

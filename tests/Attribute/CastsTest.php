@@ -7,12 +7,12 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Attribute;
+namespace Tests\Attribute;
 
 use fab2s\Dt0\Attribute\Cast;
 use fab2s\Dt0\Attribute\Casts;
-use fab2s\Dt0\Tests\TestCase;
 use ReflectionClass;
+use Tests\TestCase;
 
 class CastsTest extends TestCase
 {
@@ -27,7 +27,10 @@ class CastsTest extends TestCase
         $reflexion = new ReflectionClass($casts);
 
         $this->assertTrue($casts->hasCast('prop1'));
+        $this->assertSame('prop1', $casts->getCast('prop1')->getPropName());
         $this->assertTrue($casts->hasCast('prop2'));
-        $this->assertCount(2, $reflexion->getProperty('casters')->getValue($casts));
+        $this->assertSame('prop2', $casts->getCast('prop2')->getPropName());
+        $this->assertNull($reflexion->getProperty('declaringFqn')->getValue($casts));
+        $this->assertCount(2, $reflexion->getProperty('casts')->getValue($casts));
     }
 }

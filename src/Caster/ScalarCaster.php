@@ -12,10 +12,13 @@ namespace fab2s\Dt0\Caster;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 
-class ScalarCaster implements CasterInterface
+class ScalarCaster extends CasterAbstract
 {
     public readonly ScalarType $type;
 
+    /**
+     * @throws CasterException
+     */
     public function __construct(
         ScalarType|string $type,
     ) {
@@ -28,11 +31,18 @@ class ScalarCaster implements CasterInterface
     }
 
     /**
-     * @param scalar $value
-     *
+     * @throws CasterException
+     */
+    public static function make(
+        ScalarType|string $type,
+    ): static {
+        return new static($type);
+    }
+
+    /**
      * @return string|int|float|bool|null|resource
      */
-    public function cast(mixed $value): mixed
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed
     {
         if ($value !== null && ! is_scalar($value)) {
             return null;

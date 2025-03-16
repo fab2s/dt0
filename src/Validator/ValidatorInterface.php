@@ -10,8 +10,9 @@
 namespace fab2s\Dt0\Validator;
 
 use fab2s\Dt0\Attribute\Rule;
+use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
 
-interface ValidatorInterface
+interface ValidatorInterface extends HasDeclaringFqnInterface
 {
     public function validate(array $data): array;
 

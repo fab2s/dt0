@@ -9,8 +9,13 @@
 
 namespace fab2s\Dt0\Caster;
 
-enum ArrayType: string
+use fab2s\Enumerate\EnumerateInterface;
+use fab2s\Enumerate\EnumerateTrait;
+
+enum ArrayType: string implements EnumerateInterface
 {
+    use EnumerateTrait;
+
     case ENUM = 'enum';
     case DT0  = 'dt0';
 }

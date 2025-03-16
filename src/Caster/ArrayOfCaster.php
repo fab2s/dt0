@@ -12,11 +12,11 @@ namespace fab2s\Dt0\Caster;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Exception\Dt0Exception;
-use fab2s\Dt0\Property\Property;
-use JsonException;
+use fab2s\Enumerate\Enumerate;
+use ReflectionException;
 use UnitEnum;
 
-class ArrayOfCaster implements CasterInterface
+class ArrayOfCaster extends CasterAbstract
 {
     public readonly ArrayType|ScalarType|string $logicalType;
     protected ?ScalarCaster $scalarCaster;
@@ -47,10 +47,21 @@ class ArrayOfCaster implements CasterInterface
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws CasterException
      */
-    public function cast(mixed $value): ?array
+    public static function make(
+        /** @var class-string<Dt0|UnitEnum>|ScalarType|string $type */
+        ScalarType|string $type,
+    ): static {
+        return new static($type);
+    }
+
+    /**
+     * @throws CasterException
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     */
+    public function cast(mixed $value, array|Dt0|null $data = null): ?array
     {
         if (! is_iterable($value)) {
             return null;
@@ -59,8 +70,8 @@ class ArrayOfCaster implements CasterInterface
         $result = [];
         foreach ($value as $item) {
             $result[] = match ($this->logicalType) {
-                ArrayType::DT0  => $this->type::from($item),
-                ArrayType::ENUM => Property::enumFrom($this->type, $item),
+                ArrayType::DT0  => $this->type::tryFrom($item),
+                ArrayType::ENUM => Enumerate::tryFromAny($this->type, $item),
                 default         => $this->scalarCaster->cast($item) ?? throw (new CasterException('Could not cast array item to scalar type ' . $this->logicalType->value))->setContext([
                     'item' => $item,
                 ]),

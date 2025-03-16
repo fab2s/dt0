@@ -7,13 +7,13 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Attribute;
+namespace Tests\Attribute;
 
 use fab2s\Dt0\Attribute\Validate;
 use fab2s\Dt0\Exception\AttributeException;
-use fab2s\Dt0\Tests\Artifacts\NoOpValidator;
-use fab2s\Dt0\Tests\TestCase;
 use fab2s\Dt0\Validator\ValidatorInterface;
+use Tests\Artifacts\NoOpValidator;
+use Tests\TestCase;
 
 class ValidateTest extends TestCase
 {

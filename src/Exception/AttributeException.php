@@ -9,6 +9,4 @@
 
 namespace fab2s\Dt0\Exception;
 
-class AttributeException extends Dt0Exception
-{
-}
+class AttributeException extends Dt0Exception {}

@@ -7,7 +7,7 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Artifacts;
+namespace Tests\Artifacts;
 
 use fab2s\Dt0\Attribute\Cast;
 use fab2s\Dt0\Caster\Dt0Caster;

@@ -12,36 +12,21 @@ namespace fab2s\Dt0\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Rules
+class Rules extends RulesAbstract
 {
-    /**
-     * @var array<string, Rule>
-     */
-    protected array $rules = [];
-
     public function __construct(
         Rule ...$rules,
     ) {
         foreach ($rules as $name => $rule) {
             if (is_int($name)) {
-                if (! $rule->propName) {
+                if (! $rule->getPropName()) {
                     continue;
                 }
 
-                $name = $rule->propName;
+                $name = $rule->getPropName();
             }
 
-            $this->rules[$name] = $rule;
+            $this->rules[$name] = $rule->setPropName($name);
         }
-    }
-
-    public function hasRule($name): bool
-    {
-        return isset($this->rules[$name]);
-    }
-
-    public function getRule($name): ?Rule
-    {
-        return $this->rules[$name] ?? null;
     }
 }

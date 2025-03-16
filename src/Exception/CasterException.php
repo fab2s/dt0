@@ -9,6 +9,4 @@
 
 namespace fab2s\Dt0\Exception;
 
-class CasterException extends Dt0Exception
-{
-}
+class CasterException extends Dt0Exception {}

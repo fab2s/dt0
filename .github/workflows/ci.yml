@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: [ '8.1', '8.2' ]
+        php-versions: [ '8.1', '8.2', '8.3', '8.4' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,6 +30,9 @@ jobs:
 
       - name: Remove composer.lock
         run: rm -f composer.lock
+
+      - name: Remove pint
+        run: composer remove "laravel/pint" --dev --no-update
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader

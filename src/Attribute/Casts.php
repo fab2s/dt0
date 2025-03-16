@@ -12,36 +12,21 @@ namespace fab2s\Dt0\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Casts
+class Casts extends CastsAbstract
 {
-    /**
-     * @var array<string, Cast>
-     */
-    protected array $casters = [];
-
     public function __construct(
         Cast ...$casters,
     ) {
         foreach ($casters as $name => $caster) {
             if (is_int($name)) {
-                if (! $caster->propName) {
+                if (! $caster->getPropName()) {
                     continue;
                 }
 
-                $name = $caster->propName;
+                $name = $caster->getPropName();
             }
 
-            $this->casters[$name] = $caster;
+            $this->casts[$name] = $caster->setPropName($name);
         }
-    }
-
-    public function hasCast($name): bool
-    {
-        return isset($this->casters[$name]);
-    }
-
-    public function getCast($name): ?Cast
-    {
-        return $this->casters[$name] ?? null;
     }
 }
