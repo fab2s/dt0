@@ -36,7 +36,7 @@ class WithTest extends TestCase
             'protectedStringWithoutGetter' => 'protectedStringWithoutGetter',
         ], $dto->toArray());
 
-        $dto->withOut('protectedStringWithoutGetter');
+        $dto->without('protectedStringWithoutGetter');
 
         $this->assertSame([
             'publicReadonlyString'      => 'publicReadonlyString',
@@ -51,7 +51,7 @@ class WithTest extends TestCase
             'protectedStringWithoutGetter' => 'protectedStringWithoutGetter',
         ], $dto->toArray());
 
-        $dto->withOut('protectedStringWithoutGetter')
+        $dto->without('protectedStringWithoutGetter')
             ->with('protectedStringWithoutGetter', false)
         ;
 
@@ -61,7 +61,7 @@ class WithTest extends TestCase
             'protectedStringWithoutGetter' => 'protectedStringWithoutGetter',
         ], $dto->toArray());
 
-        $dto->withOut('protectedStringWithGetter');
+        $dto->without('protectedStringWithGetter');
         $this->assertSame([
             'publicReadonlyString'         => 'publicReadonlyString',
             'protectedStringWithoutGetter' => 'protectedStringWithoutGetter',
@@ -76,7 +76,7 @@ class WithTest extends TestCase
             'protectedStringWithGetter'    => 'protectedStringWithGetter',
         ], $dto->toArray());
 
-        $dto->withOut('protectedStringWithGetter')
+        $dto->without('protectedStringWithGetter')
             ->setProtectedStringWithGetter('protectedStringWithGetterFromProtected')
             ->with('protectedStringWithGetter', 'getProtectedStringWithProtectedGetter')
         ;
@@ -87,7 +87,7 @@ class WithTest extends TestCase
             'protectedStringWithGetter'    => 'protectedStringWithGetterFromProtected',
         ], $dto->toArray());
 
-        $dto->withOut('publicReadonlyString');
+        $dto->without('publicReadonlyString');
         $this->assertSame([
             'protectedStringWithoutGetter' => 'protectedStringWithoutGetter',
             'protectedStringWithGetter'    => 'protectedStringWithGetterFromProtected',

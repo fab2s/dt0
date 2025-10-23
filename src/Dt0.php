@@ -54,7 +54,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         foreach ($this->dt0Properties->toArray() as $name => $property) {
             if (! $property->property->isInitialized($this)) {
                 if (static::initializeValue($this->dt0Properties, $property, $args, $value)) {
-                    $property->property->setValue($this, $value);
+                    $property->property->setValue($this, $property->cast($value, $args));
                 } else {
                     throw (new Dt0Exception("Missing required property $name in " . static::class))
                         ->setContext([
@@ -81,10 +81,10 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         $properties = static::compile();
         $args       = static::initializeRenameFrom($properties, $args);
 
-        foreach ($properties->toArray() as $name => $property) {
+        foreach ($properties->earlyInits() as $name => $property) {
             if ($property->needEarlyCast) {
                 if (static::initializeValue($properties, $property, $args, $value)) {
-                    $args[$name] = $value;
+                    $args[$name] = $property->cast($value, $args);
                 }
 
                 continue;
@@ -163,7 +163,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         };
     }
 
-    public function withOut(string ...$names): static
+    public function without(string ...$names): static
     {
         $remove           = array_combine($names, $names);
         $this->dt0Without = array_replace($this->dt0Without, $remove);
@@ -174,7 +174,8 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
 
     public function clearWith(): static
     {
-        $this->dt0With = [];
+        $this->dt0Without = array_replace($this->dt0Without, $this->dt0With);
+        $this->dt0With    = [];
 
         return $this->clearOutputCache();
     }
@@ -222,49 +223,42 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
     public function toArray(): array
     {
         if (isset($this->dt0Output[Format::ARRAY->value])) {
-            return $this->dt0Output[Format::ARRAY->value];
+            return array_diff_key($this->dt0Output[Format::ARRAY->value], $this->dt0Without);
         }
 
         $result = [];
+        $withs  = $this->dt0With;
         foreach ($this->dt0Properties->toArray() as $name => $property) {
-            $result[$name] = $this->$name;
-        }
+            if (isset($this->dt0Without[$name])) {
+                continue;
+            }
 
-        foreach ($this->dt0With as $name => $getter) {
-            $result[$name] = $getter();
-        }
+            if (isset($withs[$name])) {
+                $result[$name] = ($withs[$name])();
+                unset($withs[$name]);
 
-        $result = array_diff_key($result, $this->dt0Without);
-
-        return $this->dt0Output[Format::ARRAY->value] = $result;
-    }
-
-    public function jsonSerialize(): array
-    {
-        if (isset($this->dt0Output[Format::JSON_SERIALISED->value])) {
-            return $this->dt0Output[Format::JSON_SERIALISED->value];
-        }
-
-        $result = $this->toArray();
-        foreach ($result as $name => $value) {
-            $property = $this->dt0Properties->get($name);
-            if ($property?->out) {
-                $value = $property->out->cast($value, $this);
+                continue;
             }
 
             $key          = $this->dt0Properties->getToName($name);
-            $result[$key] = static::jsonSerializeValue($value);
+            $result[$key] = $property?->out ? $property->out->cast($this->$name, $this) : $this->$name;
 
             if ($key !== $name) {
                 unset($result[$name]);
             }
         }
 
-        foreach ($this->dt0With as $name => $getter) {
-            $result[$name] = static::jsonSerializeValue($result[$name]);
+        // left with extra props withs
+        foreach ($withs as $nonPropName => $getter) {
+            $result[$nonPropName] = $getter();
         }
 
-        return $this->dt0Output[Format::JSON_SERIALISED->value] = $result;
+        return array_diff_key($this->dt0Output[Format::ARRAY->value] = $result, $this->dt0Without);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->dt0Output[Format::JSON_SERIALISED->value] ??= array_map(fn ($value) => static::jsonSerializeValue($value), $this->toArray());
     }
 
     public static function jsonSerializeValue(mixed $value): mixed
@@ -354,25 +348,21 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         };
     }
 
-    /**
-     * @throws ReflectionException
-     */
     protected static function initializeValue(Properties $properties, Property $property, array $input, mixed &$value = null): bool
     {
-        $hasValue = false;
         if (array_key_exists($property->name, $input)) {
-            $value    = $input[$property->name];
-            $hasValue = true;
-        } elseif ($property->hasDefault()) {
-            $value    = $property->getDefault();
-            $hasValue = true;
+            $value = $input[$property->name];
+
+            return true;
         }
 
-        if ($hasValue) {
-            $value = $property->cast($value, $input);
+        if ($property->hasDefault()) {
+            $value = $property->getDefault();
+
+            return true;
         }
 
-        return $hasValue;
+        return false;
     }
 
     protected static function initializeRenameFrom(Properties $properties, array $parameters): array
@@ -488,5 +478,10 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         $this->dt0Output = [];
 
         return $this;
+    }
+
+    public function getProperties(): Properties
+    {
+        return $this->dt0Properties;
     }
 }

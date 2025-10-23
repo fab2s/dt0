@@ -44,6 +44,11 @@ class Properties
     protected array $properties = [];
 
     /**
+     * @var array<string, Property>
+     */
+    protected array $earlyInit = [];
+
+    /**
      * @var array<string, string>
      */
     protected ?array $names;
@@ -74,7 +79,6 @@ class Properties
         $this->validator             = $validate?->validator->setDeclaringFqn($reflection->getName());
         $reflectionProperties        = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
-        //
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
             if ($this->casts?->hasCast($name)) {
@@ -193,6 +197,9 @@ class Properties
         }
 
         $this->properties[$name] = $prop;
+        if ($prop->needEarlyCast || $prop->needEarlyDefault) {
+            $this->earlyInit[$name] = $prop;
+        }
 
         if ($prop->cast?->renameFrom) {
             if (is_array($prop->cast->renameFrom)) {
@@ -220,6 +227,11 @@ class Properties
     public function toArray(): array
     {
         return $this->properties;
+    }
+
+    public function earlyInits(): array
+    {
+        return $this->earlyInit;
     }
 
     public function toNames(): array

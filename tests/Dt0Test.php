@@ -129,8 +129,8 @@ class Dt0Test extends TestCase
 
             $this->assertSame([
                 'renamedFrom' => 'value1',
-                'renamedTo'   => 'value2',
-                'combo'       => 'value3',
+                'output'      => 'value2',
+                'outputCombo' => 'value3',
             ], $dto->toArray());
 
             $this->assertSame([

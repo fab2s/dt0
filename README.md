@@ -220,13 +220,13 @@ $dt0->toArray();
 [
     'propClassCasted' => 'defaultFromCast',
     'propCasted'      => 'Oh Yeah',
-    'propRenamed'     => "I don't exist",
+    'outputName'     => "I don't exist",
 ] 
 */
 
 // same as 
-$dt0 = MyDt0::make(propCasted: 'Oh Yeah', outputName: "I don't exist"); 
-$dt0->propRenamed; // "I don't exist"
+$dt0 = MyDt0::make(propCasted: 'Oh Yeah', propRenamed: "I do exist"); 
+$dt0->propRenamed; // "I do exist"
 
 // all renameTo are added to renameFrom
 $dt0->equal(MyDt0::fromArray($dt0->toArray()); // true 
@@ -241,17 +241,7 @@ $dt0->toArray();
 [
     'propClassCasted' => 'Ho',
     'propCasted'      => 'Oh',
-    'propRenamed'     => 'default',
-] 
-*/
-
-// output renaming only occurs in json format
-$dt0->toJsonArray();
-/**
-[
-    'propClassCasted' => 'Ho',
-    'propCasted'      => 'Oh',
-    'outputName'      => 'default',
+    'outputName'     => 'default',
 ] 
 */
 
@@ -301,7 +291,7 @@ class ConstructedDt0 extends Dt0
         // initialize other public properties in this class
         ...$args,
     ) {
-        // where the magic happens
+        // where the rest of the magic happens
         parent::__construct(...$args);
     }
 }
@@ -355,10 +345,16 @@ Dt0 is implemented in a way that allow you to implement your own attribute provi
   - [`ValidateInterface`](./src/Attribute/ValidateInterface.php) for the `Cast` like `class` Attribute.
   - [`RulesInterface`](./src/Attribute/RulesInterface.php) for the `Casts` like `class` Attribute.
   - [`RuleInterface`](./src/Attribute/RuleInterface.php) for the `Cast` like `property` Attribute.
+  - [`WithInterface`](./src/Attribute/WithInterface.php) for the `With` like `class` Attribute.
 
 all these come with their respective `abstract` class from which you should extend for easier implementation.
 
-A debatable **implicit** interface is to also be accounted for. Every `public readonly property` found in those abstract is **implicitly** part of the implementation contract.
+A debatable **implicit** interface is to also be accounted for. Every `public readonly property` found in those abstract is **implicitly** part of the implementation contract IF you need them. Because you can always access the underlying [`Properties`](./src/Property/Properties.php) instance and get your Attribute instance back through the [`Property`](./src/Property/Property.php) instance of each of the public properties of your `Dt0` :
+
+````php
+$properties = Mydt0::compile();
+$properties->toArray(); // Property[]
+````
 
 Until PHP 8.4, you **will** have to redeclare them in your classes in order to be able to initialize them, even in the `__constructor`.
 
