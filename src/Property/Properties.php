@@ -75,8 +75,8 @@ class Properties
         $this->with                  = $this->getWith($reflection);
         $rules                       = $this->getRules($reflection);
         $validate                    = $this->getValidate($reflection);
-        $validatorRules              = $validate?->rules->setDeclaringFqn($reflection->getName());
-        $this->validator             = $validate?->validator->setDeclaringFqn($reflection->getName());
+        $validatorRules              = $validate?->rules?->setDeclaringFqn($reflection->getName());
+        $this->validator             = $validate?->validator?->setDeclaringFqn($reflection->getName());
         $reflectionProperties        = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
         foreach ($reflectionProperties as $reflectionProperty) {

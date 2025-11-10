@@ -275,7 +275,15 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      */
     public function toJson(int $flags = 0, int $depth = 512): string
     {
-        return $this->dt0Output[Format::JSON->value] ??= json_encode($this, JSON_THROW_ON_ERROR & $flags, $depth);
+        return $this->dt0Output[Format::JSON->value] ??= Json::encode($this, $flags, $depth);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function toGz(int $flags = 0, int $depth = 512): string
+    {
+        return $this->dt0Output[Format::JSON->value] ??= Json::gzEncode($this, $flags, $depth);
     }
 
     /**
@@ -310,9 +318,21 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
     /**
      * @throws JsonException|Dt0Exception|ReflectionException
      */
-    public static function fromJson(string $json, int $depth = 512): static
+    public static function fromJson(string $json, int $flags = 0, int $depth = 512): static
     {
-        return static::make(...json_decode($json, true, $depth, JSON_THROW_ON_ERROR));
+        return static::make(...Json::decode($json, true, $flags, $depth));
+    }
+
+    /**
+     * @return $this
+     *
+     * @throws Dt0Exception
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function fromGz(string $gz, int $flags = 0, int $depth = 512): static
+    {
+        return static::make(...Json::gzDecode($gz, true, $flags, $depth));
     }
 
     /**

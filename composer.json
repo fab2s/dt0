@@ -28,6 +28,7 @@
     ],
     "require": {
         "php": "^8.1",
+        "ext-zlib": "*",
         "fab2s/context-exception": "^2.0|^3.0",
         "fab2s/enumerate": "^0.0.1"
     },
