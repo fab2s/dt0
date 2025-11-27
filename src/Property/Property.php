@@ -59,6 +59,10 @@ class Property
             }
         }
 
+        if (! $this->hasDefault() && $this->types->isNullable) {
+            $this->setDefault(null);
+        }
+
         $this->needEarlyDefault = $this->property->isPromoted() && $this->hasDefault();
         $this->needEarlyCast    = $this->property->isPromoted() && ($this->in || $this->isDt0 || $this->isEnum);
     }

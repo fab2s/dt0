@@ -47,7 +47,8 @@ class TypeTest extends TestCase
         $this->assertFalse($dateTimeImmutableType->isIntersection);
 
         $unionTypeNullableProp = $properties->get('unionTypeNullable');
-        $this->assertFalse($unionTypeNullableProp->hasDefault());
+        $this->assertTrue($unionTypeNullableProp->hasDefault());
+        $this->assertNull($unionTypeNullableProp->getDefault());
 
         $unionTypePropNullableTypes = $unionTypeNullableProp->types;
         $this->assertCount(2, $unionTypePropTypes->toArray());

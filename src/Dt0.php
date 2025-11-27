@@ -393,7 +393,6 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
                 && array_key_exists($from, $parameters)
             ) {
                 $parameters[$to] = $parameters[$from];
-                unset($parameters[$from]);
             }
         }
 
