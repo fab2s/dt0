@@ -120,7 +120,24 @@ class Properties
                 continue;
             }
 
-            $ruleAttribute = $reflectionProperty->getAttributes(Rule::class)[0] ?? null;
+            $ruleAttribute = $reflectionProperty->getAttributes(Rule::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
+            $parent        = $reflectionProperty->getDeclaringClass()->getParentClass();
+            $propName      = $reflectionProperty->getName();
+            while (
+                ! $ruleAttribute
+                && $parent
+                && $parent->getName() !== Dt0::class
+            ) {
+                if ($parent->hasProperty($propName)) {
+                    $ruleAttribute = $parent->getProperty($propName)
+                        ?->getAttributes(Rule::class, ReflectionAttribute::IS_INSTANCEOF)[0]
+                        ?? null
+                    ;
+                }
+
+                $parent = $parent->getParentClass();
+            }
+
             if ($rule = $ruleAttribute?->newInstance()) {
                 /** @var Rule $rule */
                 $this->validator->addRule($name, $rule);
@@ -169,6 +186,16 @@ class Properties
     protected function getClassAttribute(ReflectionClass $reflection, string $attributeFqn): CastsInterface|WithInterface|ValidateInterface|RulesInterface|null
     {
         $classAttribute = $reflection->getAttributes($attributeFqn, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
+        $parent         = $reflection->getParentClass();
+
+        while (
+            ! $classAttribute
+            && $parent
+            && $parent->getName() !== Dt0::class
+        ) {
+            $classAttribute = $parent->getAttributes($attributeFqn, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
+            $parent         = $parent->getParentClass();
+        }
 
         return $classAttribute?->newInstance()?->setDeclaringFqn($reflection->getName());
     }

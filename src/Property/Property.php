@@ -39,8 +39,23 @@ class Property
             $this->cast = $cast;
         } else {
             $castAttribute = $this->property->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-            $this->cast    = $castAttribute?->newInstance();
+            $parent        = $this->property->getDeclaringClass()->getParentClass();
+            $propName      = $this->property->getName();
+            while (
+                ! $castAttribute
+                && $parent
+                && $parent->getName() !== Dt0::class
+            ) {
+                if ($parent->hasProperty($propName)) {
+                    $castAttribute = $parent->getProperty($propName)
+                        ->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0]
+                        ?? null
+                    ;
+                }
+                $parent = $parent->getParentClass();
+            }
 
+            $this->cast = $castAttribute?->newInstance();
         }
 
         $declaringClassFqn = $this->property->getDeclaringClass()->getName();
