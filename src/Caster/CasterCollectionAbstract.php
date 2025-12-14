@@ -23,6 +23,8 @@ abstract class CasterCollectionAbstract extends CasterAbstract implements Caster
 
     /**
      * @param CasterInterface|class-string<CasterInterface> ...$casters
+     *
+     * @throws CasterException
      */
     public function __construct(CasterInterface|string ...$casters)
     {
@@ -31,6 +33,9 @@ abstract class CasterCollectionAbstract extends CasterAbstract implements Caster
         }
     }
 
+    /**
+     * @throws CasterException
+     */
     public static function make(CasterInterface|string ...$casters): static
     {
         return new static(...$casters);

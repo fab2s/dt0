@@ -42,6 +42,6 @@ class Json
      */
     public static function gzDecode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): false|array
     {
-        return static::decode(gzdecode(base64_decode($data)), $associative, $flags, $depth);
+        return static::decode(gzdecode(base64_decode($data)), $associative, $flags & JSON_THROW_ON_ERROR, $depth);
     }
 }

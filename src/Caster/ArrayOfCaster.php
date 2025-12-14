@@ -23,6 +23,7 @@ class ArrayOfCaster extends CasterAbstract
 
     /**
      * @throws CasterException
+     * @throws ReflectionException
      */
     public function __construct(
         /** @var class-string<Dt0|UnitEnum>|ScalarType|string */
@@ -32,7 +33,7 @@ class ArrayOfCaster extends CasterAbstract
             $logicalType = match (true) {
                 is_subclass_of($type, Dt0::class)      => ArrayType::DT0,
                 is_subclass_of($type, UnitEnum::class) => ArrayType::ENUM,
-                default                                => ScalarType::tryFrom($type),
+                default                                => ScalarType::tryFromAny($type),
             };
         } else {
             $logicalType = $type;

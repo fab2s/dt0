@@ -35,29 +35,7 @@ class Property
 
     public function __construct(public readonly ReflectionProperty $property, ?Cast $cast = null)
     {
-        if ($cast) {
-            $this->cast = $cast;
-        } else {
-            $castAttribute = $this->property->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-            $parent        = $this->property->getDeclaringClass()->getParentClass();
-            $propName      = $this->property->getName();
-            while (
-                ! $castAttribute
-                && $parent
-                && $parent->getName() !== Dt0::class
-            ) {
-                if ($parent->hasProperty($propName)) {
-                    $castAttribute = $parent->getProperty($propName)
-                        ->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0]
-                        ?? null
-                    ;
-                }
-                $parent = $parent->getParentClass();
-            }
-
-            $this->cast = $castAttribute?->newInstance();
-        }
-
+        $this->cast        = $cast ?: static::resolveAttribute($this->property, CastInterface::class);
         $declaringClassFqn = $this->property->getDeclaringClass()->getName();
         $this->name        = $this->property->getName();
         $this->cast?->setDeclaringFqn($declaringClassFqn)->setPropName($this->name);
@@ -141,5 +119,36 @@ class Property
         }
 
         return $value;
+    }
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $name  Name of an attribute class
+     * @param int             $flags Criteria by which the attribute is searched.
+     *
+     * @return object<T>|null
+     */
+    public static function resolveAttribute(ReflectionProperty $property, string $name, int $flags = ReflectionAttribute::IS_INSTANCEOF): ?object
+    {
+        $attribute = $property->getAttributes($name, $flags)[0] ?? null;
+        $parent    = $property->getDeclaringClass()->getParentClass();
+        $propName  = $property->getName();
+        while (
+            ! $attribute
+            && $parent
+            && $parent->getName() !== Dt0::class
+        ) {
+            if ($parent->hasProperty($propName)) {
+                $attribute = $parent->getProperty($propName)
+                    ->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0]
+                    ?? null
+                ;
+            }
+
+            $parent = $parent->getParentClass();
+        }
+
+        return $attribute?->newInstance();
     }
 }

@@ -11,6 +11,7 @@ namespace fab2s\Dt0\Caster;
 
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
+use ReflectionException;
 
 class ScalarCaster extends CasterAbstract
 {
@@ -18,11 +19,12 @@ class ScalarCaster extends CasterAbstract
 
     /**
      * @throws CasterException
+     * @throws ReflectionException
      */
     public function __construct(
         ScalarType|string $type,
     ) {
-        if (is_string($type) && ! ($type = ScalarType::tryFrom($type))) {
+        if (is_string($type) && ! ($type = ScalarType::tryFromAny($type))) {
             throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not ScalarType");
         }
 
@@ -32,6 +34,7 @@ class ScalarCaster extends CasterAbstract
 
     /**
      * @throws CasterException
+     * @throws ReflectionException
      */
     public static function make(
         ScalarType|string $type,

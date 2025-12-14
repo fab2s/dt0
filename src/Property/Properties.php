@@ -120,25 +120,7 @@ class Properties
                 continue;
             }
 
-            $ruleAttribute = $reflectionProperty->getAttributes(Rule::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-            $parent        = $reflectionProperty->getDeclaringClass()->getParentClass();
-            $propName      = $reflectionProperty->getName();
-            while (
-                ! $ruleAttribute
-                && $parent
-                && $parent->getName() !== Dt0::class
-            ) {
-                if ($parent->hasProperty($propName)) {
-                    $ruleAttribute = $parent->getProperty($propName)
-                        ?->getAttributes(Rule::class, ReflectionAttribute::IS_INSTANCEOF)[0]
-                        ?? null
-                    ;
-                }
-
-                $parent = $parent->getParentClass();
-            }
-
-            if ($rule = $ruleAttribute?->newInstance()) {
+            if ($rule = Property::resolveAttribute($reflectionProperty, Rule::class)) {
                 /** @var Rule $rule */
                 $this->validator->addRule($name, $rule);
             }
