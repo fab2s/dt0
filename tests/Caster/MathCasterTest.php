@@ -10,7 +10,6 @@
 namespace Tests\Caster;
 
 use fab2s\Dt0\Caster\MathCaster;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -24,11 +23,9 @@ class MathCasterTest extends TestCase
         $this->assertSame($expected, (string) $caster->cast($value));
     }
 
-    public function test_exception(): void
+    public function test_nan(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $caster = MathCaster::make();
-        $caster->cast('NaN');
+        $this->assertNull(MathCaster::make()->cast('NaN'));
     }
 
     public static function castProvider(): array
@@ -48,6 +45,11 @@ class MathCasterTest extends TestCase
                 'precision' => 4,
                 'value'     => '   0000042.00000   ',
                 'expected'  => '42',
+            ],
+            [
+                'precision' => 4,
+                'value'     => '   0000042.000100   ',
+                'expected'  => '42.0001',
             ],
         ];
     }

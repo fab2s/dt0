@@ -32,7 +32,7 @@ class Json
     /**
      * @throws JsonException
      */
-    public static function decode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): false|array
+    public static function decode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): mixed
     {
         return json_decode($data, $associative, $depth, $flags & JSON_THROW_ON_ERROR);
     }
@@ -40,7 +40,7 @@ class Json
     /**
      * @throws JsonException
      */
-    public static function gzDecode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): false|array
+    public static function gzDecode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): mixed
     {
         return static::decode(gzdecode(base64_decode($data)), $associative, $flags & JSON_THROW_ON_ERROR, $depth);
     }

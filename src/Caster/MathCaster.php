@@ -15,21 +15,25 @@ use fab2s\Math\Math;
 class MathCaster extends CasterAbstract
 {
     public readonly int $precision;
+    public readonly ?Math $default;
 
     public function __construct(
         int $precision = Math::PRECISION,
+        int|float|string|Math|null $default = null,
     ) {
         $this->precision = max(0, $precision);
+        $this->default   = Math::isNumber($default) ? Math::number($default)->setPrecision($this->precision) : null;
     }
 
     public static function make(
         int $precision = Math::PRECISION,
+        int|float|string|Math|null $default = null,
     ): static {
-        return new static($precision);
+        return new static($precision, $default);
     }
 
-    public function cast(mixed $value, array|Dt0|null $data = null): Math
+    public function cast(mixed $value, array|Dt0|null $data = null): ?Math
     {
-        return Math::number($value)->setPrecision($this->precision);
+        return Math::isNumber(trim((string) $value)) ? Math::number($value)->setPrecision($this->precision) : $this->default;
     }
 }
