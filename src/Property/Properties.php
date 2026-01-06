@@ -12,6 +12,7 @@ namespace fab2s\Dt0\Property;
 use fab2s\Dt0\Attribute\Cast;
 use fab2s\Dt0\Attribute\CastsInterface;
 use fab2s\Dt0\Attribute\Rule;
+use fab2s\Dt0\Attribute\RuleInterface;
 use fab2s\Dt0\Attribute\RulesInterface;
 use fab2s\Dt0\Attribute\ValidateInterface;
 use fab2s\Dt0\Attribute\WithInterface;
@@ -81,46 +82,32 @@ class Properties
 
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
-            if ($this->casts?->hasCast($name)) {
-                $this->registerProp(
-                    $reflectionProperty,
-                    $this->casts->getCast($name)
+            $this->registerProp(
+                $reflectionProperty,
+                $this->casts?->hasCast($name)
+                    ? $this->casts->getCast($name)
                         ->setDeclaringFqn($reflection->getName())
-                        ->setPropName($name),
-                );
-
-                continue;
-            }
-
-            $this->registerProp($reflectionProperty);
+                        ->setPropName($name)
+                    : null,
+            );
 
             if (! $this->validator) {
                 continue;
             }
 
-            if ($validatorRules?->hasRule($name)) {
-                $this->validator->addRule(
-                    $name,
-                    $validatorRules->getRule($name)
+            $rule = $validatorRules?->hasRule($name)
+                ? $validatorRules->getRule($name)
+                    ->setDeclaringFqn($reflection->getName())
+                    ->setPropName($name)
+                : (
+                    $rules?->hasRule($name)
+                    ? $rules->getRule($name)
                         ->setDeclaringFqn($reflection->getName())
-                        ->setPropName($name),
+                        ->setPropName($name)
+                    : Property::resolveAttribute($reflectionProperty, RuleInterface::class)
                 );
 
-                continue;
-            }
-
-            if ($rules?->hasRule($name)) {
-                $this->validator->addRule(
-                    $name,
-                    $rules->getRule($name)
-                        ->setDeclaringFqn($reflection->getName())
-                        ->setPropName($name),
-                );
-
-                continue;
-            }
-
-            if ($rule = Property::resolveAttribute($reflectionProperty, Rule::class)) {
+            if ($rule) {
                 /** @var Rule $rule */
                 $this->validator->addRule($name, $rule);
             }
@@ -190,6 +177,9 @@ class Properties
         return new static($objectOrClass);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     protected function registerProp(ReflectionProperty $property, ?Cast $cast = null): static
     {
         $name = $property->getName();

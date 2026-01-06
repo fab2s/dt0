@@ -41,7 +41,6 @@ class PropertyTest extends TestCase
         $properties = new Properties(DummyValidatedDt0::class);
 
         $this->assertInstanceOf(ValidatorInterface::class, $properties->validator);
-
         /** @var NoOpValidator $validator */
         $validator = $properties->validator;
         $this->assertCount(3, $validator->rules);

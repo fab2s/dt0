@@ -33,6 +33,9 @@ class Property
     protected mixed $default   = Dt0::DT0_NIL;
     protected bool $hasDefault = false;
 
+    /**
+     * @throws ReflectionException
+     */
     public function __construct(public readonly ReflectionProperty $property, ?Cast $cast = null)
     {
         $this->cast        = $cast ?: static::resolveAttribute($this->property, CastInterface::class);
@@ -60,6 +63,9 @@ class Property
         $this->needEarlyCast    = $this->property->isPromoted() && ($this->in || $this->isDt0 || $this->isEnum);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public static function make(ReflectionProperty $property, ?Cast $cast = null): static
     {
         return new static($property, $cast);
@@ -128,12 +134,17 @@ class Property
      * @param int             $flags Criteria by which the attribute is searched.
      *
      * @return object<T>|null
+     *
+     * @throws ReflectionException
      */
     public static function resolveAttribute(ReflectionProperty $property, string $name, int $flags = ReflectionAttribute::IS_INSTANCEOF): ?object
     {
         $attribute = $property->getAttributes($name, $flags)[0] ?? null;
-        $parent    = $property->getDeclaringClass()->getParentClass();
         $propName  = $property->getName();
+        $parent    = $property->getDeclaringClass()
+            ->getParentClass()
+        ;
+
         while (
             ! $attribute
             && $parent
@@ -141,7 +152,7 @@ class Property
         ) {
             if ($parent->hasProperty($propName)) {
                 $attribute = $parent->getProperty($propName)
-                    ->getAttributes(CastInterface::class, ReflectionAttribute::IS_INSTANCEOF)[0]
+                    ->getAttributes($name, $flags)[0]
                     ?? null
                 ;
             }
