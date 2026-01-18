@@ -46,6 +46,9 @@ abstract class CasterCollectionAbstract extends CasterAbstract implements Caster
         return $this->isEmpty() ? null : $this;
     }
 
+    /**
+     * @throws CasterException
+     */
     public function push(CasterInterface|string $caster): static
     {
         if (is_string($caster)) {

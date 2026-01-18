@@ -11,6 +11,7 @@ namespace Tests;
 
 use Carbon\CarbonImmutable;
 use fab2s\Dt0\Exception\Dt0Exception;
+use fab2s\Dt0\Property\Properties;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionException;
@@ -60,6 +61,9 @@ class Dt0Test extends TestCase
         new SimpleDefaultDt0;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function test_with_validation_exception(): void
     {
         $this->expectException(Dt0Exception::class);
@@ -141,6 +145,98 @@ class Dt0Test extends TestCase
 
             $this->dt0Assertions($dto);
         }
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     */
+    public function test_to_array_with_getter_on_public_property(): void
+    {
+        $dto = DummyDt0::make(readOnlyOne: 'value1', readOnlyTwo: 'value2', mutable: '2023-11-23');
+
+        // Add a custom getter for a public property (covers lines 236-241 in Dt0::toArray)
+        $dto->with('readOnlyOne', fn () => 'customValue');
+
+        $result = $dto->toArray();
+
+        // The custom getter should override the actual property value
+        $this->assertSame('customValue', $result['readOnlyOne']);
+        // Other properties should remain unchanged
+        $this->assertSame('value2', $result['readOnlyTwo']);
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    public function test_to_gz(): void
+    {
+        $dto = DefaultDt0::make(stringNoCast: 'value1', stringCast: 'value2');
+
+        $gz = $dto->toGz();
+
+        $this->assertIsString($gz);
+        $this->assertNotEmpty($gz);
+        // Verify it's valid base64
+        $this->assertSame($gz, base64_encode(base64_decode($gz, true)));
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    public function test_from_gz(): void
+    {
+        $original = DefaultDt0::make(stringNoCast: 'value1', stringCast: 'value2');
+
+        $gz       = $original->toGz();
+        $restored = DefaultDt0::fromGz($gz);
+
+        $this->assertInstanceOf(DefaultDt0::class, $restored);
+        $this->assertSame($original->toArray(), $restored->toArray());
+        $this->assertSame($original->stringNoCast, $restored->stringNoCast);
+        $this->assertSame($original->stringCast, $restored->stringCast);
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    public function test_gz_roundtrip(): void
+    {
+        $dto = EnumDt0::make(
+            unitEnum: UnitEnum::ONE,
+            stringBackedEnum: StringBackedEnum::ONE,
+            intBackedEnum: IntBackedEnum::ONE,
+        );
+
+        $gz       = $dto->toGz();
+        $restored = EnumDt0::fromGz($gz);
+
+        $this->assertSame($dto->toArray(), $restored->toArray());
+        $this->assertSame($dto->unitEnum, $restored->unitEnum);
+        $this->assertSame($dto->stringBackedEnum, $restored->stringBackedEnum);
+        $this->assertSame($dto->intBackedEnum, $restored->intBackedEnum);
+    }
+
+    /**
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     */
+    public function test_get_properties(): void
+    {
+        $dto = DefaultDt0::make(stringNoCast: 'value1', stringCast: 'value2');
+
+        $properties = $dto->getProperties();
+
+        $this->assertInstanceOf(Properties::class, $properties);
+        $this->assertSame(DefaultDt0::class, $properties->name);
+        $this->assertArrayHasKey('stringNoCast', $properties->toArray());
+        $this->assertArrayHasKey('stringCast', $properties->toArray());
     }
 
     /**

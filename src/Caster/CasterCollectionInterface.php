@@ -23,4 +23,6 @@ interface CasterCollectionInterface extends CasterInterface, Countable, Iterator
     public function get(CasterInterface|string $caster): ?CasterInterface;
 
     public function delete(CasterInterface|string $caster): static;
+
+    public function toCaster(): ?static;
 }

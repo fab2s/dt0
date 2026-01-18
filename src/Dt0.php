@@ -330,7 +330,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      * @throws JsonException
      * @throws ReflectionException
      */
-    public function fromGz(string $gz, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
+    public static function fromGz(string $gz, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
     {
         return static::make(...Json::gzDecode($gz, true, $flags, $depth));
     }

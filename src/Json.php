@@ -18,7 +18,7 @@ class Json
      */
     public static function encode(mixed $data, int $flags = 0, int $depth = 512): false|string
     {
-        return json_encode($data, $flags & JSON_THROW_ON_ERROR, $depth);
+        return json_encode($data, $flags | JSON_THROW_ON_ERROR, $depth);
     }
 
     /**
@@ -34,7 +34,7 @@ class Json
      */
     public static function decode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): mixed
     {
-        return json_decode($data, $associative, $depth, $flags & JSON_THROW_ON_ERROR);
+        return json_decode($data, $associative, $depth, $flags | JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -42,6 +42,6 @@ class Json
      */
     public static function gzDecode(string $data, bool $associative = true, int $flags = 0, int $depth = 512): mixed
     {
-        return static::decode(gzdecode(base64_decode($data)), $associative, $flags & JSON_THROW_ON_ERROR, $depth);
+        return static::decode(gzdecode(base64_decode($data)), $associative, $flags | JSON_THROW_ON_ERROR, $depth);
     }
 }
