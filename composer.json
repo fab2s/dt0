@@ -37,7 +37,8 @@
         "laravel/pint": "^1.21.2",
         "orchestra/testbench": "^8.0|^9.0",
         "nesbot/carbon": "^2.62|^3.0",
-        "fab2s/math": "^2.0"
+        "fab2s/math": "^2.0",
+        "spatie/laravel-data": "^4.19"
     },
     "suggest": {
         "fab2s/laravel-dt0": "To use Dt0 in Laravel (the awesome) with full validation and attribute casting",

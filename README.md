@@ -38,16 +38,26 @@
 
 ## Why Dt0
 
-Most DTO packages use conventions or magic methods to _simulate_ immutability. Dt0 takes a different approach: it leverages PHP's native `readonly` properties to make immutability **real and enforced by the language**.
+**Real immutability, enforced by PHP.** Most DTO packages simulate immutability with magic methods. Dt0 uses native `readonly` properties - the language itself prevents modifications. Accidental writes cause fatal errors, not silent bugs.
 
-With readonly properties:
-- Accidental modifications cause fatal errors, not silent bugs
-- Object integrity is trackable via [spl_object_id](https://www.php.net/manual/en/function.spl-object-id.php)
-- Updates require explicit intent through `clone()` or `update()`
+**One attribute to rule them all.** Where other packages require a dozen attributes for casting, defaults, and renaming, Dt0's `#[Cast]` handles input transformation, output formatting, defaults, and property renaming in a single, composable attribute.
 
-Should you need even more guarantees, you can add a `public readonly` property storing a cryptographic hash of the input values to sign each Dt0, making tampering detection trivial.
+**Framework-agnostic core.** Use it anywhere PHP runs. For Laravel projects, [laravel-dt0](https://github.com/fab2s/laravel-dt0) adds validation and model casting integration.
 
-**Flexible, not dogmatic**: While immutability is the core feature, Dt0 doesn't force it. You can use mutable properties when your use case demands it - for gradual adoption, specific edge cases, or simply because you want the casting and validation without full immutability. The package provides capabilities; you decide how to use them.
+**Compiled once, fast always.** Reflection and attribute metadata are processed once per class, then cached. Every subsequent instantiation reuses compiled data with zero reflection overhead.
+
+```php
+// One attribute does it all
+#[Cast(
+    in: DateTimeCaster::class,           // Transform on input
+    out: new DateTimeFormatCaster('Y-m-d'), // Format on output
+    default: new DateTime(),              // Default value
+    renameFrom: 'created_at',             // Accept external name
+)]
+public readonly DateTime $createdAt;
+```
+
+**Flexible, not dogmatic.** While immutability is the core feature, Dt0 doesn't force it. Use mutable properties when needed. Expose protected properties via `with()`. The package provides capabilities; you decide how to use them.
 
 ## Installation
 
@@ -978,6 +988,39 @@ $user4 = UserDto::fromJson(/* ... */);
 ```
 
 The cache is bounded by the number of Dt0 classes in your application, not by usage. If you have 20 Dt0 classes, you get 20 cache entries - regardless of how many instances you create.
+
+### Benchmarks
+
+Run the benchmark:
+
+```shell
+php benchmark/compare-spatie.php
+```
+
+#### Dt0 vs spatie/laravel-data (PHP 8.4, 10,000 iterations)
+
+| Operation | Dt0 | spatie/laravel-data | Speedup |
+|-----------|-----|---------------------|--------|
+| Simple DTO (8 props, 5 casts) | 136.9 µs | 1,117 µs | **~8.2x faster** |
+| Complex DTO (nested + arrays) | 711.5 µs | 3,494 µs | **~4.9x faster** |
+| Round-trip (json→dto→json) | 246.8 µs | 1,960 µs | **~7.9x faster** |
+
+**Repeated serialization (same instance):**
+
+| Operation | Dt0 | spatie/laravel-data | Speedup |
+|-----------|-----|---------------------|--------|
+| toArray() (simple) | 3.5 µs | 625.8 µs | **~178.8x faster** |
+| toArray() (nested) | 3.6 µs | 1,978 µs | **~549.3x faster** |
+| toJson() | 2.4 µs | 627.5 µs | **~261.5x faster** |
+
+The extreme serialization speedup (178-549x) applies when serializing the same instance multiple times - Dt0 caches the output structure on first call. Real-world scenarios where this matters:
+
+- **API + logging**: serialize response, then log the same DTO
+- **Event sourcing**: serialize for storage, broadcast, and audit trail
+- **Queue jobs**: serialize for the queue, then again for monitoring
+- **Caching layers**: serialize for Redis and for the HTTP response
+
+For single-use serialization, expect ~10x improvement, consistent with hydration benchmarks.
 
 ## Exceptions
 
