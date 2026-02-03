@@ -8,6 +8,9 @@ Dt0 comes with several casters out of the box. All of them can be used as `in` (
 - [CasterInterface](#casterinterface)
 - [Built-in Casters](#built-in-casters)
     - [ScalarCaster](#scalarcaster)
+    - [JsonCaster](#jsoncaster)
+    - [TrimCaster](#trimcaster)
+    - [Base64Caster](#base64caster)
     - [ArrayOfCaster](#arrayofcaster)
     - [DateTimeCaster](#datetimecaster)
     - [CarbonCaster](#carboncaster)
@@ -135,6 +138,162 @@ $stats = StatsDto::make(
 - `ScalarType::bool` / `'bool'` / `'boolean'`
 - `ScalarType::string` / `'string'`
 
+
+### JsonCaster
+
+Bidirectional caster that decodes JSON strings on input and encodes to JSON strings on output. Detects direction automatically using the `$data` parameter context.
+
+**Constructor:**
+```php
+new JsonCaster(
+    bool $associative = true,
+    int $flags = 0,
+    int $depth = 512,
+)
+```
+
+**Behavior:**
+- Input (`$data` is array): JSON string → array/object
+- Output (`$data` is Dt0): array/object → JSON string
+- Invalid JSON on input → returns `null`
+- Array passed on input → returned as-is (already decoded)
+
+**Examples:**
+
+```php
+use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Caster\JsonCaster;
+
+class ConfigDto extends Dt0
+{
+    // JSON column from database
+    #[Cast(in: JsonCaster::class, out: JsonCaster::class)]
+    public readonly array $settings;
+
+    // Decode as object instead of array
+    #[Cast(in: new JsonCaster(associative: false))]
+    public readonly object $metadata;
+}
+
+$config = ConfigDto::make(
+    settings: '{"theme": "dark", "notifications": true}',
+    metadata: '{"version": "1.0"}',
+);
+
+$config->settings;  // ['theme' => 'dark', 'notifications' => true]
+$config->metadata;  // object with ->version = '1.0'
+
+$config->toJsonArray();
+// ['settings' => '{"theme":"dark","notifications":true}', ...]
+```
+
+### TrimCaster
+
+Trims whitespace (or custom characters) from strings. Supports `trim`, `ltrim`, and `rtrim` modes.
+
+**Constructor:**
+```php
+new TrimCaster(
+    TrimType $trimType = TrimType::BOTH,
+    ?string $characters = " \n\r\t\v\0",
+)
+```
+
+**Behavior:**
+- Non-string input → returns `null`
+- String input → trimmed according to `TrimType`
+
+**Examples:**
+
+```php
+use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Caster\TrimCaster;
+use fab2s\Dt0\Caster\TrimType;
+
+class UserInputDto extends Dt0
+{
+    // Default: trim both sides
+    #[Cast(in: TrimCaster::class)]
+    public readonly string $name;
+
+    // Trim only left side
+    #[Cast(in: new TrimCaster(TrimType::LEFT))]
+    public readonly string $code;
+
+    // Trim only right side
+    #[Cast(in: new TrimCaster(TrimType::RIGHT))]
+    public readonly string $path;
+
+    // Custom characters
+    #[Cast(in: new TrimCaster(TrimType::BOTH, '/'))]
+    public readonly string $slug;
+}
+
+$input = UserInputDto::make(
+    name: '  John Doe  ',      // → 'John Doe'
+    code: '  ABC123',          // → 'ABC123'
+    path: '/var/log/',         // → '/var/log'
+    slug: '///my-page///',     // → 'my-page'
+);
+```
+
+**Available TrimTypes:**
+- `TrimType::BOTH` - `trim()` (default)
+- `TrimType::LEFT` - `ltrim()`
+- `TrimType::RIGHT` - `rtrim()`
+
+### Base64Caster
+
+Bidirectional caster that decodes base64 on input and encodes to base64 on output. Useful for binary data in JSON payloads or database storage.
+
+**Constructor:**
+```php
+new Base64Caster(bool $strict = true)
+```
+
+**Behavior:**
+- Input (`$data` is array): base64 string → decoded string
+- Output (`$data` is Dt0): string → base64 encoded string
+- Invalid base64 with `strict: true` → returns `null`
+- Non-string input → returns `null`
+
+**Examples:**
+
+```php
+use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Caster\Base64Caster;
+
+class FileDto extends Dt0
+{
+    public readonly string $name;
+
+    // Binary content stored as base64
+    #[Cast(in: Base64Caster::class, out: Base64Caster::class)]
+    public readonly string $content;
+}
+
+$file = FileDto::make(
+    name: 'document.pdf',
+    content: base64_encode($binaryContent),
+);
+
+$file->content;  // Decoded binary content
+
+$file->toJsonArray();
+// ['name' => 'document.pdf', 'content' => 'base64-encoded-string...']
+```
+
+```php
+// Non-strict mode (lenient parsing)
+class LegacyDto extends Dt0
+{
+    #[Cast(in: new Base64Caster(strict: false))]
+    public readonly string $data;
+}
+```
 
 ### ArrayOfCaster
 
@@ -721,40 +880,33 @@ class PersonDto extends Dt0
 
 ### Bidirectional Casters
 
-Some casters naturally work in both directions:
+Some casters work in both directions by detecting context via the `$data` parameter. Built-in examples include `JsonCaster` and `Base64Caster`. See their documentation above for details.
+
+To create your own bidirectional caster:
 
 ```php
-class JsonCaster extends CasterAbstract
+class EncryptedCaster extends CasterAbstract
 {
     public function __construct(
-        public readonly bool $assoc = true,
-        public readonly int $flags = 0,
+        private readonly string $key,
     ) {}
 
-    public function cast(mixed $value, array|Dt0|null $data = null): mixed
+    public function cast(mixed $value, array|Dt0|null $data = null): ?string
     {
-        // Input: JSON string → array/object
-        if (is_string($value)) {
-            return json_decode($value, $this->assoc, 512, $this->flags | JSON_THROW_ON_ERROR);
+        if (! is_string($value)) {
+            return null;
         }
 
-        // Output: array/object → JSON string
-        if (is_array($value) || is_object($value)) {
-            return json_encode($value, $this->flags | JSON_THROW_ON_ERROR);
+        // Output: encrypt
+        if ($data instanceof Dt0) {
+            return $this->encrypt($value);
         }
 
-        return $value;
+        // Input: decrypt
+        return $this->decrypt($value);
     }
-}
 
-class ConfigDto extends Dt0
-{
-    // Store as array, output as JSON
-    #[Cast(out: new JsonCaster)]
-    public readonly array $settings;
-
-    // Store as JSON string, input parsed to array
-    #[Cast(in: new JsonCaster)]
-    public readonly array $metadata;
+    private function encrypt(string $value): string { /* ... */ }
+    private function decrypt(string $value): string { /* ... */ }
 }
 ```

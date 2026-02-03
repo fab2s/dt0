@@ -509,6 +509,9 @@ class PersonDto extends Dt0
 | Caster | Description |
 |--------|-------------|
 | [`ScalarCaster`](./src/Caster/ScalarCaster.php) | Cast to `int`, `float`, `bool`, `string` |
+| [`JsonCaster`](./src/Caster/JsonCaster.php) | Decode JSON on input, encode on output |
+| [`TrimCaster`](./src/Caster/TrimCaster.php) | Trim strings (supports `ltrim`, `rtrim`, custom characters) |
+| [`Base64Caster`](./src/Caster/Base64Caster.php) | Decode base64 on input, encode on output |
 | [`DateTimeCaster`](./src/Caster/DateTimeCaster.php) | Parse strings/arrays to `DateTime` or `DateTimeImmutable` |
 | [`DateTimeFormatCaster`](./src/Caster/DateTimeFormatCaster.php) | Format DateTime for output |
 | [`CarbonCaster`](./src/Caster/CarbonCaster.php) | Parse to Carbon (requires `nesbot/carbon`) |
