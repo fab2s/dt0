@@ -488,15 +488,15 @@ $task->priority;   // 0
 $task->isArchived; // false
 ```
 
-**Combining class and property casts**: You can use both. In case of overlap, class-level `#[Casts]` takes precedence over property-level `#[Cast]`.
+**Combining class and property casts**: You can use both. In case of overlap, property-level `#[Cast]` takes precedence over class-level `#[Casts]`.
 
 ```php
 #[Casts(
-    name: new Cast(default: 'Anonymous'),  // Takes precedence
+    name: new Cast(default: 'Anonymous'),  // Fallback if no property-level Cast
 )]
 class PersonDto extends Dt0
 {
-    #[Cast(default: 'Unknown')]  // Ignored for 'name'
+    #[Cast(default: 'Unknown')]  // Takes precedence
     public readonly string $name;
 
     #[Cast(default: 0)]  // Applied (no conflict)
@@ -913,6 +913,8 @@ $contact = ContactDto::make(
 // Run validation (throws on failure)
 $contact->withValidation();
 ```
+
+**Rule priority**: When rules are defined at multiple levels, property-level `#[Rule]` takes precedence over class-level `#[Rules]`, which takes precedence over rules defined in `#[Validate]`.
 
 For a complete implementation with Laravel's validator, see [Laravel Dt0](https://github.com/fab2s/laravel-dt0).
 

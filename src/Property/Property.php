@@ -38,7 +38,7 @@ class Property
      */
     public function __construct(public readonly ReflectionProperty $property, ?Cast $cast = null)
     {
-        $this->cast        = $cast ?: static::resolveAttribute($this->property, CastInterface::class);
+        $this->cast        = static::resolveAttribute($this->property, CastInterface::class) ?: $cast;
         $declaringClassFqn = $this->property->getDeclaringClass()->getName();
         $this->name        = $this->property->getName();
         $this->cast?->setDeclaringFqn($declaringClassFqn)->setPropName($this->name);

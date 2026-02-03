@@ -95,16 +95,19 @@ class Properties
                 continue;
             }
 
-            $rule = $validatorRules?->hasRule($name)
-                ? $validatorRules->getRule($name)
-                    ->setDeclaringFqn($reflection->getName())
-                    ->setPropName($name)
-                : (
+            $rule = Property::resolveAttribute($reflectionProperty, RuleInterface::class)
+                ?: (
                     $rules?->hasRule($name)
                     ? $rules->getRule($name)
                         ->setDeclaringFqn($reflection->getName())
                         ->setPropName($name)
-                    : Property::resolveAttribute($reflectionProperty, RuleInterface::class)
+                    : (
+                        $validatorRules?->hasRule($name)
+                        ? $validatorRules->getRule($name)
+                            ->setDeclaringFqn($reflection->getName())
+                            ->setPropName($name)
+                        : null
+                    )
                 );
 
             if ($rule) {
