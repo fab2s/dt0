@@ -29,7 +29,7 @@ class Base64Caster extends CasterAbstract
      */
     public function cast(mixed $value, array|Dt0|null $data = null): ?string
     {
-        if ($value === null || ! is_string($value)) {
+        if (! is_string($value)) {
             return null;
         }
 

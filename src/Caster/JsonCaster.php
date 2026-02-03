@@ -29,8 +29,7 @@ class JsonCaster extends CasterAbstract
     }
 
     /**
-     * On input ($data is array): decodes JSON string to array/object.
-     * On output ($data is Dt0): encodes array/object to JSON string.
+     * @throws JsonException
      */
     public function cast(mixed $value, array|Dt0|null $data = null): mixed
     {
@@ -38,17 +37,15 @@ class JsonCaster extends CasterAbstract
             return null;
         }
 
-        // Output context: encode to JSON string
         if ($data instanceof Dt0) {
+            // output
             return $this->encode($value);
         }
 
-        // Input context: decode from JSON string
         if (is_string($value)) {
             return $this->decode($value);
         }
 
-        // Already decoded (array/object passed directly)
         return $value;
     }
 

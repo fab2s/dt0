@@ -11,12 +11,17 @@ namespace Tests\Caster;
 
 use fab2s\Dt0\Caster\JsonCaster;
 use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Exception\Dt0Exception;
 use JsonException;
+use ReflectionException;
 use Tests\Artifacts\JsonTestDt0;
 use Tests\TestCase;
 
 class JsonCasterTest extends TestCase
 {
+    /**
+     * @throws JsonException
+     */
     public function test_decode_on_input(): void
     {
         $caster = JsonCaster::make();
@@ -28,6 +33,9 @@ class JsonCasterTest extends TestCase
         $this->assertSame(['key' => 'value', 'nested' => ['a' => 1]], $result);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function test_decode_as_object(): void
     {
         $caster = new JsonCaster(associative: false);
@@ -39,6 +47,11 @@ class JsonCasterTest extends TestCase
         $this->assertSame('value', $result->key);
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws Dt0Exception
+     * @throws JsonException
+     */
     public function test_encode_on_output(): void
     {
         $caster = JsonCaster::make();
@@ -51,6 +64,9 @@ class JsonCasterTest extends TestCase
         $this->assertSame('{"key":"value","nested":{"a":1}}', $result);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function test_null_passthrough(): void
     {
         $caster = JsonCaster::make();
@@ -59,6 +75,9 @@ class JsonCasterTest extends TestCase
         $this->assertNull($caster->cast(null, $this->createMock(Dt0::class)));
     }
 
+    /**
+     * @throws JsonException
+     */
     public function test_invalid_json_throws_exception(): void
     {
         $caster = JsonCaster::make();
@@ -67,6 +86,9 @@ class JsonCasterTest extends TestCase
         $caster->cast('not valid json', []);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function test_array_passthrough_on_input(): void
     {
         $caster = JsonCaster::make();
@@ -78,6 +100,9 @@ class JsonCasterTest extends TestCase
         $this->assertSame($data, $result);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function test_invalid_value_on_output(): void
     {
         $caster = JsonCaster::make();
@@ -88,6 +113,10 @@ class JsonCasterTest extends TestCase
         $this->assertNull($caster->cast(42, $dt0));
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws Dt0Exception
+     */
     public function test_full_roundtrip(): void
     {
         $input = ['metadata' => '{"tags":["a","b"],"count":42}'];
@@ -102,9 +131,13 @@ class JsonCasterTest extends TestCase
         $this->assertSame('{"tags":["a","b"],"count":42}', $output['metadata']);
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws Dt0Exception
+     */
     public function test_roundtrip_with_array_input(): void
     {
-        // Input can also be array directly (not just JSON string)
+        // Input can also be an array directly (not just JSON string)
         $input = ['metadata' => ['tags' => ['a', 'b'], 'count' => 42]];
 
         $dt0 = JsonTestDt0::fromArray($input);
