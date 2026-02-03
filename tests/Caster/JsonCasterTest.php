@@ -11,6 +11,7 @@ namespace Tests\Caster;
 
 use fab2s\Dt0\Caster\JsonCaster;
 use fab2s\Dt0\Dt0;
+use JsonException;
 use Tests\Artifacts\JsonTestDt0;
 use Tests\TestCase;
 
@@ -58,12 +59,12 @@ class JsonCasterTest extends TestCase
         $this->assertNull($caster->cast(null, $this->createMock(Dt0::class)));
     }
 
-    public function test_invalid_json_returns_null(): void
+    public function test_invalid_json_throws_exception(): void
     {
         $caster = JsonCaster::make();
 
-        $this->assertNull($caster->cast('not valid json', []));
-        $this->assertNull($caster->cast('{broken', []));
+        $this->expectException(JsonException::class);
+        $caster->cast('not valid json', []);
     }
 
     public function test_array_passthrough_on_input(): void

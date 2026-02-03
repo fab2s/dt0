@@ -52,25 +52,23 @@ class JsonCaster extends CasterAbstract
         return $value;
     }
 
-    protected function decode(string $value): array|object|null
+    /**
+     * @throws JsonException
+     */
+    protected function decode(string $value): array|object
     {
-        try {
-            return json_decode($value, $this->associative, $this->depth, $this->flags | JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            return null;
-        }
+        return json_decode($value, $this->associative, $this->depth, $this->flags | JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     protected function encode(mixed $value): ?string
     {
         if (! is_array($value) && ! is_object($value)) {
             return null;
         }
 
-        try {
-            return json_encode($value, $this->flags | JSON_THROW_ON_ERROR, $this->depth);
-        } catch (JsonException) {
-            return null;
-        }
+        return json_encode($value, $this->flags | JSON_THROW_ON_ERROR, $this->depth);
     }
 }

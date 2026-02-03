@@ -155,7 +155,7 @@ new JsonCaster(
 **Behavior:**
 - Input (`$data` is array): JSON string → array/object
 - Output (`$data` is Dt0): array/object → JSON string
-- Invalid JSON on input → returns `null`
+- Invalid JSON → throws `JsonException`
 - Array passed on input → returned as-is (already decoded)
 
 **Examples:**
