@@ -9,16 +9,9 @@ parameters:
     parallel:
         maximumNumberOfProcesses: 4
 
-    reportUnmatchedIgnoredErrors: false
-
     ignoreErrors:
-        # same as src
-        -
-            identifier: attribute.abstract
         -
             identifier: property.uninitializedReadonly
-        -
-            identifier: new.static
         # Dt0 children define typed constructors by design
         -
             identifier: method.childParameterType

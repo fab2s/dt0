@@ -215,18 +215,18 @@ class Properties
         }
 
         if ($prop->cast?->renameFrom) { // @phpstan-ignore property.notFound
-            if (is_array($prop->cast->renameFrom)) { // @phpstan-ignore property.notFound
+            if (is_array($prop->cast->renameFrom)) {
                 foreach ($prop->cast->renameFrom as $from) {
                     $this->renameFrom[(string) $from] = $name; // @phpstan-ignore cast.string
                 }
             } else {
-                $this->renameFrom[$prop->cast->renameFrom] = $name; // @phpstan-ignore property.notFound
+                $this->renameFrom[$prop->cast->renameFrom] = $name;
             }
         }
 
         if ($prop->cast?->renameTo) { // @phpstan-ignore property.notFound
-            $this->renameTo[$name]                   = $prop->cast->renameTo; // @phpstan-ignore property.notFound
-            $this->renameFrom[$prop->cast->renameTo] = $name; // @phpstan-ignore property.notFound
+            $this->renameTo[$name]                   = $prop->cast->renameTo;
+            $this->renameFrom[$prop->cast->renameTo] = $name;
         }
 
         return $this;

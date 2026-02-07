@@ -9,8 +9,6 @@ parameters:
     parallel:
         maximumNumberOfProcesses: 4
 
-    reportUnmatchedIgnoredErrors: false
-
     ignoreErrors:
         -
             identifier: attribute.abstract
