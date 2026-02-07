@@ -1050,19 +1050,19 @@ php benchmark/compare-spatie.php
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
 |-----------|-----|---------------------|--------|
-| Simple DTO (8 props, 5 casts) | 136.9 µs | 1,117 µs | **~8.2x faster** |
-| Complex DTO (nested + arrays) | 711.5 µs | 3,494 µs | **~4.9x faster** |
-| Round-trip (json→dto→json) | 246.8 µs | 1,960 µs | **~7.9x faster** |
+| Simple DTO (8 props, 5 casts) | 141.6 µs | 1,158 µs | **~8.2x faster** |
+| Complex DTO (nested + arrays) | 741.9 µs | 3,628 µs | **~4.9x faster** |
+| Round-trip (json→dto→json) | 248.4 µs | 2,004 µs | **~8.1x faster** |
 
 **Repeated serialization (same instance):**
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
 |-----------|-----|---------------------|--------|
-| toArray() (simple) | 3.5 µs | 625.8 µs | **~178.8x faster** |
-| toArray() (nested) | 3.6 µs | 1,978 µs | **~549.3x faster** |
-| toJson() | 2.4 µs | 627.5 µs | **~261.5x faster** |
+| toArray() (simple) | 3.6 µs | 679.4 µs | **~188.7x faster** |
+| toArray() (nested) | 3.6 µs | 2,056 µs | **~571.1x faster** |
+| toJson() | 2.8 µs | 681.8 µs | **~243.5x faster** |
 
-The extreme serialization speedup (178-549x) applies when serializing the same instance multiple times - Dt0 caches the output structure on first call. Real-world scenarios where this matters:
+The extreme serialization speedup (188-571x) applies when serializing the same instance multiple times - Dt0 caches the output structure on first call. Real-world scenarios where this matters:
 
 - **API + logging**: serialize response, then log the same DTO
 - **Event sourcing**: serialize for storage, broadcast, and audit trail
