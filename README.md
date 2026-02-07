@@ -18,6 +18,7 @@
 - [Immutable Operations](#immutable-operations)
 - [Casting](#casting)
   - [Property-Level Casting](#property-level-casting)
+  - [Bidirectional Casting](#bidirectional-casting)
   - [Class-Level Casting](#class-level-casting)
   - [Available Casters](#available-casters)
   - [Built-in Type Support](#built-in-type-support)
@@ -49,10 +50,11 @@
 ```php
 // One attribute does it all
 #[Cast(
-    in: DateTimeCaster::class,           // Transform on input
+    in: DateTimeCaster::class,              // Transform on input
     out: new DateTimeFormatCaster('Y-m-d'), // Format on output
-    default: new DateTime(),              // Default value
-    renameFrom: 'created_at',             // Accept external name
+    both: JsonCaster::class,                // Same caster for both directions
+    default: new DateTime(),                // Default value
+    renameFrom: 'created_at',              // Accept external name
 )]
 public readonly DateTime $createdAt;
 ```
@@ -452,6 +454,48 @@ $article->toArray();
 
 $article->jsonSerialize();
 // ['title' => 'Hello World', 'viewCount' => 42, 'publishedAt' => '2024-01-15T00:00:00.000000Z', 'updatedAt' => null]
+```
+
+### Bidirectional Casting
+
+When a caster applies to both input and output, use the `both` parameter instead of repeating the same caster for `in` and `out`:
+
+```php
+use fab2s\Dt0\Dt0;
+use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Caster\JsonCaster;
+use fab2s\Dt0\Caster\Base64Caster;
+
+class PayloadDto extends Dt0
+{
+    #[Cast(both: JsonCaster::class)]
+    public readonly array $metadata;
+
+    #[Cast(both: Base64Caster::class)]
+    public readonly string $data;
+}
+```
+
+`both` can be combined with `in` and/or `out` for layered casting. When combined, casters are chained using onion ordering:
+
+- **Input:** `both` → `in`
+- **Output:** `out` → `both`
+
+```php
+use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Caster\DateTimeCaster;
+use fab2s\Dt0\Caster\DateTimeFormatCaster;
+use fab2s\Dt0\Caster\TrimCaster;
+
+class EventDto extends Dt0
+{
+    #[Cast(
+        both: new TrimCaster,                          // Trims on input AND output
+        in: DateTimeCaster::class,                     // Input: trim → parse DateTime
+        out: new DateTimeFormatCaster('Y-m-d H:i:s'), // Output: format → trim
+    )]
+    public readonly DateTime $startsAt;
+}
 ```
 
 ### Class-Level Casting

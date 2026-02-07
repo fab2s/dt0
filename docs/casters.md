@@ -1,6 +1,6 @@
 # Casters
 
-Dt0 comes with several casters out of the box. All of them can be used as `in` (input) or `out` (output) with the `Cast` attribute, though some are more practical in one direction than the other.
+Dt0 comes with several casters out of the box. All of them can be used as `in` (input), `out` (output) or `both` (bidirectional) with the `Cast` attribute, though some are more practical in one direction than the other.
 
 ## Table of Contents
 
@@ -56,8 +56,8 @@ Most casters only need `$value`. The `$data` parameter is available for advanced
 
 | Direction | `$data` Type | Use Case |
 |-----------|--------------|----------|
-| Input (`in`) | `array` | Access other input fields to compute the value |
-| Output (`out`) | `Dt0` | Access other properties to compute the output |
+| Input (`in` / `both`) | `array` | Access other input fields to compute the value |
+| Output (`out` / `both`) | `Dt0` | Access other properties to compute the output |
 
 ```php
 public function cast(mixed $value, array|Dt0|null $data = null): mixed
@@ -772,6 +772,42 @@ class CommentDto extends Dt0
     public readonly string $content;
 }
 ```
+
+## Bidirectional Casting with `both`
+
+When a caster should run on both input and output, use the `both` parameter instead of repeating the same caster for `in` and `out`:
+
+```php
+// Instead of:
+#[Cast(in: JsonCaster::class, out: JsonCaster::class)]
+public readonly array $metadata;
+
+// Use:
+#[Cast(both: JsonCaster::class)]
+public readonly array $metadata;
+```
+
+This is particularly useful for context-aware casters like `JsonCaster` and `Base64Caster` that use the `$data` parameter to determine their direction.
+
+### Combining `both` with `in` / `out`
+
+`both` can be combined with direction-specific casters. When combined, casters are chained using onion ordering:
+
+- **Input:** `both` → `in`
+- **Output:** `out` → `both`
+
+```php
+#[Cast(
+    both: new TrimCaster,
+    in: DateTimeCaster::class,
+    out: new DateTimeFormatCaster('Y-m-d H:i:s'),
+)]
+public readonly DateTime $startsAt;
+// Input:  " 2024-01-15 " → "2024-01-15" (trim) → DateTime (parse)
+// Output: DateTime → "2024-01-15 00:00:00" (format) → "2024-01-15 00:00:00" (trim)
+```
+
+When `both` is the only caster, no `CasterCollection` wrapper is created — the caster is used directly for both `in` and `out`.
 
 ## Creating Custom Casters
 

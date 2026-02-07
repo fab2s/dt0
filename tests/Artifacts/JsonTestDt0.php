@@ -15,6 +15,6 @@ use fab2s\Dt0\Dt0;
 
 class JsonTestDt0 extends Dt0
 {
-    #[Cast(in: JsonCaster::class, out: JsonCaster::class)]
+    #[Cast(both: JsonCaster::class)]
     public readonly array $metadata;
 }

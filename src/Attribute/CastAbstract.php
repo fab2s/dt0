@@ -27,4 +27,5 @@ abstract class CastAbstract implements CastInterface
     public readonly bool $hasDefault;
     public readonly ?CasterInterface $in;
     public readonly ?CasterInterface $out;
+    public readonly ?CasterInterface $both;
 }

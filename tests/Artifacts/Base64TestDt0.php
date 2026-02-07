@@ -15,6 +15,6 @@ use fab2s\Dt0\Dt0;
 
 class Base64TestDt0 extends Dt0
 {
-    #[Cast(in: Base64Caster::class, out: Base64Caster::class)]
+    #[Cast(both: Base64Caster::class)]
     public readonly string $data;
 }

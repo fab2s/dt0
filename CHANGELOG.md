@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Breaking Changes
+
+#### `Cast` Attribute Signature
+
+The `#[Cast]` attribute now accepts a `both` parameter (third positional argument) for bidirectional casters. This shifts the position of `default`, `renameFrom`, `renameTo`, and `propName`. Users relying on positional arguments will need to update their code to use named arguments.
+
+### Added
+
+#### Bidirectional Casting with `both`
+
+New `both` parameter on `#[Cast]` for casters that apply to both input and output. When combined with `in` or `out`, casters are chained using onion ordering (`both` → `in` on input, `out` → `both` on output).
+
+```php
+#[Cast(both: JsonCaster::class)]
+public readonly array $metadata;
+```
+
 ## [1.0.0] - 2025-02-03
 
 ### Breaking Changes
