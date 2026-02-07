@@ -29,7 +29,7 @@ New `both` parameter on `#[Cast]` for casters that apply to both input and outpu
 public readonly array $metadata;
 ```
 
-## [1.0.0] - 2025-02-03
+## [1.0.0] - 2025-02-08
 
 ### Breaking Changes
 
