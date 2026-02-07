@@ -35,6 +35,7 @@ class Cast extends CastAbstract
         CasterInterface|string|null $out = null,
         CasterInterface|string|null $both = null,
         public readonly mixed $default = Dt0::DT0_NIL,
+        /** @var string|array<string>|null */
         public readonly string|array|null $renameFrom = null,
         public readonly ?string $renameTo = null,
         ?string $propName = null,

@@ -14,6 +14,9 @@ namespace fab2s\Dt0\Caster;
 use Countable;
 use IteratorAggregate;
 
+/**
+ * @extends IteratorAggregate<class-string<CasterInterface>, CasterInterface>
+ */
 interface CasterCollectionInterface extends CasterInterface, Countable, IteratorAggregate
 {
     public function push(CasterInterface $caster): static;

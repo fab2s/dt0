@@ -24,12 +24,12 @@ abstract class RulesAbstract implements RulesInterface
      */
     protected array $rules = [];
 
-    public function hasRule($name): bool
+    public function hasRule(string $name): bool
     {
         return isset($this->rules[$name]);
     }
 
-    public function getRule($name): ?Rule
+    public function getRule(string $name): ?Rule
     {
         return $this->rules[$name] ?? null;
     }

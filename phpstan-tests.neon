@@ -1,0 +1,45 @@
+
+parameters:
+    tmpDir: .phpstan
+    level: 5
+
+    paths:
+        - tests
+
+    parallel:
+        maximumNumberOfProcesses: 4
+
+    reportUnmatchedIgnoredErrors: false
+
+    ignoreErrors:
+        # same as src
+        -
+            identifier: attribute.abstract
+        -
+            identifier: property.uninitializedReadonly
+        -
+            identifier: new.static
+        # Dt0 children define typed constructors by design
+        -
+            identifier: method.childParameterType
+        # PHPUnit assertions on already-narrowed types is normal
+        -
+            identifier: method.alreadyNarrowedType
+        # testing PHP 8.4 readonly inheritance
+        -
+            identifier: assign.readOnlyProperty
+        # Dt0 hydration uses named args, non-optional before optional is fine
+        -
+            identifier: parameter.notOptional
+        # test artifact for intersection type coverage
+        -
+            identifier: property.unresolvableNativeType
+        # intentionally assigning wrong type to test TypeError
+        -
+            identifier: assign.propertyType
+        # CastInterface doesn't declare $out (lives on CastAbstract)
+        -
+            identifier: property.notFound
+        # key-of<$this> causes unresolvable types in test context
+        -
+            identifier: argument.unresolvableType

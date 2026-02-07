@@ -17,5 +17,6 @@ use fab2s\Dt0\Dt0;
 
 interface CasterInterface extends HasDeclaringFqnInterface, HasPropNameInterface
 {
+    /** @param array<string, mixed>|Dt0|null $data */
     public function cast(mixed $value, array|Dt0|null $data = null): mixed;
 }

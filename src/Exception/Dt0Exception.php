@@ -17,6 +17,7 @@ use Throwable;
 
 class Dt0Exception extends ContextException
 {
+    /** @param array<string, mixed> $context */
     public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null, array $context = [])
     {
         $message = implode(

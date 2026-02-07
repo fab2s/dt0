@@ -93,6 +93,7 @@ abstract class CasterCollectionAbstract extends CasterAbstract implements Caster
         return $this;
     }
 
+    /** @param array<string, mixed>|Dt0|null $data */
     public function cast(mixed $value, Dt0|array|null $data = null): mixed
     {
         foreach ($this->casters as $caster) {

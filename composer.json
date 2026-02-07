@@ -38,7 +38,8 @@
         "orchestra/testbench": "^8.0|^9.0",
         "nesbot/carbon": "^2.62|^3.0",
         "fab2s/math": "^2.0",
-        "spatie/laravel-data": "^4.19"
+        "spatie/laravel-data": "^4.19",
+        "phpstan/phpstan": "^2.1"
     },
     "suggest": {
         "fab2s/laravel-dt0": "To use Dt0 in Laravel (the awesome) with full validation and attribute casting",
@@ -62,8 +63,25 @@
         "post-install-cmd": [
             "rm -rf .*.cache"
         ],
-        "fix": "@php vendor/bin/pint --config pint.json --",
-        "test": "@php vendor/bin/phpunit --",
-        "cov": "@php vendor/bin/phpunit --coverage-html ./cov --"
+        "fix": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/pint --ansi --config pint.json --"
+        ],
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpunit --colors --"
+        ],
+        "cov": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpunit --colors --coverage-html ./cov --"
+        ],
+        "stan": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpstan analyse -c ./phpstan.neon --ansi --"
+        ],
+        "stan-tests": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpstan analyse -c ./phpstan-tests.neon --ansi --"
+        ]
     }
 }

@@ -23,7 +23,7 @@ trait HasCasterInstance
     {
         return match (true) {
             is_object($caster)                              => $caster,
-            is_subclass_of($caster, CasterInterface::class) => new $caster,
+            is_subclass_of($caster, CasterInterface::class) => new $caster, // @phpstan-ignore argument.type
             $caster === null                                => null,
             default                                         => throw new AttributeException('[Cast] Cast must implement CasterInterface'),
         };

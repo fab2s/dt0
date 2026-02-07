@@ -24,7 +24,8 @@ class MathCaster extends CasterAbstract
         int|float|string|Math|null $default = null,
     ) {
         $this->precision = max(0, $precision);
-        $this->default   = Math::isNumber($default) ? Math::number($default)->setPrecision($this->precision) : null;
+        /** @var int|float|string|Math $default */
+        $this->default = Math::isNumber($default) ? Math::number($default)->setPrecision($this->precision) : null;
     }
 
     public static function make(
@@ -34,8 +35,10 @@ class MathCaster extends CasterAbstract
         return new static($precision, $default);
     }
 
+    /** @param array<string, mixed>|Dt0|null $data */
     public function cast(mixed $value, array|Dt0|null $data = null): ?Math
     {
+        /** @var int|float|string|Math $value */
         return Math::isNumber(trim((string) $value)) ? Math::number($value)->setPrecision($this->precision) : $this->default;
     }
 }

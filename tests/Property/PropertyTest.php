@@ -34,7 +34,7 @@ class PropertyTest extends TestCase
      * @throws ReflectionException
      * @throws Dt0Exception
      */
-    public function test_instance()
+    public function test_instance(): void
     {
         $properties = DefaultDt0::compile();
         $dto        = DefaultDt0::make(stringNoCast: 'stringNoCast', stringCast: 'stringCast');
@@ -45,7 +45,7 @@ class PropertyTest extends TestCase
         $this->assertSame($expectedKeys, array_keys($properties->toArray()));
     }
 
-    public function test_validator()
+    public function test_validator(): void
     {
         $properties = new Properties(DummyValidatedDt0::class);
 

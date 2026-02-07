@@ -73,7 +73,6 @@ class PropertiesTest extends TestCase
         $properties = Properties::make(DummyDt0::class);
         $array      = $properties->toArray();
 
-        $this->assertIsArray($array);
         $this->assertArrayHasKey('readOnlyOne', $array);
         $this->assertArrayHasKey('readOnlyTwo', $array);
         $this->assertArrayHasKey('mutable', $array);
@@ -106,7 +105,6 @@ class PropertiesTest extends TestCase
         $properties = Properties::make(DefaultDt0::class);
         $earlyInits = $properties->earlyInits();
 
-        $this->assertIsArray($earlyInits);
         // Promoted properties with Cast attribute that have default or need casting
         $this->assertArrayHasKey('stringDefaultCastDefault', $earlyInits);
         $this->assertArrayHasKey('stringDefaultNullCastDefault', $earlyInits);
@@ -121,7 +119,6 @@ class PropertiesTest extends TestCase
     {
         $properties = Properties::make(DefaultDt0::class);
 
-        $this->assertIsArray($properties->constructorParameters);
         $this->assertArrayHasKey('stringNoCastDefault', $properties->constructorParameters);
         $this->assertArrayHasKey('stringDefaultCastDefault', $properties->constructorParameters);
     }

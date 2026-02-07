@@ -19,17 +19,21 @@ use ReflectionException;
 
 class Dt0Caster extends CasterAbstract
 {
+    /** @var class-string<Dt0> */
+    public readonly string $dt0Fqn;
+
     /**
      * @throws Dt0Exception
      * @throws CasterException
      */
     public function __construct(
-        /** @var class-string<Dt0> */
-        public readonly string $dt0Fqn,
+        string $dt0Fqn,
     ) {
         if (! is_subclass_of($dt0Fqn, Dt0::class)) {
             throw new CasterException("$dt0Fqn does not extends " . Dt0::class);
         }
+
+        $this->dt0Fqn = $dt0Fqn;
     }
 
     /**
@@ -37,13 +41,14 @@ class Dt0Caster extends CasterAbstract
      * @throws CasterException
      */
     public static function make(
-        /** @var class-string<Dt0> $dt0Fqn */
         string $dt0Fqn,
     ): static {
         return new static($dt0Fqn);
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
      * @throws Dt0Exception
      * @throws JsonException
      * @throws ReflectionException

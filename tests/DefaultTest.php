@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Exception\Dt0Exception;
+use fab2s\Dt0\Exception\Dt0Exception;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionException;
@@ -68,7 +68,7 @@ class DefaultTest extends TestCase
     /**
      * @throws Dt0Exception
      * @throws JsonException
-     * @throws ReflectionException+
+     * @throws ReflectionException
      */
     #[DataProvider('defaultProvider')]
     public function test_default_dt0(

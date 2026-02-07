@@ -19,5 +19,6 @@ interface WithInterface extends HasDeclaringFqnInterface
 
     public function getWith(string $name): ?WithProp;
 
+    /** @return array<string, WithProp> */
     public function getWiths(): array;
 }

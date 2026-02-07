@@ -24,7 +24,7 @@ class WithTest extends TestCase
      * @throws Exception
      */
     #[DataProvider('withProvider')]
-    public function test_with(array $args)
+    public function test_with(array $args): void
     {
         $dto = DummyWithDt0::fromArray(['publicReadonlyString' => 'publicReadonlyString']);
         $this->assertSame('publicReadonlyString', $dto->publicReadonlyString);
@@ -132,8 +132,6 @@ class WithTest extends TestCase
         ], $dto->toArray());
 
         $this->assertSame($dto->toArray(), $dto->toJsonArray());
-
-        // dd($dto->toArray());
     }
 
     public static function withProvider(): array

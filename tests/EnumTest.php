@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Exception\Dt0Exception;
+use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Enumerate\Enumerate;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;

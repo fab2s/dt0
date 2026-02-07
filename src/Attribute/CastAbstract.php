@@ -24,6 +24,8 @@ abstract class CastAbstract implements CastInterface
     use HasDeclaringFqn;
     use HasPropName;
     public readonly mixed $default;
+
+    /** @var string|array<string>|null */
     public readonly string|array|null $renameFrom;
     public readonly ?string $renameTo;
     public readonly bool $hasDefault;

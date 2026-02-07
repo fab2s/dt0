@@ -63,6 +63,7 @@ class Types
         return new static($property);
     }
 
+    /** @return array{isReadOnly: bool, hasDefault: bool, isDefault: bool, default: mixed, isNullable: bool, isUnion: bool, isIntersection: bool} */
     protected function registerType(): array
     {
         $isNullable = $isUnion = $isIntersection = false;
@@ -80,6 +81,8 @@ class Types
                 $this->dt0Fqns[$type->name] = $type->name;
             }
         }
+
+        assert($this->property instanceof ReflectionProperty);
 
         return [
             'isReadOnly'     => $this->property->isReadOnly(),
@@ -112,6 +115,7 @@ class Types
                 $isIntersectionType = true;
             case $type instanceof ReflectionUnionType:
                 foreach ($type->getTypes() as $multiType) {
+                    /** @var ReflectionNamedType $multiType */
                     $types[] = Type::make(
                         name: $multiType->getName(),
                         allowsNull: $multiType->allowsNull(),
@@ -150,6 +154,7 @@ class Types
         return isset($this->types[$name]);
     }
 
+    /** @return array<string, Type> */
     public function toArray(): array
     {
         return $this->types;

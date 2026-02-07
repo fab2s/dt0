@@ -26,8 +26,8 @@ class ScalarCaster extends CasterAbstract
     public function __construct(
         ScalarType|string $type,
     ) {
-        if (is_string($type) && ! ($type = ScalarType::tryFromAny($type))) {
-            throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not ScalarType");
+        if (is_string($type)) {
+            $type = ScalarType::tryFromAny($type) ?? throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not ScalarType");
         }
 
         $this->type = $type;
@@ -45,6 +45,8 @@ class ScalarCaster extends CasterAbstract
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
      * @return string|int|float|bool|null|resource
      */
     public function cast(mixed $value, array|Dt0|null $data = null): mixed

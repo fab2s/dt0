@@ -28,6 +28,8 @@ class Base64Caster extends CasterAbstract
     /**
      * On input ($data is array): decodes base64 string.
      * On output ($data is Dt0): encodes to base64 string.
+     *
+     * @param array<string, mixed>|Dt0|null $data
      */
     public function cast(mixed $value, array|Dt0|null $data = null): ?string
     {

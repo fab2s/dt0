@@ -44,6 +44,8 @@ class DateTimeFormatCaster extends CasterAbstract
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
      * @throws Exception
      */
     public function cast(mixed $value, array|Dt0|null $data = null): ?string

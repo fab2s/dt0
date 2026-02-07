@@ -34,6 +34,7 @@ class TrimCaster extends CasterAbstract
         return new static($trimType, $characters);
     }
 
+    /** @param array<string, mixed>|Dt0|null $data */
     public function cast(mixed $value, Dt0|array|null $data = null): ?string
     {
         if (! is_string($value)) {

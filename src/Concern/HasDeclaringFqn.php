@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace fab2s\Dt0\Concern;
 
-use fab2s\Dt0\Dt0;
-
 trait HasDeclaringFqn
 {
     protected ?string $declaringFqn = null;
@@ -22,11 +20,7 @@ trait HasDeclaringFqn
         return $this->declaringFqn;
     }
 
-    /**
-     * @param class-string<Dt0> $declaringFqn
-     *
-     * @return $this
-     */
+    /** @return $this */
     public function setDeclaringFqn(string $declaringFqn): static
     {
         $this->declaringFqn ??= $declaringFqn;

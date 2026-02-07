@@ -44,15 +44,15 @@ class Property
         $declaringClassFqn = $this->property->getDeclaringClass()->getName();
         $this->name        = $this->property->getName();
         $this->cast?->setDeclaringFqn($declaringClassFqn)->setPropName($this->name);
-        $this->in     = $this->cast?->in?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn);
-        $this->out    = $this->cast?->out?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn);
+        $this->in     = $this->cast?->in?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn); // @phpstan-ignore property.notFound
+        $this->out    = $this->cast?->out?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn); // @phpstan-ignore property.notFound
         $this->types  = Types::make($this->property);
         $this->isDt0  = ! empty($this->types->getDt0Fqns());
         $this->isEnum = ! empty($this->types->getEnumFqns());
 
         foreach (['cast', 'types'] as $prop) {
-            if ($this->$prop?->hasDefault) {
-                $this->setDefault($this->$prop->default);
+            if ($this->$prop?->hasDefault) { // @phpstan-ignore property.notFound
+                $this->setDefault($this->$prop->default); // @phpstan-ignore property.notFound
                 break;
             }
         }
@@ -92,6 +92,8 @@ class Property
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $input
+     *
      * @throws ReflectionException
      */
     public function cast(mixed $value, array|Dt0|null $input): mixed
@@ -130,12 +132,12 @@ class Property
     }
 
     /**
-     * @template T
+     * @template T of object
      *
      * @param class-string<T> $name  Name of an attribute class
      * @param int             $flags Criteria by which the attribute is searched.
      *
-     * @return object<T>|null
+     * @return T|null
      *
      * @throws ReflectionException
      */

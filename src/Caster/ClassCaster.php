@@ -15,6 +15,7 @@ use fab2s\Dt0\Dt0;
 
 class ClassCaster extends CasterAbstract
 {
+    /** @var array<int|string, mixed> */
     public readonly array $parameters;
 
     public function __construct(
@@ -31,10 +32,11 @@ class ClassCaster extends CasterAbstract
         return new static($fqn, ...$parameters);
     }
 
+    /** @param array<string, mixed>|Dt0|null $data */
     public function cast(mixed $value, array|Dt0|null $data = null): object
     {
         return match (true) {
-            $value instanceof $this->fqn => $value,
+            $value instanceof $this->fqn => $value, // @phpstan-ignore instanceof.invalidExprType
             is_array($value)             => new $this->fqn(...$value),
             is_scalar($value)            => new $this->fqn($value),
             default                      => new $this->fqn(...$this->parameters),

@@ -43,10 +43,13 @@ class CarbonCaster extends CasterAbstract
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
      * @throws Exception
      */
     public function cast(mixed $value, array|Dt0|null $data = null): Carbon|CarbonImmutable|null
     {
+        /** @var Carbon|CarbonImmutable|null */
         return $this->resolve($value);
     }
 }

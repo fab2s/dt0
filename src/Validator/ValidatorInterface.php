@@ -16,6 +16,11 @@ use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
 
 interface ValidatorInterface extends HasDeclaringFqnInterface
 {
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
     public function validate(array $data): array;
 
     public function addRule(string $name, Rule $rule): static;

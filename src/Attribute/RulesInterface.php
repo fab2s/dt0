@@ -15,7 +15,7 @@ use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
 
 interface RulesInterface extends HasDeclaringFqnInterface
 {
-    public function hasRule($name): bool;
+    public function hasRule(string $name): bool;
 
-    public function getRule($name): ?Rule;
+    public function getRule(string $name): ?Rule;
 }

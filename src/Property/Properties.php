@@ -16,6 +16,7 @@ use fab2s\Dt0\Attribute\CastsInterface;
 use fab2s\Dt0\Attribute\Rule;
 use fab2s\Dt0\Attribute\RuleInterface;
 use fab2s\Dt0\Attribute\RulesInterface;
+use fab2s\Dt0\Attribute\Validate;
 use fab2s\Dt0\Attribute\ValidateInterface;
 use fab2s\Dt0\Attribute\WithInterface;
 use fab2s\Dt0\Dt0;
@@ -28,17 +29,13 @@ use ReflectionProperty;
 
 class Properties
 {
-    /**
-     * @var array <string, ReflectionParameter>
-     */
+    /** @var array<string, ReflectionParameter> */
     public readonly array $constructorParameters;
     public readonly ?ValidatorInterface $validator;
     public readonly ?CastsInterface $casts;
     public readonly ?WithInterface $with;
 
-    /**
-     * @var class-string<$objectOrClass>
-     */
+    /** @var class-string */
     public readonly string $name;
 
     /**
@@ -71,27 +68,27 @@ class Properties
      */
     public function __construct(public readonly object|string $objectOrClass)
     {
-        $reflection                  = new ReflectionClass($this->objectOrClass);
+        $reflection                  = new ReflectionClass($this->objectOrClass); // @phpstan-ignore argument.type
         $this->name                  = $reflection->getName();
         $this->constructorParameters = $this->getConstructorParameters($reflection);
         $this->casts                 = $this->getCasts($reflection);
         $this->with                  = $this->getWith($reflection);
         $rules                       = $this->getRules($reflection);
-        $validate                    = $this->getValidate($reflection);
-        $validatorRules              = $validate?->rules?->setDeclaringFqn($reflection->getName());
-        $this->validator             = $validate?->validator?->setDeclaringFqn($reflection->getName());
-        $reflectionProperties        = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+        /** @var Validate|null $validate */
+        $validate             = $this->getValidate($reflection);
+        $validatorRules       = $validate?->rules?->setDeclaringFqn($reflection->getName());
+        $this->validator      = $validate?->validator?->setDeclaringFqn($reflection->getName());
+        $reflectionProperties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
         foreach ($reflectionProperties as $reflectionProperty) {
             $name = $reflectionProperty->getName();
-            $this->registerProp(
-                $reflectionProperty,
-                $this->casts?->hasCast($name)
-                    ? $this->casts->getCast($name)
-                        ->setDeclaringFqn($reflection->getName())
-                        ->setPropName($name)
-                    : null,
-            );
+            /** @var ?Cast $cast */
+            $cast = $this->casts?->hasCast($name)
+                ? $this->casts->getCast($name)
+                    ?->setDeclaringFqn($reflection->getName())
+                    ->setPropName($name)
+                : null;
+            $this->registerProp($reflectionProperty, $cast);
 
             if (! $this->validator) {
                 continue;
@@ -100,12 +97,12 @@ class Properties
             $rule = Property::resolveAttribute($reflectionProperty, RuleInterface::class)
                 ?: (
                     $rules?->hasRule($name)
-                    ? $rules->getRule($name)
+                    ? $rules->getRule($name) // @phpstan-ignore method.nonObject
                         ->setDeclaringFqn($reflection->getName())
                         ->setPropName($name)
                     : (
                         $validatorRules?->hasRule($name)
-                        ? $validatorRules->getRule($name)
+                        ? $validatorRules->getRule($name) // @phpstan-ignore method.nonObject
                             ->setDeclaringFqn($reflection->getName())
                             ->setPropName($name)
                         : null
@@ -119,11 +116,16 @@ class Properties
         }
     }
 
+    /**
+     * @param ReflectionClass<object> $reflection
+     *
+     * @return array<string, ReflectionParameter>
+     */
     protected function getConstructorParameters(ReflectionClass $reflection): array
     {
         $constructorParameters = [];
         $constructor           = $reflection->getConstructor();
-        if ($constructor->getDeclaringClass()->getName() !== Dt0::class) {
+        if ($constructor && $constructor->getDeclaringClass()->getName() !== Dt0::class) {
             foreach ($constructor->getParameters() as $parameter) {
                 $constructorParameters[$parameter->getName()] = $parameter;
             }
@@ -132,30 +134,37 @@ class Properties
         return $constructorParameters;
     }
 
+    /** @param ReflectionClass<object> $reflection */
     protected function getCasts(ReflectionClass $reflection): ?CastsInterface
     {
         return $this->getClassAttribute($reflection, CastsInterface::class);
     }
 
+    /** @param ReflectionClass<object> $reflection */
     protected function getWith(ReflectionClass $reflection): ?WithInterface
     {
         return $this->getClassAttribute($reflection, WithInterface::class);
     }
 
+    /** @param ReflectionClass<object> $reflection */
     protected function getRules(ReflectionClass $reflection): ?RulesInterface
     {
         return $this->getClassAttribute($reflection, RulesInterface::class);
     }
 
+    /** @param ReflectionClass<object> $reflection */
     protected function getValidate(ReflectionClass $reflection): ?ValidateInterface
     {
         return $this->getClassAttribute($reflection, ValidateInterface::class);
     }
 
     /**
-     * @param class-string<CastsInterface|WithInterface|ValidateInterface> $attributeFqn
+     * @template T of CastsInterface|WithInterface|ValidateInterface|RulesInterface
      *
-     * @return CastsInterface|WithInterface|ValidateInterface|RulesInterface|null.
+     * @param ReflectionClass<object> $reflection
+     * @param class-string<T>         $attributeFqn
+     *
+     * @return T|null
      */
     protected function getClassAttribute(ReflectionClass $reflection, string $attributeFqn): CastsInterface|WithInterface|ValidateInterface|RulesInterface|null
     {
@@ -205,19 +214,19 @@ class Properties
             $this->earlyInit[$name] = $prop;
         }
 
-        if ($prop->cast?->renameFrom) {
-            if (is_array($prop->cast->renameFrom)) {
+        if ($prop->cast?->renameFrom) { // @phpstan-ignore property.notFound
+            if (is_array($prop->cast->renameFrom)) { // @phpstan-ignore property.notFound
                 foreach ($prop->cast->renameFrom as $from) {
-                    $this->renameFrom[$from] = $name;
+                    $this->renameFrom[(string) $from] = $name; // @phpstan-ignore cast.string
                 }
             } else {
-                $this->renameFrom[$prop->cast->renameFrom] = $name;
+                $this->renameFrom[$prop->cast->renameFrom] = $name; // @phpstan-ignore property.notFound
             }
         }
 
-        if ($prop->cast?->renameTo) {
-            $this->renameTo[$name]                   = $prop->cast->renameTo;
-            $this->renameFrom[$prop->cast->renameTo] = $name;
+        if ($prop->cast?->renameTo) { // @phpstan-ignore property.notFound
+            $this->renameTo[$name]                   = $prop->cast->renameTo; // @phpstan-ignore property.notFound
+            $this->renameFrom[$prop->cast->renameTo] = $name; // @phpstan-ignore property.notFound
         }
 
         return $this;
@@ -228,21 +237,25 @@ class Properties
         return $this->properties[$name] ?? null;
     }
 
+    /** @return array<string, Property> */
     public function toArray(): array
     {
         return $this->properties;
     }
 
+    /** @return array<string, Property> */
     public function earlyInits(): array
     {
         return $this->earlyInit;
     }
 
+    /** @return array<string, string> */
     public function toNames(): array
     {
         return $this->names ??= array_combine(array_keys($this->properties), array_keys($this->properties));
     }
 
+    /** @return array<string, string> */
     public function getRenameFrom(): array
     {
         return $this->renameFrom;

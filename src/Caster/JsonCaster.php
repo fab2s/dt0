@@ -19,6 +19,7 @@ class JsonCaster extends CasterAbstract
     public function __construct(
         public readonly bool $associative = true,
         public readonly int $flags = 0,
+        /** @var positive-int */
         public readonly int $depth = 512,
     ) {}
 
@@ -31,6 +32,8 @@ class JsonCaster extends CasterAbstract
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
      * @throws JsonException
      */
     public function cast(mixed $value, array|Dt0|null $data = null): mixed
@@ -52,10 +55,13 @@ class JsonCaster extends CasterAbstract
     }
 
     /**
+     * @return array<string, mixed>|object
+     *
      * @throws JsonException
      */
     protected function decode(string $value): array|object
     {
+        /** @var array<string, mixed>|object */
         return json_decode($value, $this->associative, $this->depth, $this->flags | JSON_THROW_ON_ERROR);
     }
 

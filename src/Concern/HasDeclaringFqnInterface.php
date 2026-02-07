@@ -11,16 +11,10 @@ declare(strict_types=1);
 
 namespace fab2s\Dt0\Concern;
 
-use fab2s\Dt0\Dt0;
-
 interface HasDeclaringFqnInterface
 {
     public function getDeclaringFqn(): ?string;
 
-    /**
-     * @param class-string<Dt0> $declaringFqn
-     *
-     * @return $this
-     */
+    /** @return $this */
     public function setDeclaringFqn(string $declaringFqn): static;
 }

@@ -34,6 +34,7 @@ abstract class WithAbstract implements WithInterface
         return $this->withs[$name] ?? null;
     }
 
+    /** @return array<string, WithProp> */
     public function getWiths(): array
     {
         return $this->withs;

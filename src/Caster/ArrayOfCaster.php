@@ -42,7 +42,7 @@ class ArrayOfCaster extends CasterAbstract
         }
 
         if (! $logicalType) {
-            throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not a supported type");
+            throw new CasterException('[' . Dt0::classBasename(static::class) . '] ' . (is_string($type) ? $type : $type->value) . ' is not a supported type');
         }
 
         $this->logicalType  = $logicalType;
@@ -60,6 +60,10 @@ class ArrayOfCaster extends CasterAbstract
     }
 
     /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
+     * @return array<mixed>|null
+     *
      * @throws CasterException
      * @throws Dt0Exception
      * @throws ReflectionException
@@ -71,11 +75,13 @@ class ArrayOfCaster extends CasterAbstract
         }
 
         $result = [];
+        /** @var class-string<Dt0&UnitEnum> $type */
+        $type = $this->type;
         foreach ($value as $item) {
             $result[] = match ($this->logicalType) {
-                ArrayType::DT0  => $this->type::tryFrom($item),
-                ArrayType::ENUM => Enumerate::tryFromAny($this->type, $item),
-                default         => $this->scalarCaster->cast($item) ?? throw (new CasterException('Could not cast array item to scalar type ' . $this->logicalType->value))->setContext([
+                ArrayType::DT0  => $type::tryFrom($item),
+                ArrayType::ENUM => Enumerate::tryFromAny($type, $item),
+                default         => $this->scalarCaster?->cast($item) ?? throw (new CasterException('Could not cast array item to scalar type ' . $this->logicalType->value))->setContext([
                     'item' => $item,
                 ]),
             };

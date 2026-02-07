@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace fab2s\Dt0\Attribute;
 
+/** @phpstan-consistent-constructor */
 class WithProp extends WithPropAbstract
 {
     public readonly string|bool|null $getter;
