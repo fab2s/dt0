@@ -656,7 +656,7 @@ new ClassCaster(
 **Behavior:**
 - If value is already an instance of the class → returned as-is
 - If value is an array → spread as constructor arguments
-- If value is scalar → passed as single constructor argument
+- If value is scalar → passed as single constructor argument (strict types enforced: a `TypeError` is thrown if the scalar type doesn't match the constructor parameter type)
 - Otherwise → uses default `$parameters`
 
 **Examples:**

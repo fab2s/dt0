@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -13,6 +15,7 @@ use fab2s\Dt0\Caster\ClassCaster;
 use stdClass;
 use Tests\Artifacts\SimpleClass;
 use Tests\TestCase;
+use TypeError;
 
 class ClassCasterTest extends TestCase
 {
@@ -75,14 +78,12 @@ class ClassCasterTest extends TestCase
         $this->assertSame('default', $result->extra);
     }
 
-    public function test_cast_scalar_int(): void
+    public function test_cast_scalar_type_error(): void
     {
         $caster = ClassCaster::make(SimpleClass::class);
 
-        $result = $caster->cast(42);
-
-        $this->assertInstanceOf(SimpleClass::class, $result);
-        $this->assertSame('42', $result->value);
+        $this->expectException(TypeError::class);
+        $caster->cast(42);
     }
 
     public function test_cast_default_parameters(): void

@@ -14,6 +14,12 @@ The `#[Cast]` attribute now accepts a `both` parameter (third positional argumen
 
 ### Added
 
+#### Strict Types
+
+`declare(strict_types=1)` added to all library files except `Dt0.php`. The base `Dt0` class is deliberately left without strict types to preserve backward compatibility: factory methods (`make`, `fromArray`, `fromJson`, etc.) call `new static(...)` which targets user-defined constructors with typed promoted properties. Enforcing strict types there would break implicit scalar coercion (e.g., `string` to `int`) that users may rely on when hydrating from external sources like form data or query strings.
+
+`ClassCaster` now enforces strict types: passing a scalar value whose type doesn't match the target class constructor will throw a `TypeError` instead of silently coercing.
+
 #### Bidirectional Casting with `both`
 
 New `both` parameter on `#[Cast]` for casters that apply to both input and output. When combined with `in` or `out`, casters are chained using onion ordering (`both` → `in` on input, `out` → `both` on output).
