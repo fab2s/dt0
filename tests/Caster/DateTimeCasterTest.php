@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,7 +9,7 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Caster;
+namespace Tests\Caster;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -17,8 +19,8 @@ use DateTimeZone;
 use Exception;
 use fab2s\Dt0\Caster\CarbonCaster;
 use fab2s\Dt0\Caster\DateTimeCaster;
-use fab2s\Dt0\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class DateTimeCasterTest extends TestCase
 {
@@ -30,7 +32,7 @@ class DateTimeCasterTest extends TestCase
     {
         foreach ([DateTimeCaster::class, CarbonCaster::class] as $casterClass) {
             foreach ([true, false] as $immutable) {
-                $caster = new $casterClass($timezone, $immutable);
+                $caster = $casterClass::make($timezone, $immutable);
                 $casted = $caster->cast($value);
                 if ($casterClass === DateTimeCaster::class) {
                     if ($immutable) {

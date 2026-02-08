@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,21 +9,22 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests;
+namespace Tests;
 
 use fab2s\Dt0\Exception\Dt0Exception;
-use fab2s\Dt0\Property\Property;
-use fab2s\Dt0\Tests\Artifacts\Enum\IntBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\StringBackedEnum;
-use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
-use fab2s\Dt0\Tests\Artifacts\EnumDt0;
+use fab2s\Enumerate\Enumerate;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionException;
+use Tests\Artifacts\Enum\IntBackedEnum;
+use Tests\Artifacts\Enum\StringBackedEnum;
+use Tests\Artifacts\Enum\UnitEnum;
+use Tests\Artifacts\EnumDt0;
 
 class EnumTest extends TestCase
 {
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws JsonException|Dt0Exception|ReflectionException
      */
     #[DataProvider('enumProvider')]
     public function test_enum_dt0(
@@ -46,6 +49,9 @@ class EnumTest extends TestCase
         $this->dt0Assertions($dt0);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public static function enumProvider(): array
     {
         $cases = [];
@@ -57,16 +63,16 @@ class EnumTest extends TestCase
 
         foreach (StringBackedEnum::cases() as $case) {
             $args = [
-                'unitEnum'         => Property::tryEnumFromName(UnitEnum::class, $case->name),
+                'unitEnum'         => Enumerate::tryFromName(UnitEnum::class, $case->name),
                 'stringBackedEnum' => $case,
-                'intBackedEnum'    => Property::tryEnumFromName(IntBackedEnum::class, $case->name),
+                'intBackedEnum'    => Enumerate::tryFromName(IntBackedEnum::class, $case->name),
             ];
 
             $expected = $args;
             foreach ($props as $propName => $enumFqn) {
                 $withDefaultProp            = $propName . 'WithDefault';
                 $args[$withDefaultProp]     = null;
-                $expected[$withDefaultProp] = Property::tryEnumFromName($enumFqn, 'ONE');
+                $expected[$withDefaultProp] = Enumerate::tryFromName($enumFqn, 'ONE');
             }
 
             $caseName         = $case->name . '_instance_default';
@@ -90,7 +96,7 @@ class EnumTest extends TestCase
 
             foreach ($props as $propName => $enumFqn) {
                 $withDefaultProp        = $propName . 'WithDefault';
-                $args[$withDefaultProp] = Property::tryEnumFrom($enumFqn, $args[$propName]);
+                $args[$withDefaultProp] = Enumerate::tryFromAny($enumFqn, $args[$propName]);
             }
 
             $caseName         = $case->name . '_strings_instance';

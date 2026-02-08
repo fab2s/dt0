@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -9,8 +11,13 @@
 
 namespace fab2s\Dt0\Caster;
 
-enum ScalarType: string
+use fab2s\Enumerate\EnumerateInterface;
+use fab2s\Enumerate\EnumerateTrait;
+
+enum ScalarType: string implements EnumerateInterface
 {
+    use EnumerateTrait;
+
     case boolean = 'boolean';
     case bool    = 'bool';
     case integer = 'integer';

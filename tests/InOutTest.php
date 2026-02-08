@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,18 +9,18 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests;
+namespace Tests;
 
 use DateTime;
 use DateTimeImmutable;
 use Exception;
 use fab2s\Dt0\Caster\DateTimeCaster;
 use fab2s\Dt0\Property\Properties;
-use fab2s\Dt0\Tests\Artifacts\DefaultDt0;
-use fab2s\Dt0\Tests\Artifacts\InOutDt0;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionException;
+use Tests\Artifacts\DefaultDt0;
+use Tests\Artifacts\InOutDt0;
 
 class InOutTest extends TestCase
 {
@@ -60,11 +62,11 @@ class InOutTest extends TestCase
     public static function inOutProvider(): array
     {
         $props = [
-            'classCastedIn'          => ['null', '2042-12-31 23:59:59', new DateTime(), time()],
-            'classCastedInOut'       => ['null', '2042-12-31 23:59:59', new DateTime(), time()],
-            'castedOut'              => ['null', new DateTimeImmutable()],
-            'classCastedPromotedOut' => ['null', new DateTimeImmutable()],
-            'castedPromotedInOut'    => [null, 'null', '2042-12-31 23:59:59', new DateTime(), time()],
+            'classCastedIn'          => ['null', '2042-12-31 23:59:59', new DateTime, time()],
+            'classCastedInOut'       => ['null', '2042-12-31 23:59:59', new DateTime, time()],
+            'castedOut'              => ['null', new DateTimeImmutable],
+            'classCastedPromotedOut' => ['null', new DateTimeImmutable],
+            'castedPromotedInOut'    => [null, 'null', '2042-12-31 23:59:59', new DateTime, time()],
         ];
 
         $cases = [];

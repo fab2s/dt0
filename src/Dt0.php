@@ -9,24 +9,51 @@
 
 namespace fab2s\Dt0;
 
+use ArrayAccess;
+use ArrayIterator;
+use Closure;
+use fab2s\Dt0\Attribute\WithProp;
+use fab2s\Dt0\Attribute\WithPropInterface;
 use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Property\Properties;
 use fab2s\Dt0\Property\Property;
+use IteratorAggregate;
 use JsonException;
 use JsonSerializable;
+use ReflectionException;
 use Stringable;
 use Throwable;
+use Traversable;
 use UnitEnum;
 
-abstract class Dt0 implements JsonSerializable, Stringable
+/**
+ * @implements ArrayAccess<string, mixed>
+ * @implements IteratorAggregate<string, mixed>
+ *
+ * @phpstan-consistent-constructor
+ */
+abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringable
 {
     public const DT0_NIL = "\0";
     protected Properties $dt0Properties;
-    protected array $dt0Output       = [];
+
+    /** @var array<string, array<string, mixed>|string> */
+    protected array $dt0Output = [];
+
+    /**
+     * @var array<key-of<$this>, string>
+     */
+    protected array $dt0Without = [];
+
+    /** @var array<string, Closure():mixed> */
+    protected array $dt0With = [];
+
+    /** @var array<class-string, Properties> */
     protected static array $dt0Cache = [];
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws Dt0Exception
+     * @throws ReflectionException
      */
     public function __construct(mixed ...$args)
     {
@@ -34,8 +61,8 @@ abstract class Dt0 implements JsonSerializable, Stringable
         $args                = static::initializeRenameFrom($this->dt0Properties, $args);
         foreach ($this->dt0Properties->toArray() as $name => $property) {
             if (! $property->property->isInitialized($this)) {
-                if (static::initializeValue($property, $args, $value)) {
-                    $property->property->setValue($this, $value);
+                if (static::initializeValue($this->dt0Properties, $property, $args, $value)) {
+                    $property->property->setValue($this, $property->cast($value, $args)); // @phpstan-ignore argument.type
                 } else {
                     throw (new Dt0Exception("Missing required property $name in " . static::class))
                         ->setContext([
@@ -45,19 +72,37 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 }
             }
         }
+
+        if ($this->dt0Properties->with) {
+            foreach ($this->dt0Properties->with->getWiths() as $name => $option) {
+                $this->with($name, $option);
+            }
+        }
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws Dt0Exception
+     * @throws ReflectionException
      */
     public static function make(mixed ...$args): static
     {
         $properties = static::compile();
         $args       = static::initializeRenameFrom($properties, $args);
 
-        foreach ($properties->toArray() as $name => $property) {
-            if (static::initializeValue($property, $args, $value)) {
-                $args[$name] = $value;
+        foreach ($properties->earlyInits() as $name => $property) {
+            if ($property->needEarlyCast) {
+                if (static::initializeValue($properties, $property, $args, $value)) {
+                    $args[$name] = $property->cast($value, $args);
+                }
+
+                continue;
+            }
+
+            if (
+                $property->needEarlyDefault
+                && ! array_key_exists($property->name, $args)
+            ) {
+                $args[$name] = $property->getDefault();
             }
         }
 
@@ -72,21 +117,92 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws Dt0Exception|ReflectionException
      */
     public static function withValidation(mixed ...$args): static
     {
         $properties = static::compile();
         $args       = static::initializeRenameFrom($properties, $args);
         if ($properties->validator) {
-            return static::make(...$properties->validator->validate($args));
+            return static::make(...$properties->validator->validate($args)); // @phpstan-ignore argument.type
         }
 
         throw new Dt0Exception('Cannot validate without a validator');
     }
 
+    public function with(string $name, WithProp|Closure|string|bool|null $getter = null): static
+    {
+        $this->dt0With[$name] = $this->getWithClosure($name, $getter);
+
+        unset($this->dt0Without[$name]);
+
+        return $this->clearOutputCache();
+    }
+
+    public function getWithClosure(string $name, WithPropInterface|Closure|string|bool|null $getter = null): Closure
+    {
+        if ($getter instanceof WithPropInterface) {
+            $name = $getter->name ?? $name;
+
+            $getter = $getter->getter ?? null;
+        }
+
+        return match (true) {
+            ! is_object($getter) => (function () use ($name, $getter) {
+                $method = $getter === null || $getter === false ? $name : ($getter === true ? 'get' . ucfirst($name) : $getter);
+
+                return match (true) {
+                    $name === $method => function () use ($name) {
+                        return $this->{$name};
+                    },
+                    default => function () use ($method) {
+                        return $this->{$method}();
+                    },
+                };
+            })(),
+            default => function () use ($getter) {
+                /** @var Closure(static):mixed $getter */
+                return $getter($this);
+            },
+        };
+    }
+
+    public function without(string ...$names): static
+    {
+        $remove           = array_combine($names, $names);
+        $this->dt0Without = array_replace($this->dt0Without, $remove);
+        $this->dt0With    = array_diff_key($this->dt0With, $remove);
+
+        return $this->clearOutputCache();
+    }
+
+    public function clearWith(): static
+    {
+        $withKeys         = array_keys($this->dt0With);
+        $this->dt0Without = array_replace($this->dt0Without, array_combine($withKeys, $withKeys));
+        $this->dt0With    = [];
+
+        return $this->clearOutputCache();
+    }
+
+    public function clearWithout(): static
+    {
+        $this->dt0Without = [];
+
+        return $this->clearOutputCache();
+    }
+
+    public function only(string ...$names): static
+    {
+        $only             = array_combine($names, $names);
+        $this->dt0Without = array_replace($this->dt0Without, array_diff_key($this->dt0Properties->toNames(), $only));
+        $this->dt0With    = array_intersect_key($this->dt0With, $only);
+
+        return $this->clearOutputCache();
+    }
+
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws Dt0Exception|ReflectionException
      */
     public function clone(): static
     {
@@ -94,7 +210,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws Dt0Exception|ReflectionException
      */
     public function update(mixed ...$update): static
     {
@@ -109,55 +225,76 @@ abstract class Dt0 implements JsonSerializable, Stringable
         return $this->toJson() === $dt0->toJson();
     }
 
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         if (isset($this->dt0Output[Format::ARRAY->value])) {
-            return $this->dt0Output[Format::ARRAY->value];
+            return array_diff_key($this->dt0Output[Format::ARRAY->value], $this->dt0Without); // @phpstan-ignore argument.type
         }
 
         $result = [];
+        $withs  = $this->dt0With;
         foreach ($this->dt0Properties->toArray() as $name => $property) {
-            $result[$name] = $this->$name;
-        }
+            if (isset($this->dt0Without[$name])) {
+                continue;
+            }
 
-        return $this->dt0Output[Format::ARRAY->value] = $result;
-    }
+            if (isset($withs[$name])) {
+                $result[$name] = ($withs[$name])();
+                unset($withs[$name]);
 
-    public function jsonSerialize(): array
-    {
-        if (isset($this->dt0Output[Format::JSON_SERIALISED->value])) {
-            return $this->dt0Output[Format::JSON_SERIALISED->value];
-        }
-
-        $result = $this->toArray();
-        foreach ($result as $name => $value) {
-            $property = $this->dt0Properties->get($name);
-            if ($property?->out) {
-                $value = $property->out->cast($value);
+                continue;
             }
 
             $key          = $this->dt0Properties->getToName($name);
-            $result[$key] = match (true) {
-                $value instanceof JsonSerializable => $value->jsonSerialize(),
-                $value instanceof UnitEnum         => $value->value ?? $value->name,
-                default                            => $value,
-            };
+            $result[$key] = $property->out ? $property->out->cast($this->$name, $this) : $this->$name;
 
             if ($key !== $name) {
                 unset($result[$name]);
             }
-
         }
 
-        return $this->dt0Output[Format::JSON_SERIALISED->value] = $result;
+        // left with extra props withs
+        foreach ($withs as $nonPropName => $getter) {
+            $result[$nonPropName] = $getter();
+        }
+
+        return array_diff_key($this->dt0Output[Format::ARRAY->value] = $result, $this->dt0Without);
+    }
+
+    /** @return array<string, mixed> */
+    public function jsonSerialize(): array
+    {
+        return $this->dt0Output[Format::JSON_SERIALISED->value] ??= array_map(fn ($value) => static::jsonSerializeValue($value), $this->toArray()); // @phpstan-ignore return.type
+    }
+
+    public static function jsonSerializeValue(mixed $value): mixed
+    {
+        return match (true) {
+            $value instanceof JsonSerializable => $value->jsonSerialize(),
+            $value instanceof UnitEnum         => $value->value ?? $value->name,
+            default                            => $value,
+        };
     }
 
     /**
+     * @param positive-int $depth
+     *
      * @throws JsonException
      */
-    public function toJson(int $flags = 0, int $depth = 512): string
+    public function toJson(int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
     {
-        return $this->dt0Output[Format::JSON->value] ??= json_encode($this, JSON_THROW_ON_ERROR & $flags, $depth);
+        return $this->dt0Output[Format::JSON->value] ??= Json::encode($this, $flags, $depth); // @phpstan-ignore return.type
+    }
+
+    /**
+     * @param positive-int $depth
+     *
+     * @throws JsonException
+     */
+    public function toGz(int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
+    {
+        return $this->dt0Output[Format::JSON->value] ??= Json::gzEncode($this, $flags, $depth); // @phpstan-ignore return.type
     }
 
     /**
@@ -176,13 +313,16 @@ abstract class Dt0 implements JsonSerializable, Stringable
         return $this->toJson();
     }
 
+    /** @return array<string, mixed> */
     public function toJsonArray(): array
     {
         return $this->jsonSerialize();
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @param array<int|string, mixed> $input
+     *
+     * @throws Dt0Exception|ReflectionException
      */
     public static function fromArray(array $input): static
     {
@@ -190,15 +330,29 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @param positive-int $depth
+     *
+     * @throws JsonException|Dt0Exception|ReflectionException
      */
-    public static function fromJson(string $json, int $depth = 512): static
+    public static function fromJson(string $json, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
     {
-        return static::make(...json_decode($json, true, $depth, JSON_THROW_ON_ERROR));
+        return static::make(...Json::decode($json, true, $flags, $depth));
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @param positive-int $depth
+     *
+     * @throws Dt0Exception
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public static function fromGz(string $gz, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
+    {
+        return static::make(...Json::gzDecode($gz, true, $flags, $depth));
+    }
+
+    /**
+     * @throws JsonException|Dt0Exception|ReflectionException
      */
     public static function fromString(string $string): static
     {
@@ -215,7 +369,7 @@ abstract class Dt0 implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws JsonException|Dt0Exception
+     * @throws JsonException|Dt0Exception|ReflectionException
      */
     public static function from(mixed $input): ?static
     {
@@ -230,27 +384,29 @@ abstract class Dt0 implements JsonSerializable, Stringable
         };
     }
 
-    /**
-     * @throws JsonException|Dt0Exception
-     */
-    protected static function initializeValue(Property $property, array $input, mixed &$value = null): bool
+    /** @param array<int|string, mixed> $input */
+    protected static function initializeValue(Properties $properties, Property $property, array $input, mixed &$value = null): bool
     {
-        $hasValue = false;
         if (array_key_exists($property->name, $input)) {
-            $value    = $input[$property->name];
-            $hasValue = true;
-        } elseif ($property->hasDefault()) {
-            $value    = $property->getDefault();
-            $hasValue = true;
+            $value = $input[$property->name];
+
+            return true;
         }
 
-        if ($hasValue) {
-            $value = $property->cast($value);
+        if ($property->hasDefault()) {
+            $value = $property->getDefault();
+
+            return true;
         }
 
-        return $hasValue;
+        return false;
     }
 
+    /**
+     * @param array<int|string, mixed> $parameters
+     *
+     * @return array<int|string, mixed>
+     */
     protected static function initializeRenameFrom(Properties $properties, array $parameters): array
     {
         foreach ($properties->getRenameFrom() as $from => $to) {
@@ -259,27 +415,33 @@ abstract class Dt0 implements JsonSerializable, Stringable
                 && array_key_exists($from, $parameters)
             ) {
                 $parameters[$to] = $parameters[$from];
-                unset($parameters[$from]);
             }
         }
 
         return $parameters;
     }
 
-    final protected static function compile(): Properties
+    /**
+     * @throws ReflectionException
+     */
+    public static function compile(): Properties
     {
         if (isset(self::$dt0Cache[static::class])) {
             return self::$dt0Cache[static::class];
         }
 
-        return self::$dt0Cache[static::class] = new Properties(static::class);
+        return self::$dt0Cache[static::class] = Properties::make(static::class);
     }
 
+    /** @return array<string> */
     public function __sleep(): array
     {
         return array_keys($this->dt0Properties->toArray());
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function __wakeup(): void
     {
         $this->dt0Properties = static::compile();
@@ -291,8 +453,77 @@ abstract class Dt0 implements JsonSerializable, Stringable
             str_replace(
                 '\\',
                 '/',
-                is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass),
+                static::fqn($objectOrClass),
             ),
         );
+    }
+
+    public static function fqn(object|string $objectOrClass): string
+    {
+        return is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);
+    }
+
+    /**
+     * @throws Dt0Exception|ReflectionException
+     */
+    public function setProp(string $name, mixed $value): static
+    {
+
+        if (
+            ! ($prop = $this->dt0Properties->get($name))
+            || $prop->property->isReadOnly()
+        ) {
+            throw (new Dt0Exception($prop ? "Attempt to write in read-only property $prop->name" : "Undefined property $name"))->setContext([
+                'name'  => $name,
+                'value' => $value,
+            ]);
+        }
+
+        $this->$name = $prop->cast($value, $this);
+
+        return $this->clearOutputCache();
+    }
+
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->toArray());
+    }
+
+    /**
+     * @throws Dt0Exception|ReflectionException
+     */
+    public function offsetSet($offset, $value): void
+    {
+        $this->setProp((string) $offset, $value);
+    }
+
+    public function offsetExists($offset): bool
+    {
+        return (bool) $this->dt0Properties->get((string) $offset);
+    }
+
+    /**
+     * @throws Dt0Exception
+     */
+    public function offsetUnset($offset): void
+    {
+        throw new Dt0Exception('Cannot unset property, try set null instead');
+    }
+
+    public function offsetGet($offset): mixed
+    {
+        return $this->$offset ?? null;
+    }
+
+    public function clearOutputCache(): static
+    {
+        $this->dt0Output = [];
+
+        return $this;
+    }
+
+    public function getProperties(): Properties
+    {
+        return $this->dt0Properties;
     }
 }

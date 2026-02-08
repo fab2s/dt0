@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,13 +9,13 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Caster;
+namespace Tests\Caster;
 
 use fab2s\Dt0\Caster\ScalarCaster;
 use fab2s\Dt0\Caster\ScalarType;
 use fab2s\Dt0\Exception\CasterException;
-use fab2s\Dt0\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class ScalarCasterTest extends TestCase
 {
@@ -23,7 +25,7 @@ class ScalarCasterTest extends TestCase
     #[DataProvider('castProvider')]
     public function test_cast($type, $value, $expected): void
     {
-        $caster = new ScalarCaster($type);
+        $caster = ScalarCaster::make($type);
 
         $this->assertSame($expected, $caster->cast($value));
     }

@@ -12,25 +12,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: 8.4
           extensions: mbstring, dom, fileinfo, gmp, bcmath
           coverage: xdebug
 
       - name: Get composer cache directory
         id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: composer-
 
       - name: Remove composer.lock
         run: rm -f composer.lock
@@ -39,12 +39,18 @@ jobs:
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Check code style
-        run: vendor/bin/pint --config pint.json
+        run: composer fix
+
+      - name: PHPStan src
+        run: composer stan
+
+      - name: PHPStan tests
+        run: composer stan-tests
 
       - name: Compute Coverage
-        run: vendor/bin/phpunit --coverage-clover ./coverage.xml
+        run: vendor/bin/phpunit --colors --coverage-clover ./coverage.xml
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

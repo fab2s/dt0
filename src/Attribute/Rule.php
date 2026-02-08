@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -12,11 +14,14 @@ namespace fab2s\Dt0\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Rule
+class Rule extends RuleAbstract
 {
     public function __construct(
         public readonly mixed $rule,
-        public readonly ?string $propName = null,
+        ?string $propName = null,
     ) {
+        if ($propName !== null) {
+            $this->setPropName($propName);
+        }
     }
 }

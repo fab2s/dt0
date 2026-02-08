@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -9,15 +11,15 @@
 
 namespace fab2s\Dt0\Property;
 
-use BackedEnum;
 use fab2s\Dt0\Attribute\Cast;
+use fab2s\Dt0\Attribute\CastInterface;
 use fab2s\Dt0\Caster\CasterInterface;
 use fab2s\Dt0\Dt0;
-use fab2s\Dt0\Exception\Dt0Exception;
 use fab2s\Dt0\Type\Types;
-use JsonException;
+use fab2s\Enumerate\Enumerate;
+use ReflectionAttribute;
+use ReflectionException;
 use ReflectionProperty;
-use UnitEnum;
 
 class Property
 {
@@ -25,36 +27,47 @@ class Property
     public readonly Types $types;
     public readonly ?CasterInterface $in;
     public readonly ?CasterInterface $out;
-    public readonly ?Cast $cast;
-    private readonly bool $isDt0;
-    private readonly bool $isEnum;
+    public readonly ?CastInterface $cast;
+    public readonly bool $isDt0;
+    public readonly bool $isEnum;
+    public readonly bool $needEarlyDefault;
+    public readonly bool $needEarlyCast;
     protected mixed $default   = Dt0::DT0_NIL;
     protected bool $hasDefault = false;
 
+    /**
+     * @throws ReflectionException
+     */
     public function __construct(public readonly ReflectionProperty $property, ?Cast $cast = null)
     {
-        if ($cast) {
-            $this->cast = $cast;
-        } else {
-            $castAttribute = $this->property->getAttributes(Cast::class)[0] ?? null;
-            $this->cast    = $castAttribute?->newInstance();
-        }
-
-        $this->in     = $this->cast?->in;
-        $this->out    = $this->cast?->out;
-        $this->name   = $this->property->getName();
+        $this->cast        = static::resolveAttribute($this->property, CastInterface::class) ?: $cast;
+        $declaringClassFqn = $this->property->getDeclaringClass()->getName();
+        $this->name        = $this->property->getName();
+        $this->cast?->setDeclaringFqn($declaringClassFqn)->setPropName($this->name);
+        $this->in     = $this->cast?->in?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn); // @phpstan-ignore property.notFound
+        $this->out    = $this->cast?->out?->setPropName($this->name)->setDeclaringFqn($declaringClassFqn); // @phpstan-ignore property.notFound
         $this->types  = Types::make($this->property);
         $this->isDt0  = ! empty($this->types->getDt0Fqns());
         $this->isEnum = ! empty($this->types->getEnumFqns());
 
         foreach (['cast', 'types'] as $prop) {
-            if ($this->$prop?->hasDefault) {
-                $this->setDefault($this->$prop->default);
+            if ($this->$prop?->hasDefault) { // @phpstan-ignore property.notFound
+                $this->setDefault($this->$prop->default); // @phpstan-ignore property.notFound
                 break;
             }
         }
+
+        if (! $this->hasDefault() && $this->types->isNullable) {
+            $this->setDefault(null);
+        }
+
+        $this->needEarlyDefault = $this->property->isPromoted() && $this->hasDefault();
+        $this->needEarlyCast    = $this->property->isPromoted() && ($this->in || $this->isDt0 || $this->isEnum);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public static function make(ReflectionProperty $property, ?Cast $cast = null): static
     {
         return new static($property, $cast);
@@ -79,16 +92,17 @@ class Property
     }
 
     /**
-     * @throws JsonException
-     * @throws Dt0Exception
+     * @param array<string, mixed>|Dt0|null $input
+     *
+     * @throws ReflectionException
      */
-    public function cast(mixed $value): mixed
+    public function cast(mixed $value, array|Dt0|null $input): mixed
     {
         if ($this->in) {
             // gives the opportunity to enforce more
             // things on objects in the caster
-            // eg timezone for Datetimes
-            return $this->in->cast($value);
+            // eg timezone for Datetime
+            return $this->in->cast($value, $input);
         }
 
         if (is_object($value)) {
@@ -107,7 +121,7 @@ class Property
 
         if ($this->isEnum && (is_string($value) || is_int($value))) {
             foreach ($this->types->getEnumFqns() as $enumFqn) {
-                if ($case = static::tryEnumFrom($enumFqn, $value)) {
+                if ($case = Enumerate::tryFromAny($enumFqn, $value)) {
                     $value = $case;
                     break;
                 }
@@ -118,55 +132,38 @@ class Property
     }
 
     /**
-     * @param class-string<UnitEnum|BackedEnum>|null $enumFqn
-     */
-    public static function tryEnumFrom(?string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
-    {
-        if (
-            $enumFqn  === null
-            || $value === null
-        ) {
-            return null;
-        }
-
-        if (is_object($value)) {
-            return $value instanceof $enumFqn ? $value : null;
-        }
-
-        if (is_subclass_of($enumFqn, BackedEnum::class)) {
-            return $enumFqn::tryFrom($value);
-        }
-
-        return static::tryEnumFromName($enumFqn, $value);
-    }
-
-    /**
-     * @param class-string<UnitEnum|BackedEnum> $enumFqn
+     * @template T of object
      *
-     * @throws Dt0Exception
+     * @param class-string<T> $name  Name of an attribute class
+     * @param int             $flags Criteria by which the attribute is searched.
+     *
+     * @return T|null
+     *
+     * @throws ReflectionException
      */
-    public static function enumFrom(string $enumFqn, UnitEnum|string|int|null $value): UnitEnum|BackedEnum|null
+    public static function resolveAttribute(ReflectionProperty $property, string $name, int $flags = ReflectionAttribute::IS_INSTANCEOF): ?object
     {
-        return self::tryEnumFrom($enumFqn, $value) ?: throw (new Dt0Exception("Could not find any matching enum case for $enumFqn"))
-            ->setContext([
-                'value' => $value,
-            ])
+        $attribute = $property->getAttributes($name, $flags)[0] ?? null;
+        $propName  = $property->getName();
+        $parent    = $property->getDeclaringClass()
+            ->getParentClass()
         ;
-    }
 
-    /**
-     * @param class-string<UnitEnum|BackedEnum> $enumFqn
-     */
-    public static function tryEnumFromName(string $enumFqn, ?string $name): UnitEnum|BackedEnum|null
-    {
-        if ($name && is_subclass_of($enumFqn, UnitEnum::class)) {
-            foreach ($enumFqn::cases() as $case) {
-                if ($case->name === $name) {
-                    return $case;
-                }
+        while (
+            ! $attribute
+            && $parent
+            && $parent->getName() !== Dt0::class
+        ) {
+            if ($parent->hasProperty($propName)) {
+                $attribute = $parent->getProperty($propName)
+                    ->getAttributes($name, $flags)[0]
+                    ?? null
+                ;
             }
+
+            $parent = $parent->getParentClass();
         }
 
-        return null;
+        return $attribute?->newInstance();
     }
 }

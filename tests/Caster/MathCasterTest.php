@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,28 +9,25 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Caster;
+namespace Tests\Caster;
 
 use fab2s\Dt0\Caster\MathCaster;
-use fab2s\Dt0\Tests\TestCase;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class MathCasterTest extends TestCase
 {
     #[DataProvider('castProvider')]
     public function test_cast($precision, $value, $expected): void
     {
-        $caster = new MathCaster($precision);
+        $caster = MathCaster::make($precision);
 
         $this->assertSame($expected, (string) $caster->cast($value));
     }
 
-    public function test_exception(): void
+    public function test_nan(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $caster = new MathCaster;
-        $caster->cast('NaN');
+        $this->assertNull(MathCaster::make()->cast('NaN'));
     }
 
     public static function castProvider(): array
@@ -48,6 +47,11 @@ class MathCasterTest extends TestCase
                 'precision' => 4,
                 'value'     => '   0000042.00000   ',
                 'expected'  => '42',
+            ],
+            [
+                'precision' => 4,
+                'value'     => '   0000042.000100   ',
+                'expected'  => '42.0001',
             ],
         ];
     }

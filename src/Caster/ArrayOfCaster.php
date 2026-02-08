@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -12,17 +14,18 @@ namespace fab2s\Dt0\Caster;
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
 use fab2s\Dt0\Exception\Dt0Exception;
-use fab2s\Dt0\Property\Property;
-use JsonException;
+use fab2s\Enumerate\Enumerate;
+use ReflectionException;
 use UnitEnum;
 
-class ArrayOfCaster implements CasterInterface
+class ArrayOfCaster extends CasterAbstract
 {
     public readonly ArrayType|ScalarType|string $logicalType;
     protected ?ScalarCaster $scalarCaster;
 
     /**
      * @throws CasterException
+     * @throws ReflectionException
      */
     public function __construct(
         /** @var class-string<Dt0|UnitEnum>|ScalarType|string */
@@ -32,14 +35,14 @@ class ArrayOfCaster implements CasterInterface
             $logicalType = match (true) {
                 is_subclass_of($type, Dt0::class)      => ArrayType::DT0,
                 is_subclass_of($type, UnitEnum::class) => ArrayType::ENUM,
-                default                                => ScalarType::tryFrom($type),
+                default                                => ScalarType::tryFromAny($type),
             };
         } else {
             $logicalType = $type;
         }
 
         if (! $logicalType) {
-            throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not a supported type");
+            throw new CasterException('[' . Dt0::classBasename(static::class) . '] ' . (is_string($type) ? $type : $type->value) . ' is not a supported type');
         }
 
         $this->logicalType  = $logicalType;
@@ -47,21 +50,38 @@ class ArrayOfCaster implements CasterInterface
     }
 
     /**
-     * @throws Dt0Exception
-     * @throws JsonException
+     * @throws CasterException
      */
-    public function cast(mixed $value): ?array
+    public static function make(
+        /** @var class-string<Dt0|UnitEnum>|ScalarType|string $type */
+        ScalarType|string $type,
+    ): static {
+        return new static($type);
+    }
+
+    /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
+     * @return array<mixed>|null
+     *
+     * @throws CasterException
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     */
+    public function cast(mixed $value, array|Dt0|null $data = null): ?array
     {
         if (! is_iterable($value)) {
             return null;
         }
 
         $result = [];
+        /** @var class-string<Dt0&UnitEnum> $type */
+        $type = $this->type;
         foreach ($value as $item) {
             $result[] = match ($this->logicalType) {
-                ArrayType::DT0  => $this->type::from($item),
-                ArrayType::ENUM => Property::enumFrom($this->type, $item),
-                default         => $this->scalarCaster->cast($item) ?? throw (new CasterException('Could not cast array item to scalar type ' . $this->logicalType->value))->setContext([
+                ArrayType::DT0  => $type::tryFrom($item),
+                ArrayType::ENUM => Enumerate::tryFromAny($type, $item),
+                default         => $this->scalarCaster?->cast($item) ?? throw (new CasterException('Could not cast array item to scalar type ' . $this->logicalType->value))->setContext([
                     'item' => $item,
                 ]),
             };

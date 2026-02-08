@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -9,7 +11,12 @@
 
 namespace fab2s\Dt0\Caster;
 
-interface CasterInterface
+use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
+use fab2s\Dt0\Concern\HasPropNameInterface;
+use fab2s\Dt0\Dt0;
+
+interface CasterInterface extends HasDeclaringFqnInterface, HasPropNameInterface
 {
-    public function cast(mixed $value): mixed;
+    /** @param array<string, mixed>|Dt0|null $data */
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed;
 }

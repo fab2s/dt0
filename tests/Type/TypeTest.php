@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,14 +9,14 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests\Type;
+namespace Tests\Type;
 
 use DateTime;
 use DateTimeImmutable;
 use fab2s\Dt0\Property\Properties;
-use fab2s\Dt0\Tests\Artifacts\Enum\UnitEnum;
-use fab2s\Dt0\Tests\Artifacts\TypedDt0;
-use fab2s\Dt0\Tests\TestCase;
+use Tests\Artifacts\Enum\UnitEnum;
+use Tests\Artifacts\TypedDt0;
+use Tests\TestCase;
 
 class TypeTest extends TestCase
 {
@@ -47,7 +49,8 @@ class TypeTest extends TestCase
         $this->assertFalse($dateTimeImmutableType->isIntersection);
 
         $unionTypeNullableProp = $properties->get('unionTypeNullable');
-        $this->assertFalse($unionTypeNullableProp->hasDefault());
+        $this->assertTrue($unionTypeNullableProp->hasDefault());
+        $this->assertNull($unionTypeNullableProp->getDefault());
 
         $unionTypePropNullableTypes = $unionTypeNullableProp->types;
         $this->assertCount(2, $unionTypePropTypes->toArray());

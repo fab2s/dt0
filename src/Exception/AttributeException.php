@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -9,6 +11,4 @@
 
 namespace fab2s\Dt0\Exception;
 
-class AttributeException extends Dt0Exception
-{
-}
+class AttributeException extends Dt0Exception {}

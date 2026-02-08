@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -10,9 +12,15 @@
 namespace fab2s\Dt0\Validator;
 
 use fab2s\Dt0\Attribute\Rule;
+use fab2s\Dt0\Concern\HasDeclaringFqnInterface;
 
-interface ValidatorInterface
+interface ValidatorInterface extends HasDeclaringFqnInterface
 {
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
     public function validate(array $data): array;
 
     public function addRule(string $name, Rule $rule): static;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -13,8 +15,9 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTimeZone;
 use Exception;
+use fab2s\Dt0\Dt0;
 
-class CarbonCaster implements CasterInterface
+class CarbonCaster extends CasterAbstract
 {
     use DateTimeTrait;
 
@@ -32,8 +35,21 @@ class CarbonCaster implements CasterInterface
     /**
      * @throws Exception
      */
-    public function cast(mixed $value): Carbon|CarbonImmutable|null
+    public static function make(
+        DateTimeZone|string|null $timeZone = null,
+        bool $immutable = true,
+    ): static {
+        return new static($timeZone, $immutable);
+    }
+
+    /**
+     * @param array<string, mixed>|Dt0|null $data
+     *
+     * @throws Exception
+     */
+    public function cast(mixed $value, array|Dt0|null $data = null): Carbon|CarbonImmutable|null
     {
+        /** @var Carbon|CarbonImmutable|null */
         return $this->resolve($value);
     }
 }

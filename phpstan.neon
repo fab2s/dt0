@@ -1,0 +1,19 @@
+
+parameters:
+    tmpDir: .phpstan
+    level: 9
+
+    paths:
+        - src
+
+    parallel:
+        maximumNumberOfProcesses: 4
+
+    ignoreErrors:
+        -
+            identifier: attribute.abstract
+        -
+            identifier: property.uninitializedReadonly
+        -
+            identifier: new.static
+

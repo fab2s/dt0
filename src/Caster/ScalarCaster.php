@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -11,16 +13,21 @@ namespace fab2s\Dt0\Caster;
 
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\CasterException;
+use ReflectionException;
 
-class ScalarCaster implements CasterInterface
+class ScalarCaster extends CasterAbstract
 {
     public readonly ScalarType $type;
 
+    /**
+     * @throws CasterException
+     * @throws ReflectionException
+     */
     public function __construct(
         ScalarType|string $type,
     ) {
-        if (is_string($type) && ! ($type = ScalarType::tryFrom($type))) {
-            throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not ScalarType");
+        if (is_string($type)) {
+            $type = ScalarType::tryFromAny($type) ?? throw new CasterException('[' . Dt0::classBasename(static::class) . "] $type is not ScalarType");
         }
 
         $this->type = $type;
@@ -28,11 +35,21 @@ class ScalarCaster implements CasterInterface
     }
 
     /**
-     * @param scalar $value
+     * @throws CasterException
+     * @throws ReflectionException
+     */
+    public static function make(
+        ScalarType|string $type,
+    ): static {
+        return new static($type);
+    }
+
+    /**
+     * @param array<string, mixed>|Dt0|null $data
      *
      * @return string|int|float|bool|null|resource
      */
-    public function cast(mixed $value): mixed
+    public function cast(mixed $value, array|Dt0|null $data = null): mixed
     {
         if ($value !== null && ! is_scalar($value)) {
             return null;

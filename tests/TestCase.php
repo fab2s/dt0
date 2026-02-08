@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fab2s/dt0.
  * (c) Fabrice de Stefanis / https://github.com/fab2s/dt0
@@ -7,16 +9,17 @@
  * find in the LICENSE file or at https://opensource.org/licenses/MIT
  */
 
-namespace fab2s\Dt0\Tests;
+namespace Tests;
 
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Exception\Dt0Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use ReflectionException;
 
 abstract class TestCase extends BaseTestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         // Turn on error reporting
         error_reporting(E_ALL);
@@ -26,6 +29,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * @throws JsonException
      * @throws Dt0Exception
+     * @throws ReflectionException
      */
     protected function dt0Assertions(Dt0 $dt0): static
     {
