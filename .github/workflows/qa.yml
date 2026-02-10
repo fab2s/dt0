@@ -39,7 +39,7 @@ jobs:
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Check code style
-        run: composer fix
+        run: vendor/bin/pint --ansi --config pint.json --test
 
       - name: PHPStan src
         run: composer stan

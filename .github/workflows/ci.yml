@@ -31,8 +31,8 @@ jobs:
       - name: Remove composer.lock
         run: rm -f composer.lock
 
-      - name: Remove pint
-        run: composer remove "laravel/pint" --dev --no-update
+      - name: Remove QA dependencies
+        run: composer remove laravel/pint phpstan/phpstan --dev --no-update
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
