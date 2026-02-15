@@ -35,7 +35,9 @@
     "require-dev": {
         "phpunit/phpunit": "^10.0|^11.0",
         "laravel/pint": "^1.21.2",
-        "orchestra/testbench": "^8.0|^9.0",
+        "orchestra/testbench": "^9.0|^10.0",
+        "illuminate/translation": "^10.0|^11.0|^12.0",
+        "illuminate/validation": "^10.0|^11.0|^12.0",
         "nesbot/carbon": "^2.62|^3.0",
         "fab2s/math": "^2.0",
         "spatie/laravel-data": "^4.19",
@@ -49,7 +51,10 @@
     "autoload": {
         "psr-4": {
             "fab2s\\Dt0\\": "src"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

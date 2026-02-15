@@ -43,7 +43,7 @@
 
 **One attribute to rule them all.** Where other packages require a dozen attributes for casting, defaults, and renaming, Dt0's `#[Cast]` handles input transformation, output formatting, defaults, and property renaming in a single, composable attribute.
 
-**Framework-agnostic core.** Use it anywhere PHP runs. For Laravel projects, [laravel-dt0](https://github.com/fab2s/laravel-dt0) adds validation and model casting integration.
+**Framework-agnostic core.** Use it anywhere PHP runs — including [standalone validation](./docs/validation.md) powered by Laravel's validation engine, without the framework. For full Laravel projects, [laravel-dt0](https://github.com/fab2s/laravel-dt0) adds model casting integration.
 
 **Compiled once, fast always.** Reflection and attribute metadata are processed once per class, then cached. Every subsequent instantiation reuses compiled data with zero reflection overhead.
 
@@ -928,42 +928,53 @@ $task->status;  // 'urgent'
 
 ## Validation
 
-Dt0 provides validation architecture without imposing a specific implementation:
+Dt0 provides validation architecture with a built-in standalone validator powered by Laravel's validation engine — no Laravel framework required:
 
 ```php
 use fab2s\Dt0\Dt0;
 use fab2s\Dt0\Attribute\Validate;
 use fab2s\Dt0\Attribute\Rule;
 use fab2s\Dt0\Attribute\Rules;
+use fab2s\Dt0\Validator\Validator;
 
-#[Validate(MyValidator::class)]
+#[Validate(Validator::class)]
 #[Rules(
-    email: new Rule(['required', 'email']),
+    email: new Rule('required|email'),
 )]
 class ContactDto extends Dt0
 {
     public readonly string $email;
 
-    #[Rule(['required', 'min:2', 'max:100'])]
+    #[Rule('required|string|min:2|max:100')]
     public readonly string $name;
 
-    #[Rule(['string', 'max:1000'])]
+    #[Rule('nullable|string|max:1000')]
     public readonly ?string $message;
 }
 
-$contact = ContactDto::make(
+// Validate before construction — throws ValidationException on failure
+$contact = ContactDto::withValidation(
     email: 'test@example.com',
     name: 'Jo',
     message: 'Hello!',
 );
+```
 
-// Run validation (throws on failure)
-$contact->withValidation();
+The standalone validator requires `illuminate/validation` and `illuminate/translation`:
+
+```shell
+composer require illuminate/validation illuminate/translation
 ```
 
 **Rule priority**: When rules are defined at multiple levels, property-level `#[Rule]` takes precedence over class-level `#[Rules]`, which takes precedence over rules defined in `#[Validate]`.
 
-For a complete implementation with Laravel's validator, see [Laravel Dt0](https://github.com/fab2s/laravel-dt0).
+**Laravel auto-detection**: When used inside a Laravel application, the `Validator` automatically delegates to Laravel's own validation factory — no configuration needed. Your DTOs work identically in both standalone and Laravel contexts.
+
+The `ValidatorInterface` is open for custom implementations — bring your own validation engine if needed.
+
+See [Validation Documentation](./docs/validation.md) for Laravel auto-detection details, locale configuration, custom translations, custom validators, and helper functions.
+
+For full Laravel integration with model casting, see [Laravel Dt0](https://github.com/fab2s/laravel-dt0).
 
 ## Type System Integration
 
@@ -1101,6 +1112,7 @@ try {
 
 ### Optional
 
+- [`illuminate/validation`](https://github.com/illuminate/validation) + [`illuminate/translation`](https://github.com/illuminate/translation) - For standalone `Validator`
 - [`nesbot/carbon`](https://github.com/briannesbitt/Carbon) - For `CarbonCaster`
 - [`fab2s/math`](https://github.com/fab2s/Math) - For `MathCaster`
 
