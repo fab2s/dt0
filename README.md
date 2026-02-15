@@ -960,10 +960,10 @@ $contact = ContactDto::withValidation(
 );
 ```
 
-The standalone validator requires `illuminate/validation` and `illuminate/translation`:
+The standalone validator requires `illuminate/validation` and `illuminate/translation` (v11+):
 
 ```shell
-composer require illuminate/validation illuminate/translation
+composer require "illuminate/validation:^11.0|^12.0" "illuminate/translation:^11.0|^12.0"
 ```
 
 **Rule priority**: When rules are defined at multiple levels, property-level `#[Rule]` takes precedence over class-level `#[Rules]`, which takes precedence over rules defined in `#[Validate]`.

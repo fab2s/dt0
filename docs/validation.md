@@ -139,10 +139,10 @@ Dt0 ships with a standalone validator (`fab2s\Dt0\Validator\Validator`) that use
 
 ### Installation
 
-Add the illuminate packages to your project:
+Add the illuminate packages to your project (v11+):
 
 ```shell
-composer require illuminate/validation illuminate/translation
+composer require "illuminate/validation:^11.0|^12.0" "illuminate/translation:^11.0|^12.0"
 ```
 
 ### Usage
