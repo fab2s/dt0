@@ -11,19 +11,18 @@
         "source": "https://github.com/fab2s/dt0"
     },
     "keywords": [
-        "Data-Transfer-Object",
-        "DTO",
-        "DT0",
-        "Symfony",
-        "Laravel",
-        "PHP",
-        "Serializable",
+        "dto",
+        "data-transfer-object",
         "immutable",
         "readonly",
-        "JSON",
-        "Data-Processing",
+        "casting",
+        "validation",
+        "value-object",
         "php8",
-        "value-object"
+        "serialization",
+        "json",
+        "laravel",
+        "symfony"
     ],
     "license": [
         "MIT"
