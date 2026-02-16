@@ -1,6 +1,6 @@
 {
     "name": "fab2s/dt0",
-    "description": "Dt0, a DTO PHP implementation than can both secure mutability and implement convenient ways to take control over input and output in various format",
+    "description": "Immutable DTOs with bidirectional casting. No framework required. 8x faster than the alternative.",
     "type": "library",
     "authors": [{
         "name": "Fabrice de Stefanis"
@@ -21,7 +21,9 @@
         "immutable",
         "readonly",
         "JSON",
-        "Data-Processing"
+        "Data-Processing",
+        "php8",
+        "value-object"
     ],
     "license": [
         "MIT"

@@ -2,28 +2,17 @@
 
 Dt0 provides a validation architecture based on attributes, with a built-in standalone validator powered by Laravel's validation engine — no Laravel framework required.
 
-## Table of Contents
+## Installation
 
-- [Overview](#overview)
-- [Attributes](#attributes)
-    - [Rule](#rule)
-    - [Rules](#rules)
-    - [Validate](#validate)
-- [Built-in Standalone Validator](#built-in-standalone-validator)
-    - [Installation](#installation)
-    - [Usage](#usage)
-    - [Laravel Auto-Detection](#laravel-auto-detection)
-    - [Locale and Translations](#locale-and-translations)
-- [Custom Validators](#custom-validators)
-- [Helper Functions](#helper-functions)
+The built-in `Validator` uses Laravel's validation engine under the hood. Install the required packages (v11+):
 
-## Overview
+```shell
+composer require "illuminate/validation:^11.0|^12.0" "illuminate/translation:^11.0|^12.0"
+```
 
-Validation in Dt0 is driven by three attributes that define rules at different levels, and a `ValidatorInterface` that performs the actual validation. Rules are collected from all levels with a clear priority order:
+> In Laravel applications, these packages are already present — no extra installation needed.
 
-1. **Property-level** `#[Rule]` — highest priority
-2. **Class-level** `#[Rules]` — medium priority
-3. **Rules in `#[Validate]`** — lowest priority
+## Quick Start
 
 ```php
 use fab2s\Dt0\Dt0;
@@ -54,6 +43,27 @@ $contact = ContactDto::withValidation(
     message: 'Hello!',
 );
 ```
+
+## Table of Contents
+
+- [Rule Priority](#rule-priority)
+- [Attributes](#attributes)
+    - [Rule](#rule)
+    - [Rules](#rules)
+    - [Validate](#validate)
+- [Usage](#usage)
+- [Laravel Auto-Detection](#laravel-auto-detection)
+- [Locale and Translations](#locale-and-translations)
+- [Custom Validators](#custom-validators)
+- [Helper Functions](#helper-functions)
+
+## Rule Priority
+
+When rules are defined at multiple levels, they are collected with a clear priority order:
+
+1. **Property-level** `#[Rule]` — highest priority
+2. **Class-level** `#[Rules]` — medium priority
+3. **Rules in `#[Validate]`** — lowest priority
 
 ## Attributes
 
@@ -133,19 +143,7 @@ class ContactDto extends Dt0
 
 Rules defined here have the lowest priority — they are overridden by `#[Rules]` at the class level and `#[Rule]` at the property level.
 
-## Built-in Standalone Validator
-
-Dt0 ships with a standalone validator (`fab2s\Dt0\Validator\Validator`) that uses Laravel's validation engine (`illuminate/validation`) without requiring the Laravel framework.
-
-### Installation
-
-Add the illuminate packages to your project (v11+):
-
-```shell
-composer require "illuminate/validation:^11.0|^12.0" "illuminate/translation:^11.0|^12.0"
-```
-
-### Usage
+## Usage
 
 Reference `Validator::class` in the `#[Validate]` attribute and use `withValidation()` to create validated instances:
 
@@ -199,7 +197,7 @@ try {
 
 All [Laravel validation rules](https://laravel.com/docs/validation#available-validation-rules) are supported: `required`, `email`, `min`, `max`, `regex`, `unique` (with custom resolver), etc.
 
-### Laravel Auto-Detection
+## Laravel Auto-Detection
 
 When used inside a Laravel application, the built-in `Validator` automatically detects the framework and delegates to Laravel's own validation factory. This means your DTOs work identically in both contexts — standalone projects get a self-contained validator, while Laravel projects benefit from the framework's full validation ecosystem (custom rules registered in service providers, database-dependent rules like `unique` and `exists`, etc.).
 
@@ -209,7 +207,7 @@ The resolved validation factory is cached statically, so the detection and setup
 
 > If you are using Dt0 in a Laravel project, consider using [laravel-dt0](https://github.com/fab2s/laravel-dt0) which provides deeper integration including model casting.
 
-### Locale and Translations
+## Locale and Translations
 
 The standalone validator loads English validation messages from the `illuminate/translation` package by default. You can configure the locale and provide custom translations by creating a `lang/` directory at your project root (next to `vendor/`):
 
