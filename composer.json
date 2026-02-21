@@ -1,6 +1,6 @@
 {
     "name": "fab2s/dt0",
-    "description": "Dt0, a DTO PHP implementation than can both secure mutability and implement convenient ways to take control over input and output in various format",
+    "description": "Immutable DTOs with bidirectional casting. No framework required. 8x faster than the alternative.",
     "type": "library",
     "authors": [{
         "name": "Fabrice de Stefanis"
@@ -11,17 +11,18 @@
         "source": "https://github.com/fab2s/dt0"
     },
     "keywords": [
-        "Data-Transfer-Object",
-        "DTO",
-        "DT0",
-        "Symfony",
-        "Laravel",
-        "PHP",
-        "Serializable",
+        "dto",
+        "data-transfer-object",
         "immutable",
         "readonly",
-        "JSON",
-        "Data-Processing"
+        "casting",
+        "validation",
+        "value-object",
+        "php8",
+        "serialization",
+        "json",
+        "laravel",
+        "symfony"
     ],
     "license": [
         "MIT"
@@ -35,7 +36,9 @@
     "require-dev": {
         "phpunit/phpunit": "^10.0|^11.0",
         "laravel/pint": "^1.21.2",
-        "orchestra/testbench": "^8.0|^9.0",
+        "orchestra/testbench": "^9.0|^10.0",
+        "illuminate/translation": "^11.0|^12.0",
+        "illuminate/validation": "^11.0|^12.0",
         "nesbot/carbon": "^2.62|^3.0",
         "fab2s/math": "^2.0",
         "spatie/laravel-data": "^4.19",
@@ -49,7 +52,10 @@
     "autoload": {
         "psr-4": {
             "fab2s\\Dt0\\": "src"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -2,11 +2,17 @@ name: CI
 on: [pull_request]
 jobs:
   tests:
-    name: Dt0 (PHP ${{ matrix.php-versions }})
+    name: Dt0 (PHP ${{ matrix.php-versions }} / Orchestra ${{ matrix.orchestra-versions }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php-versions: [ '8.1', '8.2', '8.3', '8.4' ]
+        orchestra-versions: [ '9.0', '10.0' ]
+        exclude:
+          - php-versions: 8.1
+            orchestra-versions: 9.0
+          - php-versions: 8.1
+            orchestra-versions: 10.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
