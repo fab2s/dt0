@@ -84,11 +84,13 @@ class Types
 
         assert($this->property instanceof ReflectionProperty);
 
+        $hasDefault = $this->property->hasDefaultValue();
+
         return [
             'isReadOnly'     => $this->property->isReadOnly(),
-            'hasDefault'     => $this->property->hasDefaultValue(),
+            'hasDefault'     => $hasDefault,
             'isDefault'      => $this->property->isDefault(),
-            'default'        => $this->property->getDefaultValue(),
+            'default'        => $hasDefault ? $this->property->getDefaultValue() : null,
             'isNullable'     => $isNullable,
             'isUnion'        => $isUnion,
             'isIntersection' => $isIntersection,

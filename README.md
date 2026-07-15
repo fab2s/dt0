@@ -4,7 +4,7 @@
 
 **Immutable PHP DTOs with bidirectional casting. No framework required. [~8x faster](#benchmarks) than the alternative.**
 
-`Dt0` (_DeeTO_) is a PHP 8.1+ [Data Transfer Object](https://en.wikipedia.org/wiki/Data_transfer_object) implementation that uses native `readonly` properties for true immutability. One `#[Cast]` attribute handles input transformation, output formatting, defaults, and property renaming. Compiled once per class, fast always.
+`Dt0` (_DeeTO_) is a PHP 8.2+ [Data Transfer Object](https://en.wikipedia.org/wiki/Data_transfer_object) implementation that uses native `readonly` properties for true immutability. One `#[Cast]` attribute handles input transformation, output formatting, defaults, and property renaming. Compiled once per class, fast always.
 
 ## Quick Start
 
@@ -310,23 +310,23 @@ Reflection and attribute metadata compiled **once per class, per process**. Subs
 
 <a id="benchmarks"></a>
 
-#### Dt0 vs spatie/laravel-data (PHP 8.4, 10,000 iterations)
+#### Dt0 vs spatie/laravel-data (PHP 8.5, 10,000 iterations)
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
 |-----------|-----|---------------------|---------|
-| Simple DTO (8 props, 5 casts) | 141.6 µs | 1,158 µs | **~8.2x faster** |
-| Complex DTO (nested + arrays) | 741.9 µs | 3,628 µs | **~4.9x faster** |
-| Round-trip (json->dto->json) | 248.4 µs | 2,004 µs | **~8.1x faster** |
+| Simple DTO (8 props, 5 casts) | 2.6 µs | 17.1 µs | **~6.5x faster** |
+| Complex DTO (nested + arrays) | 11.6 µs | 67.7 µs | **~5.8x faster** |
+| Round-trip (json->dto->json) | 5.0 µs | 31.8 µs | **~6.4x faster** |
 
 **Repeated serialization (same instance):**
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
 |-----------|-----|---------------------|---------|
-| toArray() (simple) | 3.6 µs | 679.4 µs | **~188.7x faster** |
-| toArray() (nested) | 3.6 µs | 2,056 µs | **~571.1x faster** |
-| toJson() | 2.8 µs | 681.8 µs | **~243.5x faster** |
+| toArray() (simple) | 0.085 µs | 9.1 µs | **~107x faster** |
+| toArray() (nested) | 0.103 µs | 30.1 µs | **~292x faster** |
+| toJson() | 0.034 µs | 9.3 µs | **~277x faster** |
 
-Output caching delivers 188-571x improvements when serializing the same instance multiple times (API + logging, event sourcing, queue + monitoring, caching layers).
+Output caching delivers ~107-292x improvements when serializing the same instance multiple times (API + logging, event sourcing, queue + monitoring, caching layers). Absolute timings are hardware-dependent; the speedup ratios are what matter.
 
 ```shell
 php benchmark/compare-spatie.php
@@ -348,7 +348,7 @@ All exceptions extend [`ContextException`](https://github.com/fab2s/ContextExcep
 
 ## Requirements
 
-- PHP 8.1, 8.2, 8.3, or 8.4
+- PHP 8.2, 8.3, 8.4, or 8.5
 
 ## Dependencies
 

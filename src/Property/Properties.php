@@ -97,13 +97,13 @@ class Properties
             $rule = Property::resolveAttribute($reflectionProperty, RuleInterface::class)
                 ?: (
                     $rules?->hasRule($name)
-                    ? $rules->getRule($name) // @phpstan-ignore method.nonObject
-                        ->setDeclaringFqn($reflection->getName())
+                    ? $rules->getRule($name)
+                        ->setDeclaringFqn($reflection->getName()) // @phpstan-ignore method.nonObject
                         ->setPropName($name)
                     : (
                         $validatorRules?->hasRule($name)
-                        ? $validatorRules->getRule($name) // @phpstan-ignore method.nonObject
-                            ->setDeclaringFqn($reflection->getName())
+                        ? $validatorRules->getRule($name)
+                            ->setDeclaringFqn($reflection->getName()) // @phpstan-ignore method.nonObject
                             ->setPropName($name)
                         : null
                     )

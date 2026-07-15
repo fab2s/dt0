@@ -32,7 +32,7 @@ class Base64CasterTest extends TestCase
     public function test_encode_on_output(): void
     {
         $caster = Base64Caster::make();
-        $dt0    = $this->createMock(Dt0::class);
+        $dt0    = $this->createStub(Dt0::class);
 
         // Output context: $data is Dt0
         $result = $caster->cast('hello world', $dt0);
@@ -45,7 +45,7 @@ class Base64CasterTest extends TestCase
         $caster = Base64Caster::make();
 
         $this->assertNull($caster->cast(null, []));
-        $this->assertNull($caster->cast(null, $this->createMock(Dt0::class)));
+        $this->assertNull($caster->cast(null, $this->createStub(Dt0::class)));
     }
 
     public function test_non_string_returns_null(): void
@@ -81,7 +81,7 @@ class Base64CasterTest extends TestCase
         $binary = "\x00\x01\x02\xff\xfe\xfd";
 
         // Encode
-        $encoded = $caster->cast($binary, $this->createMock(Dt0::class));
+        $encoded = $caster->cast($binary, $this->createStub(Dt0::class));
 
         // Decode
         $decoded = $caster->cast($encoded, []);

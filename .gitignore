@@ -3,3 +3,4 @@
 .phpstan
 composer.lock
 /cov
+.*/

@@ -19,6 +19,23 @@ Dt0's attributes and validation are extensible. Implement the appropriate interf
 | Property rule | [`RuleInterface`](../src/Attribute/RuleInterface.php) | [`RuleAbstract`](../src/Attribute/RuleAbstract.php) |
 | Output control | [`WithInterface`](../src/Attribute/WithInterface.php) | [`WithAbstract`](../src/Attribute/WithAbstract.php) |
 
+> **Declare `#[Attribute]` on your concrete class.** PHP never inherits the `#[Attribute]` marker
+> from a parent or abstract class, so when you extend one of the abstract classes above you must add
+> `#[Attribute(...)]` with the appropriate target to your own concrete class — otherwise PHP throws
+> *"Attempting to use non-attribute class as attribute"*. Dt0 walks the class tree to resolve
+> inherited attributes, but always instantiates the concrete attribute you declared:
+>
+> ```php
+> use Attribute;
+> use fab2s\Dt0\Attribute\CastAbstract;
+>
+> #[Attribute(Attribute::TARGET_PROPERTY)] // required on the concrete class
+> class MyCast extends CastAbstract
+> {
+>     // ...
+> }
+> ```
+
 ## Compiled Property Metadata
 
 Access the compiled metadata for any Dt0 class:

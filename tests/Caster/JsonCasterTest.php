@@ -74,7 +74,7 @@ class JsonCasterTest extends TestCase
         $caster = JsonCaster::make();
 
         $this->assertNull($caster->cast(null, []));
-        $this->assertNull($caster->cast(null, $this->createMock(Dt0::class)));
+        $this->assertNull($caster->cast(null, $this->createStub(Dt0::class)));
     }
 
     /**
@@ -108,7 +108,7 @@ class JsonCasterTest extends TestCase
     public function test_invalid_value_on_output(): void
     {
         $caster = JsonCaster::make();
-        $dt0    = $this->createMock(Dt0::class);
+        $dt0    = $this->createStub(Dt0::class);
 
         // Non-array/object on output returns null
         $this->assertNull($caster->cast('string', $dt0));

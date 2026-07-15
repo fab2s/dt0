@@ -11,10 +11,8 @@ declare(strict_types=1);
 
 namespace fab2s\Dt0\Attribute;
 
-use Attribute;
 use fab2s\Dt0\Concern\HasDeclaringFqn;
 
-#[Attribute(Attribute::TARGET_CLASS)]
 abstract class RulesAbstract implements RulesInterface
 {
     use HasDeclaringFqn;

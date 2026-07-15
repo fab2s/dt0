@@ -6,12 +6,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: [ '8.1', '8.2', '8.3', '8.4' ]
-        orchestra-versions: [ '9.0', '10.0' ]
+        php-versions: [ '8.2', '8.3', '8.4', '8.5' ]
+        orchestra-versions: [ '9.0', '10.0', '11.0' ]
         exclude:
-          - php-versions: 8.1
+          # Laravel 13 (Testbench 11) requires PHP >= 8.3
+          - php-versions: 8.2
+            orchestra-versions: 11.0
+          # Laravel 11 (Testbench 9) does not support PHP 8.5
+          - php-versions: 8.5
             orchestra-versions: 9.0
-          - php-versions: 8.1
+          # Laravel 12 (Testbench 10) does not support PHP 8.5
+          - php-versions: 8.5
             orchestra-versions: 10.0
     steps:
       - name: Checkout
@@ -39,6 +44,15 @@ jobs:
 
       - name: Remove QA dependencies
         run: composer remove laravel/pint phpstan/phpstan --dev --no-update
+
+      # Laravel 11 (Testbench 9) is EOL and carries unpatched security advisories,
+      # so composer blocks its install by default. Dt0 still supports it, so allow
+      # it in CI only (never touches the committed composer.json).
+      - name: Allow advisory-flagged dependencies (Laravel 11 is EOL)
+        run: composer config --global policy.advisories.block false
+
+      - name: Pin Testbench version
+        run: composer require --dev "orchestra/testbench:^${{ matrix.orchestra-versions }}" --no-update
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader

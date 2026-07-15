@@ -11,11 +11,9 @@ declare(strict_types=1);
 
 namespace fab2s\Dt0\Attribute;
 
-use Attribute;
 use fab2s\Dt0\Concern\HasDeclaringFqn;
 use fab2s\Dt0\Validator\ValidatorInterface;
 
-#[Attribute(Attribute::TARGET_CLASS)]
 abstract class ValidateAbstract implements ValidateInterface
 {
     use HasDeclaringFqn;
