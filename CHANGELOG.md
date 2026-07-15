@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-07-15
+
+### Breaking Changes
+
+#### Minimum PHP 8.2
+
+Dropped PHP 8.1 support — the minimum is now PHP 8.2. PHP 8.1 was already untested in practice: the previous CI matrix excluded it from every Laravel/Testbench combination, since Laravel 11+ requires PHP 8.2+. Projects still on PHP 8.1 can continue using the 1.0.x line.
+
+### Added
+
+#### PHP 8.5 support
+
+Full support for PHP 8.5, including its stricter runtime checks.
+
+#### Laravel 13 support
+
+Support for Laravel 13 (`illuminate/* ^13.0`, `orchestra/testbench ^11.0`) alongside Laravel 11 and 12. The standalone `Validator` and the `trans()` / `__()` / `trans_choice()` helpers are verified against Laravel 13 in both standalone mode (self-contained translator) and inside a Laravel app (defers to the framework's own helpers). The CI matrix now covers PHP 8.2–8.5 across Laravel 11/12/13, and QA/coverage runs on PHP 8.5.
+
+#### Documentation
+
+`docs/extending.md` now notes that custom attribute implementations must declare their own `#[Attribute(...)]` on the concrete class, since PHP does not inherit the marker from a parent or abstract class.
+
+### Fixed
+
+#### PHP 8.5 compatibility
+
+- The `#[Attribute]` marker was removed from the abstract attribute base classes (`CastAbstract`, `CastsAbstract`, `RuleAbstract`, `RulesAbstract`, `ValidateAbstract`, `WithAbstract`): PHP 8.5 makes `#[Attribute]` on an abstract class a fatal error. This is internal only — the marker is required (and still declared) on the concrete attributes, and PHP never inherited it by subclasses, so custom attribute implementations are unaffected.
+- `ReflectionProperty::getDefaultValue()` is now guarded behind `hasDefaultValue()`, avoiding a PHP 8.5 deprecation for properties declared without a default.
+
+#### Timezone now applied to immutable dates from array input
+
+Date casters (`DateTimeCaster`, `DateTimeImmutable`) now correctly apply the timezone when hydrating from an array containing a `timezone` entry. Previously the result of `setTimezone()` was discarded, so the timezone was silently ignored for immutable date instances (surfaced as a warning under PHP 8.5).
+
 ## [1.0.1] - 2026-02-21
 
 ### Added

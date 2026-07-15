@@ -4,7 +4,7 @@
 
 **Immutable PHP DTOs with bidirectional casting. No framework required. [~8x faster](#benchmarks) than the alternative.**
 
-`Dt0` (_DeeTO_) is a PHP 8.1+ [Data Transfer Object](https://en.wikipedia.org/wiki/Data_transfer_object) implementation that uses native `readonly` properties for true immutability. One `#[Cast]` attribute handles input transformation, output formatting, defaults, and property renaming. Compiled once per class, fast always.
+`Dt0` (_DeeTO_) is a PHP 8.2+ [Data Transfer Object](https://en.wikipedia.org/wiki/Data_transfer_object) implementation that uses native `readonly` properties for true immutability. One `#[Cast]` attribute handles input transformation, output formatting, defaults, and property renaming. Compiled once per class, fast always.
 
 ## Quick Start
 
@@ -348,7 +348,7 @@ All exceptions extend [`ContextException`](https://github.com/fab2s/ContextExcep
 
 ## Requirements
 
-- PHP 8.1, 8.2, 8.3, or 8.4
+- PHP 8.2, 8.3, 8.4, or 8.5
 
 ## Dependencies
 
