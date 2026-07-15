@@ -11,8 +11,6 @@ parameters:
 
     ignoreErrors:
         -
-            identifier: attribute.abstract
-        -
             identifier: property.uninitializedReadonly
         -
             identifier: new.static

@@ -41,10 +41,10 @@ if (! function_exists('trans_choice')) {
     /**
      * Translates the given message based on a count.
      *
-     * @param \Countable|int|float|array<array-key, mixed> $number
-     * @param array<string, string>                        $replace
+     * @param Countable|int|float|array<array-key, mixed> $number
+     * @param array<string, string>                       $replace
      */
-    function trans_choice(string $key, \Countable|int|float|array $number, array $replace = [], ?string $locale = null): string
+    function trans_choice(string $key, Countable|int|float|array $number, array $replace = [], ?string $locale = null): string
     {
         /** @var Translator $translator */
         $translator = trans();

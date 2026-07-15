@@ -286,7 +286,7 @@ class BenchmarkRunner extends TestCase
     {
         $dt0    = $this->benchmark($dt0Fn, $iterations);
         $spatie = $this->benchmark($spatieFn, $iterations);
-        $ratio  = round($spatie['per_op_us'] / $dt0['per_op_us'], 1);
+        $ratio  = $dt0['per_op_us'] > 0 ? round($spatie['per_op_us'] / $dt0['per_op_us'], 1) : INF;
 
         return [
             'name'   => $name,
@@ -315,8 +315,11 @@ class BenchmarkRunner extends TestCase
         $timeMs = ($end - $start) / 1_000_000;
         $perOp  = $timeMs         / $iterations;
 
+        // Keep the raw per-op time (µs). Sub-µs operations (e.g. cached
+        // serialization) must not be rounded here or the speedup ratio would
+        // divide by zero. Rounding happens only at display time.
         return [
-            'per_op_us' => round($perOp * 1000, 1),
+            'per_op_us' => $perOp * 1000,
         ];
     }
 
@@ -326,12 +329,24 @@ class BenchmarkRunner extends TestCase
         echo "|-----------|-----|---------------------|--------|\n";
 
         foreach ($results as $row) {
-            $dt0Str    = $row['dt0']    >= 1000 ? number_format($row['dt0']) . ' µs' : $row['dt0'] . ' µs';
-            $spatieStr = $row['spatie'] >= 1000 ? number_format($row['spatie']) . ' µs' : $row['spatie'] . ' µs';
-            $speedup   = "**~{$row['ratio']}x faster**";
+            $dt0Str    = $this->formatUs($row['dt0']);
+            $spatieStr = $this->formatUs($row['spatie']);
+            $speedup   = is_finite($row['ratio']) ? "**~{$row['ratio']}x faster**" : '**faster**';
 
             echo "| {$row['name']} | {$dt0Str} | {$spatieStr} | {$speedup} |\n";
         }
+    }
+
+    private function formatUs(float $us): string
+    {
+        if ($us >= 1000) {
+            return number_format($us) . ' µs';
+        }
+
+        // More decimals as the value gets smaller, so sub-µs timings stay visible.
+        $decimals = $us >= 100 ? 1 : ($us >= 1 ? 2 : 3);
+
+        return round($us, $decimals) . ' µs';
     }
 
     private function formatBytes(int $bytes): string

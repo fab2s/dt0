@@ -55,7 +55,7 @@ trait DateTimeTrait
         if (! empty($date['date'])) {
             $result = new $this->dateTimeClass((string) $date['date']); // @phpstan-ignore cast.string
             if (! empty($date['timezone'])) {
-                $result->setTimeZone($date['timezone'] instanceof DateTimeZone ? $date['timezone'] : new DateTimeZone((string) $date['timezone'])); // @phpstan-ignore cast.string
+                $result = $result->setTimeZone($date['timezone'] instanceof DateTimeZone ? $date['timezone'] : new DateTimeZone((string) $date['timezone'])); // @phpstan-ignore cast.string
             }
         }
 

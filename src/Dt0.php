@@ -92,7 +92,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
         foreach ($properties->earlyInits() as $name => $property) {
             if ($property->needEarlyCast) {
                 if (static::initializeValue($properties, $property, $args, $value)) {
-                    $args[$name] = $property->cast($value, $args);
+                    $args[$name] = $property->cast($value, $args); // @phpstan-ignore argument.type
                 }
 
                 continue;
