@@ -6,8 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-08-01
+
 ### Fixed
 
+- `toGz()` no longer collides with the `toJson()` output cache. Calling `toJson()` then `toGz()` (or the reverse) previously returned plain JSON for both because they shared the same cache key. Gzipped output is now stored under a dedicated `Format::GZ` entry.
+- Default JSON flags on `toJson()`, `toGz()`, `fromJson()`, and `fromGz()` used bitwise AND (`&`) instead of OR (`|`), so `JSON_PRESERVE_ZERO_FRACTION` was never applied. Whole floats such as `1.0` now serialize as `1.0` instead of `1`.
+- README immutable-ops examples called `$dto->equals(...)`; the method is `equal()`.
 - Benchmark harness (`benchmark/compare-spatie.php`) no longer throws `DivisionByZeroError` on fast machines: cached serialization can dip below the previous 0.1 µs display precision, which rounded to `0` and broke the speedup ratio. Timings now feed the ratio at full precision, and sub-µs values render with more decimals. Published benchmark tables refreshed on PHP 8.5.
 
 ## [2.0.0] - 2026-07-15

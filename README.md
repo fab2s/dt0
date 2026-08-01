@@ -233,11 +233,11 @@ Declarative output control with `#[With]` is also supported. See [Output Documen
 ```php
 $copy = $dto->clone();
 $updated = $dto->update(name: 'Jane', role: 'admin');
-$dto->equals($updated);  // false
+$dto->equal($updated);  // false
 
 // Serialization round-trip
 $restored = unserialize(serialize($dto));
-$dto->equals($restored);  // true
+$dto->equal($restored);  // true
 ```
 
 ## Property Renaming

@@ -282,7 +282,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      *
      * @throws JsonException
      */
-    public function toJson(int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
+    public function toJson(int $flags = JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
     {
         return $this->dt0Output[Format::JSON->value] ??= Json::encode($this, $flags, $depth); // @phpstan-ignore return.type
     }
@@ -292,9 +292,9 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      *
      * @throws JsonException
      */
-    public function toGz(int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
+    public function toGz(int $flags = JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): string
     {
-        return $this->dt0Output[Format::JSON->value] ??= Json::gzEncode($this, $flags, $depth); // @phpstan-ignore return.type
+        return $this->dt0Output[Format::GZ->value] ??= Json::gzEncode($this, $flags, $depth); // @phpstan-ignore return.type
     }
 
     /**
@@ -334,7 +334,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      *
      * @throws JsonException|Dt0Exception|ReflectionException
      */
-    public static function fromJson(string $json, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
+    public static function fromJson(string $json, int $flags = JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
     {
         return static::make(...Json::decode($json, true, $flags, $depth));
     }
@@ -346,7 +346,7 @@ abstract class Dt0 implements ArrayAccess, IteratorAggregate, JsonSerializable, 
      * @throws JsonException
      * @throws ReflectionException
      */
-    public static function fromGz(string $gz, int $flags = JSON_THROW_ON_ERROR &JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
+    public static function fromGz(string $gz, int $flags = JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION, int $depth = 512): static
     {
         return static::make(...Json::gzDecode($gz, true, $flags, $depth));
     }
