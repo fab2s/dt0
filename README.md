@@ -233,11 +233,11 @@ Declarative output control with `#[With]` is also supported. See [Output Documen
 ```php
 $copy = $dto->clone();
 $updated = $dto->update(name: 'Jane', role: 'admin');
-$dto->equals($updated);  // false
+$dto->equal($updated);  // false
 
 // Serialization round-trip
 $restored = unserialize(serialize($dto));
-$dto->equals($restored);  // true
+$dto->equal($restored);  // true
 ```
 
 ## Property Renaming
@@ -313,20 +313,20 @@ Reflection and attribute metadata compiled **once per class, per process**. Subs
 #### Dt0 vs spatie/laravel-data (PHP 8.5, 10,000 iterations)
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
-|-----------|-----|---------------------|---------|
-| Simple DTO (8 props, 5 casts) | 2.6 µs | 17.1 µs | **~6.5x faster** |
-| Complex DTO (nested + arrays) | 11.6 µs | 67.7 µs | **~5.8x faster** |
-| Round-trip (json->dto->json) | 5.0 µs | 31.8 µs | **~6.4x faster** |
+|-----------|-----|---------------------|--------|
+| Simple DTO (8 props, 5 casts) | 13.04 µs | 84.37 µs | **~6.5x faster** |
+| Complex DTO (nested + arrays) | 56.89 µs | 272.4 µs | **~4.8x faster** |
+| Round-trip (json→dto→json) | 19.53 µs | 143.8 µs | **~7.4x faster** |
 
 **Repeated serialization (same instance):**
 
 | Operation | Dt0 | spatie/laravel-data | Speedup |
-|-----------|-----|---------------------|---------|
-| toArray() (simple) | 0.085 µs | 9.1 µs | **~107x faster** |
-| toArray() (nested) | 0.103 µs | 30.1 µs | **~292x faster** |
-| toJson() | 0.034 µs | 9.3 µs | **~277x faster** |
+|-----------|-----|---------------------|--------|
+| toArray() (simple) | 0.457 µs | 52.03 µs | **~113.8x faster** |
+| toArray() (nested) | 0.479 µs | 154.6 µs | **~322.7x faster** |
+| toJson() | 0.275 µs | 52.23 µs | **~190x faster** |
 
-Output caching delivers ~107-292x improvements when serializing the same instance multiple times (API + logging, event sourcing, queue + monitoring, caching layers). Absolute timings are hardware-dependent; the speedup ratios are what matter.
+Output caching delivers ~100-300x improvements when serializing the same instance multiple times (API + logging, event sourcing, queue + monitoring, caching layers). Absolute timings are hardware-dependent; the speedup ratios are what matter.
 
 ```shell
 php benchmark/compare-spatie.php

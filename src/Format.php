@@ -22,4 +22,5 @@ enum Format: string implements EnumerateInterface
     case JSON_SERIALISED = 'json_serialized';
     case ARRAY           = 'array';
     case STRING          = 'string';
+    case GZ              = 'gz';
 }

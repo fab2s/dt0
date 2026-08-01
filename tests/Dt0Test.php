@@ -25,6 +25,7 @@ use Tests\Artifacts\Enum\IntBackedEnum;
 use Tests\Artifacts\Enum\StringBackedEnum;
 use Tests\Artifacts\Enum\UnitEnum;
 use Tests\Artifacts\EnumDt0;
+use Tests\Artifacts\FloatDt0;
 use Tests\Artifacts\RenameDt0;
 use Tests\Artifacts\SimpleDefaultDt0;
 use TypeError;
@@ -183,6 +184,41 @@ class Dt0Test extends TestCase
         $this->assertNotEmpty($gz);
         // Verify it's valid base64
         $this->assertSame($gz, base64_encode(base64_decode($gz, true)));
+    }
+
+    /**
+     * toJson and toGz must not share the same output cache entry.
+     *
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    public function test_to_gz_does_not_collide_with_to_json_cache(): void
+    {
+        $dto  = DefaultDt0::make(stringNoCast: 'value1', stringCast: 'value2');
+        $json = $dto->toJson();
+        $gz   = $dto->toGz();
+
+        $this->assertNotSame($json, $gz);
+        $this->assertSame($json, $dto->toJson());
+        $this->assertSame($gz, $dto->toGz());
+        $this->assertSame($dto->toArray(), DefaultDt0::fromGz($gz)->toArray());
+        $this->assertSame($dto->toArray(), DefaultDt0::fromJson($json)->toArray());
+    }
+
+    /**
+     * Default toJson flags include JSON_PRESERVE_ZERO_FRACTION.
+     *
+     * @throws Dt0Exception
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    public function test_to_json_preserves_zero_fraction_by_default(): void
+    {
+        $dto = FloatDt0::make(prop: 1.0);
+
+        // Without JSON_PRESERVE_ZERO_FRACTION this would be {"prop":1}
+        $this->assertSame('{"prop":1.0}', $dto->toJson());
     }
 
     /**
