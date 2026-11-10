@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- The global `trans()`, `__()` and `trans_choice()` helpers no longer ignore the Laravel translator. Composer does not always load Laravel's `Foundation/helpers.php` before dt0's `src/helpers.php`. In apps where dt0's loaded first, its helpers replaced Laravel's and used a standalone translator that ignored the app locale, `App::setLocale()` and the app's `lang/` paths. They now use the container's `translator` whenever one is bound, looked up on each call, and fall back to the standalone translator only when none is. Their signatures now match Laravel's, with untyped parameters, so any call that works with Laravel's helpers also works with dt0's.
+
+### Added
+
+- `Validator::translator()` returns the translator the helpers use: the container's when one is bound, otherwise the cached standalone one. The standalone validator factory now shares this translator instead of building its own.
+
 ## [2.0.1] - 2026-08-01
 
 ### Fixed

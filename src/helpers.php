@@ -8,32 +8,34 @@
  */
 
 use fab2s\Dt0\Validator\Validator;
-use Illuminate\Translation\Translator;
+use Illuminate\Contracts\Translation\Translator;
 
 // @codeCoverageIgnoreStart
-// These functions are guarded by function_exists
-// and cannot be defined when Laravel's helpers are loaded in the same process.
-// They delegate to Validator::makeTranslator() which has full test coverage.
+// Composer does not guarantee that Laravel's Foundation/helpers.php loads before
+// this file: vendor packages are ordered by their require graph, so in some apps
+// these definitions win and Laravel's are skipped. They must therefore behave like
+// Laravel's: same signatures, and Validator::translator() returns the container's
+// translator whenever one is bound, falling back to dt0's standalone translator.
+// In this repository dt0 is the root package, whose files Composer loads last,
+// so Laravel's helpers always win in-process and these never get defined here:
+// tests/Validator/HelpersLoadOrderTest.php covers them in a subprocess.
 if (! function_exists('trans')) {
     /**
      * Translate the given message.
      *
-     * @param array<string, string> $replace
+     * @param string|null          $key
+     * @param array<string, mixed> $replace
+     * @param string|null          $locale
      *
-     * @return Translator|array<string, string>|string|null
+     * @return ($key is null ? Translator : array<array-key, mixed>|string)
      */
-    function trans(?string $key = null, array $replace = [], ?string $locale = null): Translator|array|string|null
+    function trans($key = null, $replace = [], $locale = null): Translator|array|string
     {
-        static $translator = null;
-        if (! $translator) {
-            $translator = Validator::makeTranslator();
-        }
-
         if ($key === null) {
-            return $translator;
+            return Validator::translator();
         }
 
-        return $translator->get($key, $replace, $locale);
+        return Validator::translator()->get($key, $replace, $locale); // @phpstan-ignore return.type
     }
 }
 
@@ -41,15 +43,14 @@ if (! function_exists('trans_choice')) {
     /**
      * Translates the given message based on a count.
      *
+     * @param string                                      $key
      * @param Countable|int|float|array<array-key, mixed> $number
-     * @param array<string, string>                       $replace
+     * @param array<string, mixed>                        $replace
+     * @param string|null                                 $locale
      */
-    function trans_choice(string $key, Countable|int|float|array $number, array $replace = [], ?string $locale = null): string
+    function trans_choice($key, $number, array $replace = [], $locale = null): string
     {
-        /** @var Translator $translator */
-        $translator = trans();
-
-        return $translator->choice($key, $number, $replace, $locale);
+        return Validator::translator()->choice($key, $number, $replace, $locale);
     }
 }
 
@@ -57,17 +58,19 @@ if (! function_exists('__')) {
     /**
      * Translate the given message.
      *
-     * @param array<string, string> $replace
+     * @param string|null          $key
+     * @param array<string, mixed> $replace
+     * @param string|null          $locale
      *
-     * @return array<string, string>|string|null
+     * @return array<array-key, mixed>|string|null
      */
-    function __(?string $key = null, array $replace = [], ?string $locale = null): array|string|null
+    function __($key = null, $replace = [], $locale = null): array|string|null
     {
         if ($key === null) {
             return $key;
         }
 
-        return trans($key, $replace, $locale); // @phpstan-ignore return.type
+        return trans($key, $replace, $locale);
     }
 }
 // @codeCoverageIgnoreEnd

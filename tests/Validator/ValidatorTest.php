@@ -13,7 +13,12 @@ namespace Tests\Validator;
 
 use fab2s\Dt0\Attribute\Rule;
 use fab2s\Dt0\Validator\Validator;
+use Illuminate\Container\Container;
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
+use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use ReflectionProperty;
 use Tests\TestCase;
 
 class ValidatorTest extends TestCase
@@ -124,6 +129,69 @@ class ValidatorTest extends TestCase
             unlink($enDir . '/validation.php');
             rmdir($enDir);
             rmdir($langDir);
+        }
+    }
+
+    public function test_translator_falls_back_to_standalone_when_nothing_is_bound(): void
+    {
+        Container::setInstance(null);
+
+        try {
+            $translator = Validator::translator();
+
+            $this->assertInstanceOf(Translator::class, $translator);
+            $this->assertSame('en', $translator->getLocale());
+            $this->assertSame($translator, Validator::translator());
+            $this->assertSame('The email field is required.', $translator->get('validation.required', ['attribute' => 'email']));
+        } finally {
+            Container::setInstance(null);
+        }
+    }
+
+    public function test_translator_uses_the_bound_translator_and_never_caches_it(): void
+    {
+        try {
+            $first     = new Translator(new ArrayLoader, 'fr');
+            $container = new Container;
+            $container->instance('translator', $first);
+            Container::setInstance($container);
+
+            $this->assertSame($first, Validator::translator());
+
+            // the app is rebuilt: the new translator is picked up
+            $second    = new Translator(new ArrayLoader, 'de');
+            $container = new Container;
+            $container->instance('translator', $second);
+            Container::setInstance($container);
+
+            $this->assertSame($second, Validator::translator());
+
+            // nothing bound anymore: back to standalone
+            Container::setInstance(null);
+
+            $this->assertNotSame($second, Validator::translator());
+            $this->assertSame('en', Validator::translator()->getLocale());
+        } finally {
+            Container::setInstance(null);
+        }
+    }
+
+    public function test_standalone_factory_shares_the_standalone_translator(): void
+    {
+        $factory = new ReflectionProperty(Validator::class, 'factory');
+        $factory->setValue(null, null);
+        Container::setInstance(null);
+
+        try {
+            new Validator;
+
+            $resolved = $factory->getValue();
+
+            $this->assertInstanceOf(Factory::class, $resolved);
+            $this->assertSame(Validator::translator(), $resolved->getTranslator());
+        } finally {
+            $factory->setValue(null, null);
+            Container::setInstance(null);
         }
     }
 

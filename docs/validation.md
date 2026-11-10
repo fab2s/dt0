@@ -292,7 +292,9 @@ The `addRule()` method is called during DTO compilation to register each propert
 
 ## Helper Functions
 
-When used outside of Laravel, Dt0 provides standalone `trans()`, `__()`, and `trans_choice()` helper functions. These are auto-loaded via Composer and guarded by `function_exists` checks, so they are silently skipped in Laravel applications where the framework provides its own.
+For use outside of Laravel, Dt0 provides `trans()`, `__()`, and `trans_choice()` helper functions. They are auto-loaded via Composer and guarded by `function_exists` checks.
+
+Composer does not guarantee that Laravel's own helpers load first, so in a Laravel application either set may end up defined. When dt0's are, they behave like Laravel's: they use the container's `translator`, with its locale, `App::setLocale()` and your `lang/` directory. They fall back to dt0's standalone translator only when no translator is bound.
 
 ```php
 // Get the Translator instance
@@ -310,12 +312,13 @@ echo trans_choice('{1} :count item|[2,*] :count items', 5);
 echo __('validation.email', ['attribute' => 'address']);
 ```
 
-These helpers use `Validator::makeTranslator()` under the hood, which is also available directly if you need a `Translator` instance without the global functions:
+These helpers use `Validator::translator()` under the hood. It returns the container's translator when one is bound, and otherwise a standalone translator that is built once and shared with the standalone validator. `Validator::makeTranslator()` builds a fresh standalone `Translator` each time it is called:
 
 ```php
 use fab2s\Dt0\Validator\Validator;
 
-$translator = Validator::makeTranslator();
+$translator = Validator::translator();     // what trans() uses
+$translator = Validator::makeTranslator(); // a new standalone instance
 $translator->getLocale();   // 'en' (or configured locale)
 $translator->get('validation.required', ['attribute' => 'name']);
 ```

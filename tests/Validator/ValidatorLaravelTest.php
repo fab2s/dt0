@@ -52,6 +52,15 @@ class ValidatorLaravelTest extends TestCase
         $this->assertSame(['email' => 'test@example.com'], $result);
     }
 
+    public function test_translator_is_the_app_translator(): void
+    {
+        $this->app->setLocale('fr');
+        $this->app['translator']->addLines(['dt0.hello' => 'Bonjour :name'], 'fr');
+
+        $this->assertSame($this->app['translator'], Validator::translator());
+        $this->assertSame('Bonjour Ada', Validator::translator()->get('dt0.hello', ['name' => 'Ada']));
+    }
+
     protected function resetFactory(): void
     {
         $ref = new ReflectionProperty(Validator::class, 'factory');

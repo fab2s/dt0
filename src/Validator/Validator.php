@@ -13,6 +13,8 @@ namespace fab2s\Dt0\Validator;
 
 use Composer\Autoload\ClassLoader;
 use fab2s\Dt0\Attribute\Rule;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Translation\FileLoader;
 use Illuminate\Translation\Translator;
@@ -23,7 +25,8 @@ use Throwable;
 
 class Validator extends ValidatorAbstract
 {
-    protected static ?Factory $factory = null;
+    protected static ?Factory $factory       = null;
+    protected static ?Translator $translator = null;
     protected Factory $validator;
 
     /** @var array<string, mixed> */
@@ -46,7 +49,32 @@ class Validator extends ValidatorAbstract
             }
         }
 
-        return new Factory(static::makeTranslator());
+        return new Factory(static::translator());
+    }
+
+    /**
+     * The translator behind dt0's trans(), __() and trans_choice() helpers.
+     *
+     * When a container has a `translator` bound (inside Laravel), this returns
+     * the app's translator, so it follows the app locale and lang paths. It is
+     * looked up on every call and never cached, because an app can be rebuilt
+     * (tests). This costs the same as Laravel's own trans(). Otherwise, the
+     * standalone translator is built once by makeTranslator() and reused.
+     */
+    public static function translator(): TranslatorContract
+    {
+        // not autoloading: if Container was never loaded, no container instance can exist
+        if (class_exists(Container::class, false)) {
+            $container = Container::getInstance();
+            if ($container->bound('translator')) {
+                /** @var TranslatorContract $translator */
+                $translator = $container->make('translator');
+
+                return $translator;
+            }
+        }
+
+        return static::$translator ??= static::makeTranslator();
     }
 
     public static function makeTranslator(): Translator
