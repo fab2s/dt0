@@ -51,8 +51,10 @@ $result['app1']['trans']          = trans('dt0.hello', ['name' => 'Ada']);
 $result['app1']['trans_choice']   = trans_choice('dt0.apples', 3);
 $result['app1']['explicitLocale'] = trans('dt0.hello', ['name' => 'Ada'], 'en');
 
-// the app goes away (as between two tests): back to standalone
+// the app goes away, as between two tests: flushed (what Testbench does), then unset
 $app->flush();
+$result['afterFlush'] = ['isStandalone' => trans() === $standalone];
+
 Container::setInstance(null);
 $result['afterReset'] = ['isStandalone' => trans() === $standalone];
 

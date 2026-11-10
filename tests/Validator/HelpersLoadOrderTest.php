@@ -52,6 +52,7 @@ class HelpersLoadOrderTest extends TestCase
         $this->assertSame('Hello Ada', $result['app1']['explicitLocale']);
 
         // app torn down: standalone fallback again
+        $this->assertTrue($result['afterFlush']['isStandalone']);
         $this->assertTrue($result['afterReset']['isStandalone']);
 
         // app rebuilt: the new app's translator, nothing cached from the first one
@@ -70,10 +71,16 @@ class HelpersLoadOrderTest extends TestCase
         $stderrFile = tmpfile();
         $this->assertIsResource($stderrFile);
 
+        // XDEBUG_MODE, when set, would override any -d xdebug.mode
+        $env                = getenv();
+        $env['XDEBUG_MODE'] = 'off';
+
         $process = proc_open(
-            [PHP_BINARY, '-d', 'display_errors=stderr', '-d', 'xdebug.mode=off', $fixture],
+            [PHP_BINARY, '-d', 'display_errors=stderr', $fixture],
             [1 => ['pipe', 'w'], 2 => $stderrFile],
             $pipes,
+            null,
+            $env,
         );
 
         $this->assertIsResource($process);

@@ -27,6 +27,14 @@ class Validator extends ValidatorAbstract
 {
     protected static ?Factory $factory       = null;
     protected static ?Translator $translator = null;
+
+    /**
+     * Not read by validate(), which uses the shared static::$factory so that
+     * flush() reaches every validator. This per-instance copy is only kept for
+     * subclasses that read it, and it goes stale once flush() is called. To use
+     * a custom factory, override validate(), or override resolveFactory() and
+     * redeclare static::$factory so as not to share the default one's cache.
+     */
     protected Factory $validator;
 
     /** @var array<string, mixed> */
@@ -35,6 +43,19 @@ class Validator extends ValidatorAbstract
     public function __construct()
     {
         $this->validator = static::$factory ??= static::resolveFactory();
+    }
+
+    /**
+     * Forgets the resolved validation factory and the standalone translator, so
+     * that every Validator, including those already built, resolves them again on
+     * next use. Inside Laravel, the cached factory belongs to the app that resolved
+     * it: call this when the app is rebuilt, as between two tests. laravel-dt0 does
+     * it when its service provider registers.
+     */
+    public static function flush(): void
+    {
+        static::$factory    = null;
+        static::$translator = null;
     }
 
     protected static function resolveFactory(): Factory
@@ -49,7 +70,8 @@ class Validator extends ValidatorAbstract
             }
         }
 
-        return new Factory(static::translator());
+        // its own translator, so that a subclass overriding makeTranslator() is honoured
+        return new Factory(static::makeTranslator());
     }
 
     /**
@@ -58,8 +80,8 @@ class Validator extends ValidatorAbstract
      * When a container has a `translator` bound (inside Laravel), this returns
      * the app's translator, so it follows the app locale and lang paths. It is
      * looked up on every call and never cached, because an app can be rebuilt
-     * (tests). This costs the same as Laravel's own trans(). Otherwise, the
-     * standalone translator is built once by makeTranslator() and reused.
+     * (tests). This costs about the same as Laravel's own trans(). Otherwise,
+     * the standalone translator is built once by makeTranslator() and reused.
      */
     public static function translator(): TranslatorContract
     {
@@ -67,10 +89,11 @@ class Validator extends ValidatorAbstract
         if (class_exists(Container::class, false)) {
             $container = Container::getInstance();
             if ($container->bound('translator')) {
-                /** @var TranslatorContract $translator */
                 $translator = $container->make('translator');
-
-                return $translator;
+                // outside Laravel, `translator` may be bound to something else
+                if ($translator instanceof TranslatorContract) {
+                    return $translator;
+                }
             }
         }
 
@@ -108,7 +131,9 @@ class Validator extends ValidatorAbstract
      */
     public function validate(array $data): array
     {
-        return $this->validator->make($data, $this->rules)->validate();
+        // read the shared factory, not $this->validator, so that flush() reaches the
+        // validators that live in each Dt0 class's compiled metadata
+        return (static::$factory ??= static::resolveFactory())->make($data, $this->rules)->validate();
     }
 
     public function addRule(string $name, Rule $rule): static
