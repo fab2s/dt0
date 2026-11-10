@@ -158,7 +158,7 @@ See [Casters Documentation](./docs/casters.md) for detailed usage, bidirectional
 
 ## Validation
 
-Dt0 provides [standalone validation](./docs/validation.md) powered by Laravel's validation engine — no Laravel framework required. In Laravel applications, it auto-detects the framework and uses Laravel's validator transparently.
+Dt0 provides [standalone validation](./docs/validation.md) powered by Laravel's validation engine — no Laravel framework required. In Laravel applications, it auto-detects the framework and uses Laravel's validator transparently. With [laravel-dt0](https://github.com/fab2s/laravel-dt0), this also holds under [Laravel Octane](https://laravel.com/docs/octane) and in test suites that rebuild the app before each test.
 
 Requires `illuminate/validation` and `illuminate/translation` (v11+):
 

@@ -205,7 +205,7 @@ The detection is transparent and requires no configuration: the `Validator` chec
 
 The resolved validation factory is cached statically, so the detection and setup only happen once, until `Validator::flush()` is called, regardless of how many DTOs are validated.
 
-Inside Laravel, that cached factory belongs to the app that resolved it. When the app is rebuilt, as it is before each test, call `Validator::flush()` (since 2.1.0) so that every validator, including those already compiled into your DTO classes, resolves the new app's factory on next use. [laravel-dt0](https://github.com/fab2s/laravel-dt0) does this for you when its service provider registers. Without it, a later test can get the first app's locale, translations and database connection, for example in `unique` and `exists` rules.
+Inside Laravel, that cached factory belongs to the app that resolved it. When the app is rebuilt, as it is before each test, call `Validator::flush()` (since 2.1.0) so that every validator, including those already compiled into your DTO classes, resolves the new app's factory on next use. [laravel-dt0](https://github.com/fab2s/laravel-dt0) does this for you when its service provider registers, and at the start of each Octane request, task and tick. Without it, a later test can get the first app's locale, translations and database connection, for example in `unique` and `exists` rules.
 
 ```php
 use fab2s\Dt0\Validator\Validator;
