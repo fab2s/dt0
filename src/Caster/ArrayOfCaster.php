@@ -37,12 +37,13 @@ class ArrayOfCaster extends CasterAbstract
                 is_subclass_of($type, UnitEnum::class) => ArrayType::ENUM,
                 default                                => ScalarType::tryFromAny($type),
             };
+
+            // only a string can fail to resolve
+            if (! $logicalType) {
+                throw new CasterException('[' . Dt0::classBasename(static::class) . '] ' . $type . ' is not a supported type');
+            }
         } else {
             $logicalType = $type;
-        }
-
-        if (! $logicalType) {
-            throw new CasterException('[' . Dt0::classBasename(static::class) . '] ' . (is_string($type) ? $type : $type->value) . ' is not a supported type');
         }
 
         $this->logicalType  = $logicalType;

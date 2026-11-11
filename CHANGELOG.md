@@ -6,6 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-11
+
+### Fixed
+
+- The global `trans()`, `__()` and `trans_choice()` helpers no longer ignore the Laravel translator. Composer does not always load Laravel's `Foundation/helpers.php` before dt0's `src/helpers.php`. In apps where dt0's loaded first, its helpers replaced Laravel's and used a standalone translator that ignored the app locale, `App::setLocale()` and the app's `lang/` paths. They now use the container's `translator` whenever one is bound, looked up on each call, and fall back to the standalone translator only when none is. Their signatures now match Laravel's, with untyped parameters, so any call that works with Laravel's helpers also works with dt0's.
+- Inside Laravel, the built-in `Validator` kept using the validation factory of the first app it saw, even after the app was rebuilt (as between two tests), so it used that app's locale, translations and database connection. `validate()` now uses the shared factory, which the new `Validator::flush()` resets for every validator, including those already compiled into DTO classes. [laravel-dt0](https://github.com/fab2s/laravel-dt0) 2.0.1 calls `flush()` when its service provider registers, and at the start of each Octane request, task and tick.
+
+### Added
+
+- `Validator::translator()` returns the translator the helpers use: the container's when one is bound, otherwise the cached standalone one.
+- `Validator::flush()` forgets the resolved validation factory and the standalone translator, so the next use resolves them again. Call it when the app is rebuilt, for example in a test's `setUp()`, unless laravel-dt0's service provider does it for you.
+
+### Changed
+
+#### Subclasses of the built-in `Validator`
+
+This only concerns code that extends `fab2s\Dt0\Validator\Validator`. Custom validators that implement `ValidatorInterface`, the documented way, or extend `ValidatorAbstract`, are not affected.
+
+- **`validate()` no longer reads the protected `$validator` property, and this fails silently.** A subclass that assigns its own factory to `$this->validator` still loads and still validates, but with the default factory: its own rules, extensions and presence verifier are ignored. `$validator` is still set, for subclasses that read it, but it goes stale once `flush()` is called. To use your own factory, override `validate()`. Overriding `resolveFactory()` also works, but only if the subclass redeclares `protected static ?Factory $factory = null;`, otherwise it shares the default validator's cached factory. Such a subclass is then reset with `YourValidator::flush()`, not `Validator::flush()`.
+- **New static members.** `Validator` now declares `public static function translator()`, `public static function flush()` and `protected static $translator`. A subclass that already declares a non-static method or property under one of these names no longer loads: PHP fails with "Cannot make static method … non static" or "Cannot redeclare static … as non static". Rename the subclass member.
+
+#### Helpers
+
+- `trans()` now declares Laravel's `Illuminate\Contracts\Translation\Translator` interface as its return type, like Laravel's own helper, instead of the concrete `Translator` class. At runtime it still returns the concrete class, unless the app binds another implementation.
+
+## [2.0.2] - 2026-08-06
+
+### Changed
+
+- `fab2s/enumerate` `^0.1.0` is now allowed, in addition to `^0.0.1`.
+
 ## [2.0.1] - 2026-08-01
 
 ### Fixed

@@ -203,7 +203,21 @@ When used inside a Laravel application, the built-in `Validator` automatically d
 
 The detection is transparent and requires no configuration: the `Validator` checks for Laravel's `app()` helper and resolves the `validator` service from the container. If that fails for any reason (not in Laravel, container not booted, etc.), it falls back to the standalone implementation.
 
-The resolved validation factory is cached statically, so the detection and setup only happen once per process regardless of how many DTOs are validated.
+The resolved validation factory is cached statically, so the detection and setup only happen once, until `Validator::flush()` is called, regardless of how many DTOs are validated.
+
+Inside Laravel, that cached factory belongs to the app that resolved it. When the app is rebuilt, as it is before each test, call `Validator::flush()` (since 2.1.0) so that every validator, including those already compiled into your DTO classes, resolves the new app's factory on next use. [laravel-dt0](https://github.com/fab2s/laravel-dt0) does this for you when its service provider registers, and at the start of each Octane request, task and tick. Without it, a later test can get the first app's locale, translations and database connection, for example in `unique` and `exists` rules.
+
+```php
+use fab2s\Dt0\Validator\Validator;
+
+protected function setUp(): void
+{
+    parent::setUp();
+    Validator::flush();
+}
+```
+
+Standalone, `flush()` also drops the standalone translator, so the next use reloads your `lang/` directory.
 
 > If you are using Dt0 in a Laravel project, consider using [laravel-dt0](https://github.com/fab2s/laravel-dt0) which provides deeper integration including model casting.
 
@@ -290,9 +304,19 @@ The `validate()` method receives the input data as an associative array and shou
 
 The `addRule()` method is called during DTO compilation to register each property's rule with the validator. The `Rule::$rule` property contains whatever value was passed to the `#[Rule]` attribute — its type and format are up to your validator.
 
+### Extending the Built-in Validator
+
+Implementing `ValidatorInterface`, as above, is the recommended way to customize validation. If you extend the built-in `fab2s\Dt0\Validator\Validator` instead, mind the following:
+
+- **Don't assign your own factory to `$this->validator`.** Since 2.1.0, `validate()` no longer reads that property, so your factory would be silently ignored and the default one used. Override `validate()` instead. You can also override `resolveFactory()`, but then redeclare `protected static ?Factory $factory = null;` in your subclass, otherwise it shares the default validator's cached factory. Reset it with `YourValidator::flush()`, since `Validator::flush()` only resets the default one.
+- **Don't reuse the names of its static members** for non-static ones: `translator()`, `flush()` and `$translator`. PHP refuses to load such a subclass.
+- **Overriding `makeTranslator()`** customizes the translator of your subclass's standalone factory, outside Laravel. It needs the same `$factory` redeclaration, otherwise your subclass may get the default validator's factory and translator.
+
 ## Helper Functions
 
-When used outside of Laravel, Dt0 provides standalone `trans()`, `__()`, and `trans_choice()` helper functions. These are auto-loaded via Composer and guarded by `function_exists` checks, so they are silently skipped in Laravel applications where the framework provides its own.
+For use outside of Laravel, Dt0 provides `trans()`, `__()`, and `trans_choice()` helper functions. They are auto-loaded via Composer and guarded by `function_exists` checks.
+
+Composer does not guarantee that Laravel's own helpers load first, so in a Laravel application either set may end up defined. When dt0's are, they behave like Laravel's: they use the container's `translator`, with its locale, `App::setLocale()` and your `lang/` directory. They fall back to dt0's standalone translator only when no translator is bound.
 
 ```php
 // Get the Translator instance
@@ -310,12 +334,13 @@ echo trans_choice('{1} :count item|[2,*] :count items', 5);
 echo __('validation.email', ['attribute' => 'address']);
 ```
 
-These helpers use `Validator::makeTranslator()` under the hood, which is also available directly if you need a `Translator` instance without the global functions:
+These helpers use `Validator::translator()` under the hood. It returns the container's translator when one is bound, and otherwise a standalone translator that is built once and reused. `Validator::makeTranslator()` builds a fresh standalone `Translator` each time it is called:
 
 ```php
 use fab2s\Dt0\Validator\Validator;
 
-$translator = Validator::makeTranslator();
+$translator = Validator::translator();     // what trans() uses
+$translator = Validator::makeTranslator(); // a new standalone instance
 $translator->getLocale();   // 'en' (or configured locale)
 $translator->get('validation.required', ['attribute' => 'name']);
 ```
